@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
-//
+//  遇到问题联系中文翻译作者：pxx917144686
 //  FLEXObjectExplorerFactory.m
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 5/15/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 5/15/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
+//
 
 #import "FLEXObjectExplorerFactory.h"
 #import "FLEXGlobalsViewController.h"
@@ -22,15 +22,6 @@
 #import "FLEXNSDataShortcuts.h"
 #import "FLEXBlockShortcuts.h"
 #import "FLEXUtility.h"
-#import "FLEXAddressExplorerViewController.h"
-#import "FLEXObjcRuntimeViewController.h"
-#import "FLEXKeychainViewController.h"
-#import "FLEXCookiesViewController.h"
-#import "FLEXFileBrowserController.h"
-#import "FLEXSystemLogViewController.h"
-#import "FLEXLiveObjectsController.h"
-#import "FLEXAPNSViewController.h"
-#import "FLEXNetworkMITMViewController.h"
 
 @implementation FLEXObjectExplorerFactory
 static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = nil;
@@ -40,7 +31,7 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
         // 这里不要使用字符串键
         // 我们需要使用类作为键，因为我们无法
         // 区分类的名称和元类的名称。
-        // 这些映射是针对每个类对象的，而不是针对每个类名的。
+        // 这些映射是针对每个类对象的，而不是每个类名的。
         //
         // 例如，如果我们使用类名，这将导致
         // 对象浏览器尝试为 UIColor 类对象渲染颜色预览，
@@ -74,16 +65,16 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
 }
 
 + (FLEXObjectExplorerViewController *)explorerViewControllerForObject:(id)object {
-    // 不能浏览 nil
+    // 不能探索 nil 对象
     if (!object) {
         return nil;
     }
 
-    // 如果我们得到一个对象，这将查找它的类层次结构
-    // 直到找到一个注册。这对于 KVC 类是有效的，
+    // 如果给定一个对象，这将查找其类层次结构
+    // 直到找到一个注册。这对于 KVC 类有效，
     // 因为它们是原始类的子类，而不是兄弟类。
-    // 如果我们得到一个对象，object_getClass 将返回一个元类，
-    // 并且会发生同样的事情。FLEXClassShortcuts 是 NSObject 的默认
+    // 如果给定一个对象，object_getClass 将返回一个元类，
+    // 同样的事情也会发生。FLEXClassShortcuts 是 NSObject 的默认
     // 快捷方式部分。
     //
     // TODO: 将其重命名为 FLEXNSObjectShortcuts 之类的名称？
@@ -101,7 +92,7 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
         BOOL isFLEXShortcutSection = [customSection respondsToSelector:@selector(isNewSection)];
         
         // 如果该部分“替换”了默认的快捷方式部分，
-        // 则仅返回该部分。否则，返回此部分
+        // 则仅返回该部分。否则，同时返回此部分
         // 和默认的快捷方式部分。
         if (isFLEXShortcutSection && ![customSection isNewSection]) {
             sections = @[customSection];
@@ -123,86 +114,55 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
 
 #pragma mark - FLEXGlobalsEntry
 
-+ (NSString *)globalsEntryTitle:(FLEXGlobalsRow)row {
++ (NSString *)globalsEntryTitle:(FLEXGlobalsRow)row  {
     switch (row) {
-        case FLEXGlobalsRowApplication:
-            return @"应用程序";
         case FLEXGlobalsRowAppDelegate:
-            return @"应用代理";
+            return @"🎟  应用程序委托";
         case FLEXGlobalsRowKeyWindow:
-            return @"主窗口";
+            return @"🔑  关键窗口";
         case FLEXGlobalsRowRootViewController:
-            return @"根视图控制器";
+            return @"🌴  根视图控制器";
         case FLEXGlobalsRowProcessInfo:
-            return @"进程信息";
+            return @"🚦  进程信息";
         case FLEXGlobalsRowUserDefaults:
-            return @"用户偏好设置";
+            return @"💾  偏好配置";
         case FLEXGlobalsRowMainBundle:
-            return @"主资源包";
+            return @"📦  查看MainBundle";
+        case FLEXGlobalsRowApplication:
+            return @"🚀  用户界面应用程序.共享应用程序";
         case FLEXGlobalsRowMainScreen:
-            return @"主屏幕";
+            return @"💻  用户界面屏幕.主屏幕";
         case FLEXGlobalsRowCurrentDevice:
-            return @"当前设备";
+            return @"📱  用户界面设备.当前设备";
         case FLEXGlobalsRowPasteboard:
-            return @"剪贴板";
+            return @"📋  UI粘贴板.通用粘贴板";
         case FLEXGlobalsRowURLSession:
-            return @"URL会话";
+            return @"📡  NSURL会议.sharedSession";
         case FLEXGlobalsRowURLCache:
-            return @"URL缓存";
+            return @"⏳  NSURL缓存.共享URL缓存";
         case FLEXGlobalsRowNotificationCenter:
-            return @"通知中心";
+            return @"🔔  NS通知中心.默认中心";
         case FLEXGlobalsRowMenuController:
-            return @"菜单控制器";
+            return @"📎  UI菜单控制器.共享菜单控制器";
         case FLEXGlobalsRowFileManager:
-            return @"文件管理器";
+            return @"🗄  NS文件管理器.默认管理器";
         case FLEXGlobalsRowTimeZone:
-            return @"时区";
+            return @"🌎  NS时区.系统时区";
         case FLEXGlobalsRowLocale:
-            return @"区域设置";
+            return @"🗣  NS发生地点.当前本地";
         case FLEXGlobalsRowCalendar:
-            return @"日历";
+            return @"📅  NS日历.当前日历";
         case FLEXGlobalsRowMainRunLoop:
-            return @"主运行循环";
+            return @"🏃🏻‍♂️  NS运行循环.主运行循环";
         case FLEXGlobalsRowMainThread:
-            return @"主线程";
+            return @"🧵  NS纱线.主线程";
         case FLEXGlobalsRowOperationQueue:
-            return @"操作队列";
-
-        // 系统服务
-        case FLEXGlobalsRowCookies:
-            return @"HTTP Cookie 管理";
-        case FLEXGlobalsRowCaches:
-            return @"缓存";
-        case FLEXGlobalsRowDictionaryPreferences:
-            return @"字典偏好设置"; 
-        case FLEXGlobalsRowWebKitPreferences:
-            return @"WebKit偏好设置";
-        case FLEXGlobalsRowNetworkHistory:
-            return @"网络历史";
-        case FLEXGlobalsRowSystemLog:
-            return @"系统日志";
-        case FLEXGlobalsRowLiveObjects:
-            return @"实时对象";
-        case FLEXGlobalsRowAddressInspector:
-            return @"地址检查器";
-        case FLEXGlobalsRowBrowseRuntime:
-            return @"浏览运行时";
-        case FLEXGlobalsRowAppKeychainItems:
-            return @"钥匙串项目";
-        case FLEXGlobalsRowBrowseBundle:
-            return @"浏览资源包";
-        case FLEXGlobalsRowBrowseContainer:
-            return @"浏览容器";
-        case FLEXGlobalsRowPushNotifications:
-            return @"推送通知";
-        case FLEXGlobalsRowCount:
-            return nil;
+            return @"📚  NS队列操作.主队列";
+        default: return nil;
     }
-    
-    return nil;
 }
 
-+ (UIViewController *)globalsEntryViewController:(FLEXGlobalsRow)row {
++ (UIViewController *)globalsEntryViewController:(FLEXGlobalsRow)row  {
     switch (row) {
         case FLEXGlobalsRowAppDelegate: {
             id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
@@ -259,31 +219,15 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
         }
         
         case FLEXGlobalsRowNetworkHistory:
-            return [[FLEXNetworkMITMViewController alloc] init];
         case FLEXGlobalsRowSystemLog:
-            return [[FLEXSystemLogViewController alloc] init];
         case FLEXGlobalsRowLiveObjects:
-            return [[FLEXLiveObjectsController alloc] init];  // 修改此行，使用 Controller
         case FLEXGlobalsRowAddressInspector:
-            return [[FLEXAddressExplorerViewController alloc] init];
-        case FLEXGlobalsRowBrowseRuntime:
-            return [[FLEXObjcRuntimeViewController alloc] init];
-        case FLEXGlobalsRowAppKeychainItems:
-            return [[FLEXKeychainViewController alloc] init];
         case FLEXGlobalsRowCookies:
-            return [[FLEXCookiesViewController alloc] init];
-        case FLEXGlobalsRowBrowseBundle:
-            return [[FLEXFileBrowserController alloc] initWithPath:NSBundle.mainBundle.bundlePath];
-        case FLEXGlobalsRowBrowseContainer:
-            return [[FLEXFileBrowserController alloc] initWithPath:NSHomeDirectory()];
-        case FLEXGlobalsRowCaches:
-            return [self explorerViewControllerForObject:NSURLCache.sharedURLCache];
-        case FLEXGlobalsRowDictionaryPreferences:
-            return [self explorerViewControllerForObject:NSUserDefaults.standardUserDefaults];
-        case FLEXGlobalsRowWebKitPreferences:
-            return [self explorerViewControllerForObject:nil]; // 或返回适当的 WebKit 设置对象
+        case FLEXGlobalsRowBrowseRuntime:
+        case FLEXGlobalsRowAppKeychainItems:
         case FLEXGlobalsRowPushNotifications:
-            return [[FLEXAPNSViewController alloc] init];
+        case FLEXGlobalsRowBrowseBundle:
+        case FLEXGlobalsRowBrowseContainer:
         case FLEXGlobalsRowCount:
             return nil;
     }
@@ -294,7 +238,7 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
 + (FLEXGlobalsEntryRowAction)globalsEntryRowAction:(FLEXGlobalsRow)row {
     switch (row) {
         case FLEXGlobalsRowRootViewController: {
-            // 检查 app delegate 是否响应 -window。如果不响应，则显示一个警告
+            // 检查应用程序委托是否响应 -window。如果不响应，则显示一个警报
             return ^(UITableViewController *host) {
                 id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
                 if ([delegate respondsToSelector:@selector(window)]) {
@@ -303,7 +247,7 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
                     ];
                     [host.navigationController pushViewController:explorer animated:YES];
                 } else {
-                    NSString *msg = @"App Delegate 不响应 -window";
+                    NSString *msg = @"The app delegate doesn't respond to -window";
                     [FLEXAlert showAlert:@":(" message:msg from:host];
                 }
             };
