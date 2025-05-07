@@ -161,7 +161,6 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
         cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ %@", self.transaction.request.HTTPMethod ?: @"GET", self.transaction.request.URL.absoluteString];
     } else if ([rowModel.title isEqualToString:@"响应大小"]) {
         cell.textLabel.text = @"响应";
-        NSString *statusCodeString = @"";
         if ([self.transaction.response isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)self.transaction.response;
             cell.detailTextLabel.text = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
