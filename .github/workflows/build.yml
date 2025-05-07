@@ -25,7 +25,7 @@ jobs:
           key: ${{ runner.os }}-${{ env.upstream_heads }}
 
       - name: Prepare Theos
-        uses: huami1314/theos-action@main
+        uses: Randomblock1/theos-action@main
 
       - name: Setup GNU Make
         run: |
