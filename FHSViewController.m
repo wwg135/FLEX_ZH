@@ -316,4 +316,8 @@ BOOL const kFHSViewControllerExcludeFLEXWindows = YES; // 是否排除 FLEX 窗�
     }
 }
 
+- (void)didLongPressView:(FHSViewSnapshot *)snapshot {
+    // 这里留空，可以添加适合触发逻辑
+}
+
 @end
