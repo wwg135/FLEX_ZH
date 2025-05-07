@@ -90,7 +90,7 @@
             [self showRuntimeBrowser];
         });
         make.button(@"取消").cancelStyle();
-    } showFrom:self.explorerViewController];
+    } showFrom:(UIViewController *)self.explorerViewController];
 }
 
 - (void)showObjectExplorer {
