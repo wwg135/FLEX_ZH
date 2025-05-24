@@ -1,11 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXProtocol.m
 //  FLEX
 //
-//  源自 MirrorKit。
-//  由 Tanner 创建于 6/30/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  派生自 MirrorKit.
+//  Created by Tanner on 6/30/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXProtocol.h"
@@ -16,7 +15,7 @@
 
 @implementation FLEXProtocol
 
-#pragma mark 初始化方法
+#pragma mark 初始化器
 
 + (NSArray *)allProtocols {
     unsigned int prcount;
@@ -49,42 +48,19 @@
 #pragma mark 其他
 
 - (NSString *)description {
-    if (@available(iOS 10.0, *)) {
-        NSUInteger totalProperties = self.requiredProperties.count + self.optionalProperties.count;
-        return [NSString stringWithFormat:@"<%@ %@: %lu properties, %lu required methods, %lu optional methods>",
-            NSStringFromClass(self.class),
-            self.name,
-            (unsigned long)totalProperties,
-            (unsigned long)self.requiredMethods.count,
-            (unsigned long)self.optionalMethods.count
-        ];
-    }
-    
-    // iOS 10 以下版本返回简单描述
-    return [NSString stringWithFormat:@"<%@ %@>",
-        NSStringFromClass(self.class),
-        self.name
-    ];
+    return self.name;
 }
 
 - (NSString *)debugDescription {
     if (@available(iOS 10.0, *)) {
-        return [NSString stringWithFormat:@"<%@ name=%@, %lu required properties, %lu optional properties, %lu required methods, %lu optional methods, %lu protocols>",
-            NSStringFromClass(self.class), 
-            self.name,
-            (unsigned long)self.requiredProperties.count,
-            (unsigned long)self.optionalProperties.count,
-            (unsigned long)self.requiredMethods.count, 
-            (unsigned long)self.optionalMethods.count,
-            (unsigned long)self.protocols.count
-        ];
+        return [NSString stringWithFormat:@"<%@ name=%@, %lu 必需属性, %lu 可选属性 %lu 必需方法, %lu 可选方法, %lu 协议>",
+            NSStringFromClass(self.class), self.name, (unsigned long)self.requiredProperties.count, (unsigned long)self.optionalProperties.count,
+            (unsigned long)self.requiredMethods.count, (unsigned long)self.optionalMethods.count, (unsigned long)self.protocols.count];
+    } else {
+        return [NSString stringWithFormat:@"<%@ name=%@, %lu 属性, %lu 必需方法, %lu 可选方法, %lu 协议>",
+            NSStringFromClass(self.class), self.name, (unsigned long)self.properties.count,
+            (unsigned long)self.requiredMethods.count, (unsigned long)self.optionalMethods.count, (unsigned long)self.protocols.count];
     }
-    
-    // iOS 10 以下版本返回简单描述
-    return [NSString stringWithFormat:@"<%@ name=%@>",
-        NSStringFromClass(self.class),
-        self.name
-    ];
 }
 
 - (void)examine {
@@ -96,7 +72,7 @@
         _imagePath = exeInfo.dli_fname ? @(exeInfo.dli_fname) : nil;
     }
     
-    // 遵循的协议和方法 //
+    // 遵循协议和方法 //
     
     unsigned int pccount, mdrcount, mdocount;
     struct objc_method_description *objcrMethods, *objcoMethods;
@@ -137,7 +113,7 @@
     }] arrayByAddingObjectsFromArray:oMethods];
     free(objcoMethods);
     
-    // 属性比较麻烦，因为他们在 iOS 10 之前没有修复 API //
+    // 属性处理比较麻烦，因为直到iOS 10才修复了API //
     
     if (@available(iOS 10.0, *)) {
         unsigned int prrcount, procount;
@@ -145,14 +121,14 @@
         
         // 必需的类和实例属性 //
         
-        // 首先是实例
+        // 先处理实例属性
         objc_property_t *rProps = protocol_copyPropertyList2(protocol, &prrcount, YES, YES);
         NSArray *rProperties = [NSArray flex_forEachUpTo:prrcount map:^id(NSUInteger i) {
             return [FLEXProperty property:rProps[i] onClass:instance];
         }];
         free(rProps);
         
-        // 然后是类
+        // 然后处理类属性
         rProps = protocol_copyPropertyList2(protocol, &prrcount, NO, YES);
         _requiredProperties = [[NSArray flex_forEachUpTo:prrcount map:^id(NSUInteger i) {
             return [FLEXProperty property:rProps[i] onClass:instance];
@@ -161,14 +137,14 @@
         
         // 可选的类和实例属性 //
         
-        // 首先是实例
+        // 先处理实例属性
         objc_property_t *oProps = protocol_copyPropertyList2(protocol, &procount, YES, YES);
         NSArray *oProperties = [NSArray flex_forEachUpTo:prrcount map:^id(NSUInteger i) {
             return [FLEXProperty property:oProps[i] onClass:meta];
         }];
         free(oProps);
         
-        // 然后是类
+        // 然后处理类属性
         oProps = protocol_copyPropertyList2(protocol, &procount, NO, YES);
         _optionalProperties = [[NSArray flex_forEachUpTo:procount map:^id(NSUInteger i) {
             return [FLEXProperty property:oProps[i] onClass:meta];
@@ -202,7 +178,7 @@
 - (id)init {
     [NSException
         raise:NSInternalInconsistencyException
-        format:@"不应使用 -init 创建类实例"
+        format:@"不应该使用-init创建类实例"
     ];
     return nil;
 }

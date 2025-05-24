@@ -2,8 +2,8 @@
 //  FLEXOSLogController.m
 //  FLEX
 //
-//  由 Tanner 创建于 12/19/18.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 12/19/18.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXOSLogController.h"
@@ -38,7 +38,7 @@ static uint8_t (*OSLogGetType)(void *);
 @implementation FLEXOSLogController
 
 + (void)load {
-    // 如果我们开启了持久化日志，则在 iOS 10 上应用启动时持久化日志
+    // 如果开启了持久化日志，在iOS 10上启动应用时保存日志
     if (FLEXOSLogAvailable()) {
         if (NSUserDefaults.standardUserDefaults.flex_cacheOSLogMessages) {
             [self sharedLogController].persistent = YES;
@@ -64,7 +64,7 @@ static uint8_t (*OSLogGetType)(void *);
 }
 
 - (id)init {
-    NSAssert(FLEXOSLogAvailable(), @"os_log 仅在 iOS 10 及更高版本上可用");
+    NSAssert(FLEXOSLogAvailable(), @"os_log 仅适用于iOS 10及以上版本");
 
     self = [super init];
     if (self) {
@@ -90,13 +90,13 @@ static uint8_t (*OSLogGetType)(void *);
 
 - (BOOL)startMonitoring {
     if (![self lookupSPICalls]) {
-        // 需要 iOS 10 及更高版本
+        // 需要iOS 10及以上版本
         return NO;
     }
     
-    // 我们是否已经在监控？
+    // 是否已经在监控中？
     if (self.stream) {
-        // 我们是否应该发送“持久化”的消息？
+        // 是否应该发送"持久化"的消息？
         if (self.updateHandler && self.messages.count) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.updateHandler(self.messages);
@@ -106,22 +106,22 @@ static uint8_t (*OSLogGetType)(void *);
         return YES;
     }
 
-    // 流条目处理程序
+    // 数据流入口处理器
     os_activity_stream_block_t block = ^bool(os_activity_stream_entry_t entry, int error) {
         return [self handleStreamEntry:entry error:error];
     };
 
     // 控制我们看到的消息类型
-    // “Historical”似乎只显示 NSLog 的内容
+    // 'Historical'似乎仅显示NSLog相关内容
     uint32_t activity_stream_flags = OS_ACTIVITY_STREAM_HISTORICAL;
     activity_stream_flags |= OS_ACTIVITY_STREAM_PROCESS_ONLY;
 //    activity_stream_flags |= OS_ACTIVITY_STREAM_PROCESS_ONLY;
 
     self.stream = OSActivityStreamForPID(self.filterPid, activity_stream_flags, block);
 
-    // 指定与流相关的事件处理程序
+    // 指定流相关的事件处理器
     OSActivityStreamSetEventHandler(self.stream, [self streamEventHandlerBlock]);
-    // 启动流
+    // 启动数据流
     OSActivityStreamResume(self.stream);
 
     return YES;
@@ -172,7 +172,7 @@ static uint8_t (*OSLogGetType)(void *);
             // https://github.com/FLEXTool/FLEX/issues/564
             const char *messageText = OSLogCopyFormattedMessage(log_message) ?: "";
 
-            // 将 messageText 从栈移动到堆
+            // 将messageText从栈移动到堆
             NSString *msg = [NSString stringWithUTF8String:messageText];
 
             dispatch_async(dispatch_get_main_queue(), ^{

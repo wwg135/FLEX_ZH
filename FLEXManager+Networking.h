@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXManager+Networking.h
 //  FLEX
 //
-//  由 Tanner 创建于 2/1/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 2/1/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXManager.h"
@@ -13,32 +12,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FLEXManager (Networking)
 
-/// 如果此属性设置为 YES，FLEX 将在符合协议的类上 swizzle NSURLConnection*Delegate 和 NSURLSession*Delegate 方法。
-/// 这使您可以从 FLEX 主菜单查看网络活动历史记录。
-/// 完整的响应会临时保存在大小受限的缓存中，并且在内存压力下可能会被删减。
+/// If this property is set to YES, FLEX will swizzle NSURLConnection*Delegate and NSURLSession*Delegate methods
+/// on classes that conform to the protocols. This allows you to view network activity history from the main FLEX menu.
+/// Full responses are kept temporarily in a size-limited cache and may be pruned under memory pressure.
 @property (nonatomic, getter=isNetworkDebuggingEnabled) BOOL networkDebuggingEnabled;
 
-/// 如果从未设置，则默认为 25 MB。此处设置的值会在应用程序启动时保留。
-/// 响应缓存使用 NSCache，因此在应用程序内存不足时，它可能会在达到限制之前清除。
+/// Defaults to 25 MB if never set. Values set here are persisted across launches of the app.
+/// The response cache uses an NSCache, so it may purge prior to hitting the limit when the app is under memory pressure.
 @property (nonatomic) NSUInteger networkResponseCacheByteLimit;
 
-/// 主机以该数组中某个排除条目结尾的请求将不会被记录（例如 google.com）。
-/// 不需要通配符或子域条目（例如 google.com 将匹配 google.com 下的任何子域）。
-/// 用于删除通常比较嘈杂的请求，例如您不感兴趣跟踪的分析请求。
+/// Requests whose host ends with one of the excluded entries in this array will be not be recorded (eg. google.com).
+/// Wildcard or subdomain entries are not required (eg. google.com will match any subdomain under google.com).
+/// Useful to remove requests that are typically noisy, such as analytics requests that you aren't interested in tracking.
 @property (nonatomic) NSMutableArray<NSString *> *networkRequestHostDenylist;
 
-/// 为特定内容类型设置自定义查看器。
-/// @param contentType Mime 类型，如 application/json
-/// @param viewControllerFutureBlock 查看器（视图控制器）创建块
-/// @注意 此方法必须从主线程调用。
-/// viewControllerFutureBlock 将从主线程调用，并且可能不返回 nil。
-/// @注意 传递的块将被复制并在应用程序的整个生命周期内保留，您可能需要使用 __weak 引用。
+/// Sets custom viewer for specific content type.
+/// @param contentType Mime type like application/json
+/// @param viewControllerFutureBlock Viewer (view controller) creation block
+/// @note This method must be called from the main thread.
+/// The viewControllerFutureBlock will be invoked from the main thread and may not return nil.
+/// @note The passed block will be copied and retain for the duration of the application, you may want to use __weak references.
 - (void)setCustomViewerForContentType:(NSString *)contentType
             viewControllerFutureBlock:(FLEXCustomContentViewerFuture)viewControllerFutureBlock;
-
-- (void)showObjectExplorer;
-- (void)showClassHierarchy;
-- (void)showRuntimeBrowser;
 
 @end
 

@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  PTMultiColumnTableView.m
 //  PTMultiColumnTableViewDemo
 //
-//  由 Peng Tao 创建于 15/11/16.
-//  版权所有 © 2015年 Peng Tao。保留所有权利。
+//  Created by Peng Tao on 15/11/16.
+//  Copyright © 2015年 Peng Tao. All rights reserved.
 //
 
 #import "FLEXMultiColumnTableView.h"
@@ -26,7 +25,7 @@
 
 @property (nonatomic) NSArray<UIView *> *headerViews;
 
-/// 如果未选择任何列，则为 \c NSNotFound
+/// 如果没有选中列则为 \c NSNotFound
 @property (nonatomic) NSInteger sortColumn;
 @property (nonatomic) FLEXTableColumnHeaderSortType sortType;
 
@@ -42,7 +41,7 @@ static const CGFloat kColumnMargin = 1;
 
 @implementation FLEXMultiColumnTableView
 
-#pragma mark - Initialization
+#pragma mark - 初始化
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -101,7 +100,7 @@ static const CGFloat kColumnMargin = 1;
 }
 
 
-#pragma mark - UI
+#pragma mark - 用户界面
 
 - (void)loadHeaderScrollView {
     UIScrollView *headerScrollView   = [UIScrollView new];
@@ -147,7 +146,7 @@ static const CGFloat kColumnMargin = 1;
 }
 
 
-#pragma mark - Data
+#pragma mark - 数据
 
 - (void)reloadData {
     [self loadHeaderData];
@@ -156,7 +155,7 @@ static const CGFloat kColumnMargin = 1;
 }
 
 - (void)loadHeaderData {
-    // 删除现有的表头（如有）
+    // 移除现有的头部视图（如果有）
     for (UIView *subview in self.headerViews) {
         [subview removeFromSuperview];
     }
@@ -178,7 +177,7 @@ static const CGFloat kColumnMargin = 1;
             header.sortType = self.sortType;
         }
         
-        // 表头点击手势
+        // 头部点击手势
         UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc]
             initWithTarget:self action:@selector(contentHeaderTap:)
         ];
@@ -195,11 +194,11 @@ static const CGFloat kColumnMargin = 1;
     NSInteger newSortColumn = [self.headerViews indexOfObject:gesture.view];
     FLEXTableColumnHeaderSortType newType = FLEXNextTableColumnHeaderSortType(self.sortType);
     
-    // 重置旧表头
+    // 重置旧的头部视图
     FLEXTableColumnHeader *oldHeader = (id)self.headerViews[self.sortColumn];
     oldHeader.sortType = FLEXTableColumnHeaderSortTypeNone;
     
-    // 更新新表头
+    // 更新新的头部视图
     FLEXTableColumnHeader *newHeader = (id)self.headerViews[newSortColumn];
     newHeader.sortType = newType;
     
@@ -207,7 +206,7 @@ static const CGFloat kColumnMargin = 1;
     self.sortColumn = newSortColumn;
     self.sortType = newType;
 
-    // 通知委托
+    // 通知代理
     [self.delegate multiColumnTableView:self didSelectHeaderForColumn:newSortColumn sortType:newType];
 }
 
@@ -242,7 +241,7 @@ static const CGFloat kColumnMargin = 1;
         cell.contentView.backgroundColor = backgroundColor;
         cell.data = [self.dataSource contentForRow:indexPath.row];
         cell.layoutSource = self;
-        NSAssert(cell.data.count == self.numberOfColumns, @"提供的数据数量不正确");
+        NSAssert(cell.data.count == self.numberOfColumns, @"提供的数据计数不正确");
         return cell;
     }
 }
@@ -272,7 +271,7 @@ static const CGFloat kColumnMargin = 1;
 }
 
 
-#pragma mark UITableView Delegate
+#pragma mark UITableView 代理
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (tableView == self.leftTableView) {
@@ -299,7 +298,7 @@ static const CGFloat kColumnMargin = 1;
 }
 
 
-#pragma mark DataSource Accessor
+#pragma mark 数据源访问器
 
 - (NSInteger)numberOfRows {
     return [self.dataSource numberOfRowsInTableView:self];

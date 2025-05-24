@@ -2,10 +2,9 @@
 //  FLEXFileBrowserSearchOperation.m
 //  FLEX
 //
-//  Created by 陳啟倫 on 2014/8/4.
+//  Created by 啟倫 陳 on 2014/8/4.
 //  Copyright (c) 2014年 f. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXFileBrowserSearchOperation.h"
 
@@ -67,6 +66,7 @@
     NSMutableArray<NSString *> *stack = [NSMutableArray new];
     [stack flex_push:self.path];
     
+    //recursive found all match searchString paths, and precomputing there size
     while (stack.count) {
         NSString *currentPath = [stack flex_pop];
         NSArray<NSString *> *directoryPath = [fileManager contentsOfDirectoryAtPath:currentPath error:nil];

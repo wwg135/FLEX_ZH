@@ -2,10 +2,9 @@
 //  FLEXFileBrowserSearchOperation.h
 //  FLEX
 //
-//  Created by 陳啟倫 on 2014/8/4.
+//  Created by 啟倫 陳 on 2014/8/4.
 //  Copyright (c) 2014年 f. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import <Foundation/Foundation.h>
 

@@ -1,11 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXProperty.m
 //  FLEX
 //
-//  源自 MirrorKit。
-//  由 Tanner 创建于 6/30/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  派生自 MirrorKit.
+//  Created by Tanner on 6/30/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXProperty.h"
@@ -27,12 +26,12 @@
 @synthesize imageName = _imageName;
 @synthesize imagePath = _imagePath;
 
-#pragma mark - 初始化方法
+#pragma mark 初始化器
 
 - (id)init {
     [NSException
         raise:NSInternalInconsistencyException
-        format:@"不应使用 -init 创建类实例"
+        format:@"不应该使用-init创建类实例"
     ];
     return nil;
 }
@@ -47,7 +46,7 @@
 
 + (instancetype)named:(NSString *)name onClass:(Class)cls {
     objc_property_t _Nullable property = class_getProperty(cls, name.UTF8String);
-    NSAssert(property, @"在类 %@ 上找不到名为 %@ 的属性", name, cls);
+    NSAssert(property, @"无法在类 %@ 上找到名为 %@ 的属性", cls, name);
     return [self property:property onClass:cls];
 }
 
@@ -60,14 +59,13 @@
     
     self = [super init];
     if (self) {
-        const char *propNameCString = property_getName(property);
-        _name          = @(propNameCString ? propNameCString : "(nil)");
-        _attributes    = [FLEXPropertyAttributes attributesForProperty:property];
         _objc_property = property;
+        _attributes    = [FLEXPropertyAttributes attributesForProperty:property];
+        _name          = @(property_getName(property) ?: "(nil)");
         _cls           = cls;
         
-        if (!_attributes) [NSException raise:NSInternalInconsistencyException format:@"检索属性特性时出错"];
-        if (!_name) [NSException raise:NSInternalInconsistencyException format:@"检索属性名称时出错"];
+        if (!_attributes) [NSException raise:NSInternalInconsistencyException format:@"获取属性特性时出错"];
+        if (!_name) [NSException raise:NSInternalInconsistencyException format:@"获取属性名称时出错"];
         
         [self examine];
     }
@@ -89,7 +87,7 @@
     return self;
 }
 
-#pragma mark - 私有方法
+#pragma mark 私有方法
 
 - (void)examine {
     if (self.attributes.typeEncoding.length) {
@@ -112,14 +110,14 @@
         [self.name substringFromIndex:1]
     ]);
 
-    // 检查可能的 getter/setter 是否存在
+    // 检查可能的getter/setter是否存在
     SEL validGetter = selectorIfValid(customGetter) ?: selectorIfValid(defaultGetter);
     SEL validSetter = selectorIfValid(customSetter) ?: selectorIfValid(defaultSetter);
     _likelyGetterExists = validGetter != nil;
     _likelySetterExists = validSetter != nil;
 
-    // 将可能的 getter 和 setter 分配给有效的那个，
-    // 或者默认的，无论默认的是否存在
+    // 将可能的getter和setter分配给有效的，
+    // 或默认的，无论默认的是否存在
     _likelyGetter = validGetter ?: defaultGetter;
     _likelySetter = validSetter ?: defaultSetter;
     _likelyGetterString = NSStringFromSelector(_likelyGetter);
@@ -132,7 +130,7 @@
     );
 }
 
-#pragma mark - 重写方法
+#pragma mark 重写方法
 
 - (NSString *)description {
     if (!_flex_description) {
@@ -148,7 +146,7 @@
             NSStringFromClass(self.class), self.name, self.objc_property, self.attributes];
 }
 
-#pragma mark - 公开方法
+#pragma mark 公共方法
 
 - (objc_property_attribute_t *)copyAttributesList:(unsigned int *)attributesCount {
     if (self.objc_property) {
@@ -235,7 +233,7 @@
         [attributesStrings addObject:@"class"];
     }
 
-    // 自定义 getter/setter
+    // 自定义getter/setter
     SEL customGetter = attributes.customGetter;
     SEL customSetter = attributes.customSetter;
     if (customGetter) {
@@ -252,10 +250,10 @@
 - (id)getValue:(id)target {
     if (!target) return nil;
     
-    // 我们不关心动态检查 getter 是否
-    // _现在_ 存在于此对象上。如果 getter 在此属性初始化时
-    // 不存在，它将永远不会调用它。
-    // 如果需要调用它，只需重新创建属性对象即可。
+    // 我们不关心动态检查getter
+    // 是否 _现在_ 存在于这个对象上。如果getter在
+    // 初始化此属性时不存在，它将永远不会调用它。
+    // 如果需要调用它，只需重新创建属性对象。
     if (self.likelyGetterExists) {
         BOOL objectIsClass = object_isClass(target);
         BOOL instanceAndInstanceProperty = !objectIsClass && !self.isClassProperty;
@@ -278,7 +276,7 @@
     ];
 }
 
-#pragma mark - 建议的 getter 和 setter
+#pragma mark 建议的getter和setter
 
 - (FLEXMethodBase *)getterWithImplementation:(IMP)implementation {
     NSString *types        = [NSString stringWithFormat:@"%@%s%s", self.attributes.typeEncoding, @encode(id), @encode(SEL)];

@@ -1,11 +1,9 @@
-// filepath: UIGestureRecognizer+Blocks.h
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  UIGestureRecognizer+Blocks.h
 //  FLEX
 //
-//  由 Tanner Bennett 创建于 12/20/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner Bennett on 12/20/19.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

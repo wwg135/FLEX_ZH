@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  NSArray+FLEX.m
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 9/25/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
 
 #import "NSArray+FLEX.h"
@@ -78,7 +77,7 @@
         }
     }
 
-    // 出于性能原因，不要复制大型数组
+    // 出于性能原因，不复制大型数组
     if (bound < 2048 && !FLEXArrayClassIsMutable(self)) {
         return array.copy;
     }
@@ -96,7 +95,7 @@
         }
     }
 
-    // 出于性能原因，不要复制大型数组
+    // 出于性能原因，不复制大型数组
     if (array.count < 2048) {
         return array.copy;
     }

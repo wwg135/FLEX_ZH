@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntimeConstants.h
 //  FLEX
 //
-//  由 Tanner 创建于 3/11/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 3/11/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -13,10 +12,10 @@
 #define FLEXEncodeClass(class) ("@\"" #class "\"")
 #define FLEXEncodeObject(obj) (obj ? [NSString stringWithFormat:@"@\"%@\"", [obj class]].UTF8String : @encode(id))
 
-// 参数 0 和 1 始终是 self 和 _cmd
+// Arguments 0 and 1 are self and _cmd always
 extern const unsigned int kFLEXNumberOfImplicitArgs;
 
-// 参见 https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html#//apple_ref/doc/uid/TP40008048-CH101-SW6
+// See https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html#//apple_ref/doc/uid/TP40008048-CH101-SW6
 extern NSString *const kFLEXPropertyAttributeKeyTypeEncoding;
 extern NSString *const kFLEXPropertyAttributeKeyBackingIvarName;
 extern NSString *const kFLEXPropertyAttributeKeyReadOnly;
@@ -43,7 +42,7 @@ typedef NS_ENUM(NSUInteger, FLEXPropertyAttribute) {
     FLEXPropertyAttributeReadOnly           = 'R',
     FLEXPropertyAttributeRetain             = '&',
     FLEXPropertyAttributeWeak               = 'W'
-}; //NS_SWIFT_NAME(FLEX.PropertyAttribute); // FLEX属性特性
+}; //NS_SWIFT_NAME(FLEX.PropertyAttribute);
 
 typedef NS_ENUM(char, FLEXTypeEncoding) {
     FLEXTypeEncodingNull             = '\0',
@@ -77,4 +76,4 @@ typedef NS_ENUM(char, FLEXTypeEncoding) {
     FLEXTypeEncodingBitField         = 'b',
     FLEXTypeEncodingPointer          = '^',
     FLEXTypeEncodingConst            = 'r'
-}; //NS_SWIFT_NAME(FLEX.TypeEncoding); // FLEX类型编码
+}; //NS_SWIFT_NAME(FLEX.TypeEncoding);

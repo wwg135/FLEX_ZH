@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMacros.h
 //  FLEX
 //
-//  由 Tanner 创建于 3/12/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 3/12/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #ifndef FLEXMacros_h
@@ -32,56 +31,56 @@ _Pragma("clang diagnostic pop")
 
 #endif
 
-// 一个用于检查我们是否在测试环境中运行的宏
+// A macro to check if we are running in a test environment
 #define FLEX_IS_TESTING() (NSClassFromString(@"XCTest") != nil)
 
-/// 我们是否希望大多数构造函数在加载时运行。
+/// Whether we want the majority of constructors to run upon load or not.
 extern BOOL FLEXConstructorsShouldRun(void);
 
-/// 一个用于在我们不希望运行构造函数时从当前过程返回的宏
+/// A macro to return from the current procedure if we don't want to run constructors
 #define FLEX_EXIT_IF_NO_CTORS() if (!FLEXConstructorsShouldRun()) return;
 
-/// 向下取整到最近的“点”坐标
+/// Rounds down to the nearest "point" coordinate
 NS_INLINE CGFloat FLEXFloor(CGFloat x) {
     return floor(UIScreen.mainScreen.scale * (x)) / UIScreen.mainScreen.scale;
 }
 
-/// 返回给定点数的像素值
+/// Returns the given number of points in pixels
 NS_INLINE CGFloat FLEXPointsToPixels(CGFloat points) {
     return points / UIScreen.mainScreen.scale;
 }
 
-/// 创建一个 CGRect，其所有成员都向下取整到最近的“点”坐标
+/// Creates a CGRect with all members rounded down to the nearest "point" coordinate
 NS_INLINE CGRect FLEXRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height) {
     return CGRectMake(FLEXFloor(x), FLEXFloor(y), FLEXFloor(width), FLEXFloor(height));
 }
 
-/// 调整现有矩形的原点
+/// Adjusts the origin of an existing rect
 NS_INLINE CGRect FLEXRectSetOrigin(CGRect r, CGPoint origin) {
     r.origin = origin; return r;
 }
 
-/// 调整现有矩形的大小
+/// Adjusts the size of an existing rect
 NS_INLINE CGRect FLEXRectSetSize(CGRect r, CGSize size) {
     r.size = size; return r;
 }
 
-/// 调整现有矩形的 origin.x
+/// Adjusts the origin.x of an existing rect
 NS_INLINE CGRect FLEXRectSetX(CGRect r, CGFloat x) {
     r.origin.x = x; return r;
 }
 
-/// 调整现有矩形的 origin.y
+/// Adjusts the origin.y of an existing rect
 NS_INLINE CGRect FLEXRectSetY(CGRect r, CGFloat y) {
     r.origin.y = y ; return r;
 }
 
-/// 调整现有矩形的 size.width
+/// Adjusts the size.width of an existing rect
 NS_INLINE CGRect FLEXRectSetWidth(CGRect r, CGFloat width) {
     r.size.width = width; return r;
 }
 
-/// 调整现有矩形的 size.height
+/// Adjusts the size.height of an existing rect
 NS_INLINE CGRect FLEXRectSetHeight(CGRect r, CGFloat height) {
     r.size.height = height; return r;
 }

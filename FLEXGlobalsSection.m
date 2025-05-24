@@ -6,14 +6,14 @@
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXGlobalsSection.h"
 #import "NSArray+FLEX.h"
 #import "UIFont+FLEX.h"
 
 @interface FLEXGlobalsSection ()
+/// Filtered rows
 @property (nonatomic) NSArray<FLEXGlobalsEntry *> *rows;
+/// Unfiltered rows
 @property (nonatomic) NSArray<FLEXGlobalsEntry *> *allRows;
 @end
 @implementation FLEXGlobalsSection

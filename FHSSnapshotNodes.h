@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FHSSnapshotNodes.h
 //  FLEX
@@ -11,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// 包含与快照关联的 SceneKit 节点引用的容器。
+/// Container that holds references to the SceneKit nodes associated with a snapshot.
 @interface FHSSnapshotNodes : NSObject
 
 + (instancetype)snapshot:(FHSViewSnapshot *)snapshot depth:(NSInteger)depth;
@@ -19,16 +18,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) FHSViewSnapshot *snapshotItem;
 @property (nonatomic, readonly) NSInteger depth;
 
-/// 视图图像本身
+/// The view image itself
 @property (nonatomic, nullable) SCNNode *snapshot;
-/// 位于快照顶部，具有圆角顶部
+/// Goes on top of the snapshot, has rounded top corners
 @property (nonatomic, nullable) SCNNode *header;
-/// 围绕快照绘制的边界框
+/// The bounding box drawn around the snapshot
 @property (nonatomic, nullable) SCNNode *border;
 
-/// 用于指示视图何时被选中
+/// Used to indicate when a view is selected
 @property (nonatomic, getter=isHighlighted) BOOL highlighted;
-/// 用于指示视图何时被弱化显示
+/// Used to indicate when a view is de-emphasized
 @property (nonatomic, getter=isDimmed) BOOL dimmed;
 
 @property (nonatomic) BOOL forceHideHeader;

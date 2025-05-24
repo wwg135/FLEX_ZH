@@ -6,10 +6,7 @@
 //  Copyright © 2015年 f. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import <UIKit/UIKit.h>
-
 
 typedef NS_ENUM(NSUInteger, FLEXTableColumnHeaderSortType) {
     FLEXTableColumnHeaderSortTypeNone = 0,

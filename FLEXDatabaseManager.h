@@ -1,29 +1,28 @@
 //
 //  PTDatabaseManager.h
-//  派生自：
+//  Derived from:
 //
 //  FMDatabase.h
 //  FMDB( https://github.com/ccgus/fmdb )
 //
-//  创建者：Peng Tao，日期：15/11/23.
+//  Created by Peng Tao on 15/11/23.
 //
-//  授权给 Flying Meat Inc.，依据一个或多个贡献者许可协议。
-//  有关 Flying Meat Inc. 授权给您的条款，请参阅随此工作分发的 LICENSE 文件。
-
-// 遇到问题联系中文翻译作者：pxx917144686
+//  Licensed to Flying Meat Inc. under one or more contributor license agreements.
+//  See the LICENSE file distributed with this work for the terms under
+//  which Flying Meat Inc. licenses this file to you.
 
 #import <Foundation/Foundation.h>
 #import "FLEXSQLResult.h"
 
-/// 遵循此协议的类应自动打开和关闭数据库
+/// Conformers should automatically open and close the database
 @protocol FLEXDatabaseManager <NSObject>
 
 @required
 
-/// @return 如果无法打开数据库，则返回 \c nil
+/// @return \c nil if the database couldn't be opened
 + (instancetype)managerForDatabase:(NSString *)path;
 
-/// @return 所有表名的列表
+/// @return a list of all table names
 - (NSArray<NSString *> *)queryAllTables;
 - (NSArray<NSString *> *)queryAllColumnsOfTable:(NSString *)tableName;
 - (NSArray<NSArray *> *)queryAllDataInTable:(NSString *)tableName;

@@ -1,27 +1,25 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
-//  FLEXArgumentInputObjectView.m
+//  FLEXArgumentInputJSONObjectView.m
 //  Flipboard
 //
-//  Created by Ryan Olson on 6/15/14.
-//  Copyright (c) 2020 FLEX Team. All rights reserved.
+//  由 Ryan Olson 于 6/15/14 创建.
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利.
 //
 
 #import "FLEXArgumentInputObjectView.h"
 #import "FLEXRuntimeUtility.h"
 
-static const CGFloat kSegmentInputMargin = 10; // 分段控件与输入框的边距
+static const CGFloat kSegmentInputMargin = 10;
 
-// 参数输入对象类型枚举
 typedef NS_ENUM(NSUInteger, FLEXArgInputObjectType) {
-    FLEXArgInputObjectTypeJSON,    // JSON 类型
-    FLEXArgInputObjectTypeAddress  // 地址类型
+    FLEXArgInputObjectTypeJSON,
+    FLEXArgInputObjectTypeAddress
 };
 
 @interface FLEXArgumentInputObjectView ()
 
-@property (nonatomic) UISegmentedControl *objectTypeSegmentControl; // 对象类型分段控件
-@property (nonatomic) FLEXArgInputObjectType inputType; // 当前输入类型
+@property (nonatomic) UISegmentedControl *objectTypeSegmentControl;
+@property (nonatomic) FLEXArgInputObjectType inputType;
 
 @end
 
@@ -30,18 +28,16 @@ typedef NS_ENUM(NSUInteger, FLEXArgInputObjectType) {
 - (instancetype)initWithArgumentTypeEncoding:(const char *)typeEncoding {
     self = [super initWithArgumentTypeEncoding:typeEncoding];
     if (self) {
-        // 默认使用数字和标点键盘，因为引号、花括号或
-        // 方括号很可能是 JSON 的第一个输入字符。
+        // 从数字和标点符号键盘开始，因为引号、大括号或
+        // 方括号可能是JSON的第一个字符
         self.inputTextView.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
-        self.targetSize = FLEXArgumentInputViewSizeLarge; // 默认大尺寸
+        self.targetSize = FLEXArgumentInputViewSizeLarge;
 
-        // 初始化分段控件
         self.objectTypeSegmentControl = [[UISegmentedControl alloc] initWithItems:@[@"值", @"地址"]];
         [self.objectTypeSegmentControl addTarget:self action:@selector(didChangeType) forControlEvents:UIControlEventValueChanged];
-        self.objectTypeSegmentControl.selectedSegmentIndex = 0; // 默认选中 "值"
+        self.objectTypeSegmentControl.selectedSegmentIndex = 0;
         [self addSubview:self.objectTypeSegmentControl];
 
-        // 根据类型和当前值设置首选默认类型
         self.inputType = [[self class] preferredDefaultTypeForObjCType:typeEncoding withCurrentValue:nil];
         self.objectTypeSegmentControl.selectedSegmentIndex = self.inputType;
     }
@@ -50,21 +46,21 @@ typedef NS_ENUM(NSUInteger, FLEXArgInputObjectType) {
 }
 
 - (void)didChangeType {
-    self.inputType = self.objectTypeSegmentControl.selectedSegmentIndex; // 更新输入类型
+    self.inputType = self.objectTypeSegmentControl.selectedSegmentIndex;
 
     if (super.inputValue) {
-        // 触发文本区域更新，以显示
-        // 存储对象的地址，
-        // 或显示对象的 JSON 表示
+        // 触发文本字段更新以显示
+        // 我们得到的存储对象的地址，
+        // 或显示对象的JSON表示
         [self populateTextAreaFromValue:super.inputValue];
     } else {
-        // 清空文本区域
+        // 清空文本字段
         [self populateTextAreaFromValue:nil];
     }
 }
 
 - (void)setInputType:(FLEXArgInputObjectType)inputType {
-    if (_inputType == inputType) return; // 类型未改变则返回
+    if (_inputType == inputType) return;
 
     _inputType = inputType;
 
@@ -78,132 +74,126 @@ typedef NS_ENUM(NSUInteger, FLEXArgInputObjectType) {
             break;
     }
 
-    // 更改占位符文本
+    // 更改占位符
     switch (inputType) {
         case FLEXArgInputObjectTypeJSON:
             self.inputPlaceholderText =
-            @"你可以在这里输入任何有效的 JSON，例如字符串、数字、数组或字典："
+            @"您可以在此处放置任何有效的JSON，如字符串、数字、数组或字典："
             "\n\"这是一个字符串\""
             "\n1234"
-            "\n{ \"name\": \"Bob\", \"age\": 47 }"
+            "\n{ \"name\": \"pxx917144686\", \"age\": 47 }"
             "\n["
             "\n   1, 2, 3"
             "\n]";
             break;
         case FLEXArgInputObjectTypeAddress:
-            self.inputPlaceholderText = @"0x0000deadb33f"; // 十六进制地址示例
+            self.inputPlaceholderText = @"0x0000deadb33f";
             break;
     }
 
-    [self setNeedsLayout]; // 标记需要重新布局
-    [self.superview setNeedsLayout]; // 标记父视图需要重新布局
+    [self setNeedsLayout];
+    [self.superview setNeedsLayout];
 }
 
 - (void)setInputValue:(id)inputValue {
-    super.inputValue = inputValue; // 调用父类实现
-    [self populateTextAreaFromValue:inputValue]; // 根据值填充文本区域
+    super.inputValue = inputValue;
+    [self populateTextAreaFromValue:inputValue];
 }
 
 - (id)inputValue {
     switch (self.inputType) {
         case FLEXArgInputObjectTypeJSON:
-            // 从可编辑的 JSON 字符串获取对象值
             return [FLEXRuntimeUtility objectValueFromEditableJSONString:self.inputTextView.text];
         case FLEXArgInputObjectTypeAddress: {
             NSScanner *scanner = [NSScanner scannerWithString:self.inputTextView.text];
 
             unsigned long long objectPointerValue;
-            // 扫描十六进制长整型值
             if ([scanner scanHexLongLong:&objectPointerValue]) {
-                return (__bridge id)(void *)objectPointerValue; // 返回桥接后的对象指针
+                return (__bridge id)(void *)objectPointerValue;
             }
 
-            return nil; // 扫描失败返回 nil
+            return nil;
         }
     }
 }
 
 - (void)populateTextAreaFromValue:(id)value {
     if (!value) {
-        self.inputTextView.text = nil; // 值为空则清空文本
+        self.inputTextView.text = nil;
     } else {
         if (self.inputType == FLEXArgInputObjectTypeJSON) {
-            // 获取对象的可编辑 JSON 字符串表示
             self.inputTextView.text = [FLEXRuntimeUtility editableJSONStringForObject:value];
         } else if (self.inputType == FLEXArgInputObjectTypeAddress) {
-            // 获取对象的地址字符串表示
             self.inputTextView.text = [NSString stringWithFormat:@"%p", value];
         }
     }
 
-    // 编程式更改不会调用委托方法，需要手动调用
+    // 对于程序化更改不会调用代理方法
     [self textViewDidChange:self.inputTextView];
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-    CGSize fitSize = [super sizeThatFits:size]; // 获取父类计算的尺寸
-    // 加上分段控件的高度和边距
+    CGSize fitSize = [super sizeThatFits:size];
     fitSize.height += [self.objectTypeSegmentControl sizeThatFits:size].height + kSegmentInputMargin;
 
     return fitSize;
 }
 
 - (void)layoutSubviews {
-    CGFloat segmentHeight = [self.objectTypeSegmentControl sizeThatFits:self.frame.size].height; // 获取分段控件高度
+    CGFloat segmentHeight = [self.objectTypeSegmentControl sizeThatFits:self.frame.size].height;
     self.objectTypeSegmentControl.frame = CGRectMake(
         0.0,
-        // 我们的分段控件占据了文本视图的位置，
-        // 就父类而言，我们重写此属性以使其不同
+        // 对于父类而言，我们的分段控件
+        // 占据了文本视图的位置，
+        // 而我们重写了这个属性以使其不同
         super.topInputFieldVerticalLayoutGuide,
         self.frame.size.width,
         segmentHeight
     );
 
-    [super layoutSubviews]; // 调用父类布局
+    [super layoutSubviews];
 }
 
 - (CGFloat)topInputFieldVerticalLayoutGuide {
-    // 我们的文本视图相对于分段控件有偏移
+    // 我们的文本视图从分段控件偏移
     CGFloat segmentHeight = [self.objectTypeSegmentControl sizeThatFits:self.frame.size].height;
-    // 返回分段控件高度 + 父类顶部参考线 + 边距
     return segmentHeight + super.topInputFieldVerticalLayoutGuide + kSegmentInputMargin;
 }
 
 + (BOOL)supportsObjCType:(const char *)type withCurrentValue:(id)value {
-    NSParameterAssert(type); // 确保类型不为空
-    // 必须是对象类型或类类型
+    NSParameterAssert(type);
+    // 必须是对象类型
     return type[0] == FLEXTypeEncodingObjcObject || type[0] == FLEXTypeEncodingObjcClass;
 }
 
 + (FLEXArgInputObjectType)preferredDefaultTypeForObjCType:(const char *)type withCurrentValue:(id)value {
-    NSParameterAssert(type[0] == FLEXTypeEncodingObjcObject || type[0] == FLEXTypeEncodingObjcClass); // 确保是对象或类类型
+    NSParameterAssert(type[0] == FLEXTypeEncodingObjcObject || type[0] == FLEXTypeEncodingObjcClass);
 
     if (value) {
-        // 如果有当前值，它必须可序列化为 JSON
-        // 才能显示 JSON 编辑器。否则显示地址字段。
+        // 如果有当前值，它必须可序列化为JSON
+        // 才能显示JSON编辑器。否则显示地址字段。
         if ([FLEXRuntimeUtility editableJSONStringForObject:value]) {
             return FLEXArgInputObjectTypeJSON;
         } else {
             return FLEXArgInputObjectTypeAddress;
         }
     } else {
-        // 否则，查看我们是否拥有比 'id' 更多的类型信息。
-        // 如果有，请确保编码是可序列化为 JSON 的类型。
+        // 否则，看看我们是否有比'id'更多的类型信息。
+        // 如果有，确保编码是可序列化为JSON的。
         // 属性和实例变量比方法参数保留更详细的类型编码信息。
         if (strcmp(type, @encode(id)) != 0) {
-            BOOL isJSONSerializableType = NO; // 是否为 JSON 可序列化类型
+            BOOL isJSONSerializableType = NO;
 
             // 从字符串中解析类名，
             // 格式为 `@"ClassName"`
             Class cls = NSClassFromString(({
                 NSString *className = nil;
                 NSScanner *scan = [NSScanner scannerWithString:@(type)];
-                // 允许的字符集
                 NSCharacterSet *allowed = [NSCharacterSet
                     characterSetWithCharactersInString:@"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$"
                 ];
 
-                // 跳过 @" 然后扫描名称
+                // 跳过@"然后扫描名称
                 if ([scan scanString:@"@\"" intoString:nil]) {
                     [scan scanCharactersFromSet:allowed intoString:&className];
                 }
@@ -211,8 +201,8 @@ typedef NS_ENUM(NSUInteger, FLEXArgInputObjectType) {
                 className;
             }));
 
-            // 注意：我们不能在这里使用 @encode(NSString)，因为那会丢失
-            // 类信息，只变成 @encode(id)。
+            // 注意：我们不能在这里使用@encode(NSString)，因为它会丢弃
+            // 类信息，变成@encode(id)。
             NSArray<Class> *jsonTypes = @[
                 [NSString class],
                 [NSNumber class],
@@ -220,7 +210,7 @@ typedef NS_ENUM(NSUInteger, FLEXArgInputObjectType) {
                 [NSDictionary class],
             ];
 
-            // 查找匹配的类型
+            // 查找匹配类型
             for (Class jsonClass in jsonTypes) {
                 if ([cls isSubclassOfClass:jsonClass]) {
                     isJSONSerializableType = YES;
@@ -229,12 +219,12 @@ typedef NS_ENUM(NSUInteger, FLEXArgInputObjectType) {
             }
 
             if (isJSONSerializableType) {
-                return FLEXArgInputObjectTypeJSON; // 返回 JSON 类型
+                return FLEXArgInputObjectTypeJSON;
             } else {
-                return FLEXArgInputObjectTypeAddress; // 返回地址类型
+                return FLEXArgInputObjectTypeAddress;
             }
         } else {
-            return FLEXArgInputObjectTypeAddress; // 如果只有 'id' 类型信息，返回地址类型
+            return FLEXArgInputObjectTypeAddress;
         }
     }
 }

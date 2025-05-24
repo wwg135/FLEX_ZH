@@ -1,53 +1,57 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMutableListSection.h
 //  FLEX
 //
-//  由 Tanner 创建于 3/9/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 3/9/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXCollectionContentSection.h"
 
 typedef void (^FLEXMutableListCellForElement)(__kindof UITableViewCell *cell, id element, NSInteger row);
 
-/// 一个旨在满足具有一个分区的表视图需求的类
-/// （或者，一个不应该因为为某个特定表视图创建新分区而导致代码重复的分区）
+/// A section aimed at meeting the needs of table views with one section
+/// (or, a section that shouldn't warrant the code duplication that comes
+/// with creating a new section just for some specific table view)
 ///
-/// 如果要显示不断增长的行列表，甚至要显示静态行列表，请使用此分区。
+/// Use this section if you want to display a growing list of rows,
+/// or even if you want to display a static list of rows.
 ///
-/// 要支持编辑或插入，请在表视图委托类中实现相应的
-/// 表视图委托方法，并在更新表视图之前调用 \c mutate: （或 \c setList: ）。
+/// To support editing or inserting, implement the appropriate
+/// table view delegate methods in your table view delegate class
+/// and call \c mutate: (or \c setList: ) before updating the table view.
 ///
-/// 默认情况下，不显示分区标题。将其分配给 \c customTitle
+/// By default, no section title is shown. Assign one to \c customTitle
 ///
-/// 默认情况下，\c kFLEXDetailCell 是使用的重用标识符。如果需要在单个分区中支持多个重用标识符，
-/// 请实现 \c cellForRowAtIndexPath: 方法，自行出队单元格，并在适当的分区对象上调用
-/// \c -configureCell:，传入单元格
+/// By default, \c kFLEXDetailCell is the reuse identifier used. If you need
+/// to support multiple reuse identifiers in a single section, implement the
+/// \c cellForRowAtIndexPath: method, dequeue the cell yourself and call
+/// \c -configureCell: on the appropriate section object, passing in the cell
 @interface FLEXMutableListSection<__covariant ObjectType> : FLEXCollectionContentSection
 
-/// 使用空列表初始化一个分区。
+/// Initializes a section with an empty list.
 + (instancetype)list:(NSArray<ObjectType> *)list
    cellConfiguration:(FLEXMutableListCellForElement)configurationBlock
        filterMatcher:(BOOL(^)(NSString *filterText, id element))filterBlock;
 
-/// 默认情况下，行不可选择。如果希望行
-/// 可选择，请在此处提供选择处理程序。
+/// By default, rows are not selectable. If you want rows
+/// to be selectable, provide a selection handler here.
 @property (nonatomic, copy) void (^selectionHandler)(__kindof UIViewController *host, ObjectType element);
 
-/// 表示分区中所有可能行的对象。
+/// The objects representing all possible rows in the section.
 @property (nonatomic) NSArray<ObjectType> *list;
-/// 表示分区中当前未过滤行的对象。
+/// The objects representing the currently unfiltered rows in the section.
 @property (nonatomic, readonly) NSArray<ObjectType> *filteredList;
 
-/// \c FLEXTableViewSection.h 中相同属性的可读写版本。
+/// A readwrite version of the same property in \c FLEXTableViewSection.h
 ///
-/// 此属性需要一个条目。如果提供了多个条目，则会引发异常。
-/// 如果在单个分区中需要多个重用标识符，则您的视图可能比此类可以处理的更复杂。
+/// This property expects one entry. An exception is thrown if more than one
+/// entry is supplied. If you need more than one reuse identifier within a single
+/// section, your view probably has more complexity than this class can handle.
 @property (nonatomic, readwrite) NSDictionary<NSString *, Class> *cellRegistrationMapping;
 
-/// 调用此方法以更改完整的、未过滤的列表。
-/// 这可确保在任何更改后更新 \c filteredList。
+/// Call this method to mutate the full, unfiltered list.
+/// This ensures that \c filteredList is updated after any mutations.
 - (void)mutate:(void(^)(NSMutableArray *list))block;
 
 @end

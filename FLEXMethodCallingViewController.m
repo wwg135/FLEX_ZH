@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMethodCallingViewController.m
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 5/23/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 5/23/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
+//
 
 #import "FLEXMethodCallingViewController.h"
 #import "FLEXRuntimeUtility.h"
@@ -30,7 +30,7 @@
 
     self = [super initWithTarget:target data:method commitHandler:nil];
     if (self) {
-        self.title = method.isInstanceMethod ? @"实例方法: " : @"类方法: ";
+        self.title = method.isInstanceMethod ? @"方法: " : @"类方法: ";
         self.title = [self.title stringByAppendingString:method.selectorString];
     }
 
@@ -40,12 +40,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    // 将 "Call" 改为 "调用"
     self.actionButton.title = @"调用";
 
-    // 将签名和返回类型的描述文本翻译为中文
+    // 配置字段编辑器视图
+    self.fieldEditorView.argumentInputViews = [self argumentInputViews];
     self.fieldEditorView.fieldDescription = [NSString stringWithFormat:
-        @"方法签名:\n%@\n\n返回类型:\n%s",
+        @"签名:\n%@\n\n返回类型:\n%s",
         self.method.description, (char *)self.method.returnType
     ];
 }
@@ -74,7 +74,7 @@
     // 收集参数
     NSMutableArray *arguments = [NSMutableArray new];
     for (FLEXArgumentInputView *inputView in self.fieldEditorView.argumentInputViews) {
-        // 使用 NSNull 作为 nil 占位符；它将被解释为 nil
+        // 使用NSNull作为nil占位符；它将被解释为nil
         [arguments addObject:inputView.inputValue ?: NSNull.null];
     }
 
@@ -87,14 +87,14 @@
         error:&error
     ];
     
-    // 关闭键盘并处理已提交的更改
+    // 关闭键盘并处理提交的更改
     [super actionButtonPressed:sender];
 
     // 显示返回值或错误
     if (error) {
         [FLEXAlert showAlert:@"方法调用失败" message:error.localizedDescription from:self];
     } else if (returnValue) {
-        // 对于非 nil（或 void）返回类型，推送一个浏览器视图控制器以显示返回的对象
+        // 对于非nil（或void）返回类型，推送一个资源管理器视图控制器来显示返回的对象
         returnValue = [FLEXRuntimeUtility potentiallyUnwrapBoxedPointer:returnValue type:self.method.returnType];
         FLEXObjectExplorerViewController *explorer = [FLEXObjectExplorerFactory explorerViewControllerForObject:returnValue];
         [self.navigationController pushViewController:explorer animated:YES];

@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXNetworkTransaction.h
 //  Flipboard
@@ -12,7 +11,7 @@
 
 typedef NS_ENUM(NSInteger, FLEXNetworkTransactionState) {
     FLEXNetworkTransactionStateUnstarted = -1,
-    /// 这是默认值；通常将请求标记为“未开始”是没有意义的
+    /// 这是默认值；请求被标记为"未启动"通常是没有意义的
     FLEXNetworkTransactionStateAwaitingResponse = 0,
     FLEXNetworkTransactionStateReceivingData,
     FLEXNetworkTransactionStateFinished,
@@ -24,8 +23,8 @@ typedef NS_ENUM(NSUInteger, FLEXWebsocketMessageDirection) {
     FLEXWebsocketOutgoing,
 };
 
-/// 所有类型网络事务的共享基类。
-/// 子类应实现 descriptions 和 details 属性，并分配缩略图。
+/// 所有网络事务类型的共享基类。
+/// 子类应实现描述和详细信息属性，并分配缩略图。
 @interface FLEXNetworkTransaction : NSObject {
     @protected
 
@@ -39,44 +38,42 @@ typedef NS_ENUM(NSUInteger, FLEXWebsocketMessageDirection) {
 + (NSString *)readableStringFromTransactionState:(FLEXNetworkTransactionState)state;
 
 @property (nonatomic) NSError *error;
-/// 子类可以重写以根据响应数据提供错误状态
+/// 子类可以重写以提供基于响应数据的错误状态
 @property (nonatomic, readonly) BOOL displayAsError;
 @property (nonatomic, readonly) NSDate *startTime;
 
 @property (nonatomic) FLEXNetworkTransactionState state;
 @property (nonatomic) int64_t receivedDataLength;
-/// 用于预览响应类型/内容的小缩略图
+/// 预览响应类型的小缩略图
 @property (nonatomic) UIImage *thumbnail;
 
-/// 单元格中最突出的一行。通常是 URL 端点或其他区分属性。
-/// 当事务指示错误时，此行变为红色。
+/// 单元格中最突出的一行。通常是URL端点或其他区分属性。
+/// 当交易指示错误时，这行变为红色。
 @property (nonatomic, readonly) NSString *primaryDescription;
-/// 不太重要的内容，例如数据块或 URL 的域。
+/// 次要信息，例如数据块或URL的域。
 @property (nonatomic, readonly) NSString *secondaryDescription;
-/// 显示在单元格底部的一些次要详细信息，例如时间戳、HTTP 方法或状态。
+/// 显示在单元格底部的次要细节，如时间戳、HTTP方法或状态。
 @property (nonatomic, readonly) NSString *tertiaryDescription;
 
-/// 用户选择“复制”操作时要复制的字符串
+/// 用户选择"复制"操作时要复制的字符串
 @property (nonatomic, readonly) NSString *copyString;
 
-/// 当用户搜索给定字符串时，此请求是否应显示
+/// 当用户搜索给定字符串时，此请求是否应该显示
 - (BOOL)matchesQuery:(NSString *)filterString;
 
 /// 供内部使用
 - (NSString *)timestampStringFromRequestDate:(NSDate *)date;
 
-@property (nonatomic, strong) NSURLResponse *response;
-
 @end
 
-/// 所有与 NSURL-API 相关的事务的共享基类。
-/// 描述由此类使用子类提供的 URL 生成。
+/// 所有NSURL-API相关事务的共享基类。
+/// 此类使用子类提供的URL生成描述。
 @interface FLEXURLTransaction : FLEXNetworkTransaction
 
 + (instancetype)withRequest:(NSURLRequest *)request startTime:(NSDate *)startTime;
 
 @property (nonatomic, readonly) NSURLRequest *request;
-/// 子类应在事务完成时实现
+/// 交易完成时子类应实现
 @property (nonatomic, readonly) NSArray<NSString *> *details;
 
 @end
@@ -87,12 +84,13 @@ typedef NS_ENUM(NSUInteger, FLEXWebsocketMessageDirection) {
 + (instancetype)request:(NSURLRequest *)request identifier:(NSString *)requestID;
 
 @property (nonatomic, readonly) NSString *requestID;
+@property (nonatomic) NSURLResponse *response;
 @property (nonatomic, copy) NSString *requestMechanism;
 
 @property (nonatomic) NSTimeInterval latency;
 @property (nonatomic) NSTimeInterval duration;
 
-/// 延迟填充，可为空。处理普通的 HTTPBody 数据和 HTTPBodyStreams。
+/// 延迟填充，可为空。处理正常的HTTPBody数据和HTTPBodyStreams。
 @property (nonatomic, readonly) NSData *cachedRequestBody;
 
 @end
@@ -135,11 +133,11 @@ typedef NS_ENUM(NSUInteger, FLEXFIRRequestType) {
 };
 
 @interface FLEXFirebaseSetDataInfo : NSObject
-/// 已设置的数据
+/// 设置的数据
 @property (nonatomic, readonly) NSDictionary *documentData;
-/// 如果 \c mergeFields 已填充，则为 \c nil
+/// 如果 \c mergeFields 有值则为 \c nil
 @property (nonatomic, readonly) NSNumber *merge;
-/// 如果 \c merge 已填充，则为 \c nil
+/// 如果 \c merge 有值则为 \c nil
 @property (nonatomic, readonly) NSArray *mergeFields;
 @end
 
@@ -165,11 +163,11 @@ typedef NS_ENUM(NSUInteger, FLEXFIRRequestType) {
 
 /// 仅用于获取类型
 @property (nonatomic, copy) NSArray<FIRDocumentSnapshot *> *documents;
-/// 仅用于“设置数据”类型
+/// 仅用于"设置数据"类型
 @property (nonatomic, readonly) FLEXFirebaseSetDataInfo *setDataInfo;
-/// 仅用于“更新数据”类型
+/// 仅用于"更新数据"类型
 @property (nonatomic, readonly) NSDictionary *updateData;
-/// 仅用于“添加文档”类型
+/// 仅用于"添加文档"类型
 @property (nonatomic, readonly) FIRDocumentReference *addedDocument;
 
 @property (nonatomic, readonly) NSString *path;

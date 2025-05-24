@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  PTMultiColumnTableView.h
 //  PTMultiColumnTableViewDemo
 //
-//  由 Peng Tao 创建于 15/11/16.
-//  版权所有 © 2015年 Peng Tao。保留所有权利。
+//  Created by Peng Tao on 15/11/16.
+//  Copyright © 2015年 Peng Tao. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

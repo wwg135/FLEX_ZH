@@ -2,10 +2,9 @@
 //  FLEXCarouselCell.m
 //  FLEX
 //
-//  创建者：Tanner Bennett，日期：7/17/19.
+//  Created by Tanner Bennett on 7/17/19.
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXCarouselCell.h"
 #import "FLEXColor.h"
@@ -52,7 +51,7 @@
     }
 }
 
-#pragma mark Public // 公共方法
+#pragma mark Public
 
 - (NSString *)title {
     return self.titleLabel.text;
@@ -64,7 +63,7 @@
     [self setNeedsLayout];
 }
 
-#pragma mark Overrides // 覆盖方法
+#pragma mark Overrides
 
 - (void)prepareForReuse {
     [super prepareForReuse];

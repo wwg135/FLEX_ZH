@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntimeKeyPath.m
 //  FLEX
 //
-//  由 Tanner 创建于 3/22/17.
-//  版权所有 © 2017 Tanner Bennett。保留所有权利。
+//  Created by Tanner on 3/22/17.
+//  Copyright © 2017 Tanner Bennett. All rights reserved.
 //
 
 #import "FLEXRuntimeKeyPath.h"
@@ -43,7 +42,7 @@
 
     keyPath->_instanceMethods = instance;
 
-    // 为了相等性比较，移除无关的尾随 '*'
+    // Remove irrelevant trailing '*' for equality purposes
     if ([keyPathString hasSuffix:@"*"]) {
         keyPathString = [keyPathString substringToIndex:keyPathString.length];
     }

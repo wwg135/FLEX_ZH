@@ -1,11 +1,9 @@
-// filepath: FLEXRuntimeUtility.h
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntimeUtility.h
 //  Flipboard
 //
 //  由 Ryan Olson 创建于 6/8/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
 //
 
 #import "FLEXRuntimeConstants.h"
@@ -15,7 +13,7 @@
 #define PropertyKeyGetter(getter) kFLEXPropertyAttributeKeyCustomGetter : NSStringFromSelector(@selector(getter))
 #define PropertyKeySetter(setter) kFLEXPropertyAttributeKeyCustomSetter : NSStringFromSelector(@selector(setter))
 
-/// 参数：最低 iOS 版本、属性名、目标类、属性类型以及属性列表
+/// 参数：最低iOS版本、属性名称、目标类、属性类型和属性列表
 #define FLEXRuntimeUtilityTryAddProperty(iOS_atLeast, name, cls, type, ...) ({ \
     if (@available(iOS iOS_atLeast, *)) { \
         NSMutableDictionary *attrs = [NSMutableDictionary dictionaryWithDictionary:@{ \
@@ -30,17 +28,17 @@
     } \
 })
 
-/// 参数：最低 iOS 版本、属性名、目标类、属性类型以及属性列表
+/// 参数：最低iOS版本、属性名称、目标类、属性类型和属性列表
 #define FLEXRuntimeUtilityTryAddNonatomicProperty(iOS_atLeast, name, cls, type, ...) \
     FLEXRuntimeUtilityTryAddProperty(iOS_atLeast, name, cls, @encode(type), PropertyKey(NonAtomic), __VA_ARGS__);
-/// 参数：最低 iOS 版本、属性名、目标类、属性类型 (类名) 以及属性列表
+/// 参数：最低iOS版本、属性名称、目标类、属性类型（类名）和属性列表
 #define FLEXRuntimeUtilityTryAddObjectProperty(iOS_atLeast, name, cls, type, ...) \
     FLEXRuntimeUtilityTryAddProperty(iOS_atLeast, name, cls, FLEXEncodeClass(type), PropertyKey(NonAtomic), __VA_ARGS__);
 
 extern NSString * const FLEXRuntimeUtilityErrorDomain;
 
 typedef NS_ENUM(NSInteger, FLEXRuntimeUtilityErrorCode) {
-    // 从一个随机值开始，而不是 0，以避免与缺失代码混淆
+    // 从一个随机值开始，而不是0，以避免与缺少代码混淆
     FLEXRuntimeUtilityErrorCodeDoesNotRecognizeSelector = 0xbabe,
     FLEXRuntimeUtilityErrorCodeInvocationFailed,
     FLEXRuntimeUtilityErrorCodeArgumentTypeMismatch
@@ -52,22 +50,22 @@ typedef NS_ENUM(NSInteger, FLEXRuntimeUtilityErrorCode) {
 
 /// 调用 \c FLEXPointerIsValidObjcObject()
 + (BOOL)pointerIsValidObjcObject:(const void *)pointer;
-/// 解包存储在 NSValue 中的对象的原始指针，并将 C 字符串重新包装为 NSString。
+/// 解包存储在NSValue中的原始对象指针，并将C字符串重新装箱为NSString。
 + (id)potentiallyUnwrapBoxedPointer:(id)returnedObjectOrNil type:(const FLEXTypeEncoding *)returnType;
-/// 某些字段在其编码字符串中带有名称 (例如 \"width\"d)
-/// @return 跳过字段名称的偏移量，如果没有名称则为 0
+/// 一些字段在其编码字符串中有名称（例如 \"width\"d）
+/// @return 跳过字段名称的偏移量，如果没有名称则为0
 + (NSUInteger)fieldNameOffsetForTypeEncoding:(const FLEXTypeEncoding *)typeEncoding;
-/// 给定名称 "foo" 和类型 "int"，这将返回 "int foo"，但是
-/// 给定名称 "foo" 和类型 "T *"，它将返回 "T *foo"
+/// 给定名称"foo"和类型"int"，这将返回"int foo"，但
+/// 给定名称"foo"和类型"T *"，它将返回"T *foo"
 + (NSString *)appendName:(NSString *)name toType:(NSString *)typeEncoding;
 
 /// @return 给定对象或类的类层次结构，
-/// 从当前类到最顶层的类。
+/// 从当前类到最根级的类。
 + (NSArray<Class> *)classHierarchyOfObject:(id)objectOrClass;
 /// @return 给定类名的所有子类。
 + (NSArray<FLEXObjectRef *> *)subclassesOfClassWithName:(NSString *)className;
 
-/// 用于在浏览器行中简要描述对象
+/// 用于在探索器行中简要描述对象
 + (NSString *)summaryForObject:(id)value;
 + (NSString *)safeClassNameForObject:(id)object;
 + (NSString *)safeDescriptionForObject:(id)object;

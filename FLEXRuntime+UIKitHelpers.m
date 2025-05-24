@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntime+UIKitHelpers.m
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 12/16/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
+//
 
 #import "FLEXRuntime+UIKitHelpers.h"
 #import "FLEXRuntimeUtility.h"
@@ -28,7 +28,7 @@
     self.tag = defaults; \
 }
 
-#pragma mark - FLEXProperty
+#pragma mark FLEXProperty
 @implementation FLEXProperty (UIKitHelpers)
 FLEXObjectExplorerDefaultsImpl
 
@@ -44,7 +44,7 @@ FLEXObjectExplorerDefaultsImpl
         if (self.isClassProperty) {
             return potentialTarget;
         } else {
-            // 带有类对象的实例属性
+            // 使用类对象的实例属性
             return nil;
         }
     }
@@ -102,26 +102,26 @@ FLEXObjectExplorerDefaultsImpl
 - (UITableViewCellAccessoryType)suggestedAccessoryTypeWithTarget:(id)object {
     id targetForValueCheck = [self appropriateTargetForPropertyType:object];
     if (!targetForValueCheck) {
-        // 具有类对象的实例属性
+        // 使用类对象的实例属性
         return UITableViewCellAccessoryNone;
     }
 
     // 我们使用 .tag 来存储 .isEditable 的缓存值
-    // 该值由 FLEXObjectExplorer 在 -reloadMetada 中初始化
+    // 由 FLEXObjectExplorer 在 -reloadMetada 中初始化
     if ([self getPotentiallyUnboxedValue:targetForValueCheck]) {
         if (self.defaults.isEditable) {
-            // 可编辑的非 nil 值，两者都有
+            // 可编辑的非空值，两者都有
             return UITableViewCellAccessoryDetailDisclosureButton;
         } else {
-            // 不可编辑的非 nil 值，仅雪佛龙箭头
+            // 不可编辑的非空值，只有箭头
             return UITableViewCellAccessoryDisclosureIndicator;
         }
     } else {
         if (self.defaults.isEditable) {
-            // 可编辑的 nil 值，仅 (i)
+            // 可编辑的空值，只有 (i)
             return UITableViewCellAccessoryDetailButton;
         } else {
-            // 不可编辑的 nil 值，两者都没有
+            // 不可编辑的空值，两者都没有
             return UITableViewCellAccessoryNone;
         }
     }
@@ -133,11 +133,11 @@ FLEXObjectExplorerDefaultsImpl
     BOOL returnsObject = self.attributes.typeEncoding.flex_typeIsObjectOrClass;
     BOOL targetNotNil = [self appropriateTargetForPropertyType:object] != nil;
     
-    // 针对具有具体类名的属性显示“浏览属性类”
+    // 对于具有具体类名的属性，提供"浏览属性类"选项
     if (returnsObject) {
         NSMutableArray<UIAction *> *actions = [NSMutableArray new];
         
-        // 浏览此属性的类的操作
+        // 用于浏览此属性类的操作
         Class propertyClass = self.attributes.typeEncoding.flex_typeClass;
         if (propertyClass) {
             NSString *title = [NSString stringWithFormat:@"浏览 %@", NSStringFromClass(propertyClass)];
@@ -147,9 +147,9 @@ FLEXObjectExplorerDefaultsImpl
             }]];
         }
         
-        // 浏览对此对象的引用的操作
+        // 用于浏览对此对象引用的操作
         if (targetNotNil) {
-            // 由于属性持有者不为 nil，检查属性值是否为 nil
+            // 由于属性持有者不是 nil，检查属性值是否为 nil
             id value = [self currentValueBeforeUnboxingWithTarget:object];
             if (value) {
                 NSString *title = @"列出所有引用";
@@ -174,24 +174,24 @@ FLEXObjectExplorerDefaultsImpl
     BOOL targetNotNil = [self appropriateTargetForPropertyType:object] != nil;
     
     NSMutableArray *items = [NSMutableArray arrayWithArray:@[
-        @"名称",                      self.name ?: @"",
-        @"类型",                      self.attributes.typeEncoding ?: @"",
-        @"声明",                      self.fullDescription ?: @"",
+        @"名称",          self.name ?: @"",
+        @"类型",          self.attributes.typeEncoding ?: @"",
+        @"声明",          self.fullDescription ?: @"",
     ]];
     
     if (targetNotNil) {
         id value = [self currentValueBeforeUnboxingWithTarget:object];
         [items addObjectsFromArray:@[
-            @"值预览",                [self previewWithTarget:object] ?: @"",
-            @"值地址",                returnsObject ? [FLEXUtility addressOfObject:value] : @"",
+            @"值预览",      [self previewWithTarget:object] ?: @"",
+            @"值地址",      returnsObject ? [FLEXUtility addressOfObject:value] : @"",
         ]];
     }
     
     [items addObjectsFromArray:@[
         @"获取器",                    NSStringFromSelector(self.likelyGetter) ?: @"",
         @"设置器",                    self.likelySetterExists ? NSStringFromSelector(self.likelySetter) : @"",
-        @"镜像名称",                  self.imageName ?: @"",
-        @"属性特性",                  self.attributes.string ?: @"",
+        @"镜像名称",                 self.imageName ?: @"",
+        @"属性",                     self.attributes.string ?: @"",
         @"objc_property",             [FLEXUtility pointerToString:self.objc_property],
         @"objc_property_attribute_t", [FLEXUtility pointerToString:self.attributes.list],
     ]];
@@ -211,7 +211,7 @@ FLEXObjectExplorerDefaultsImpl
 @end
 
 
-#pragma mark - FLEXIvar
+#pragma mark FLEXIvar
 @implementation FLEXIvar (UIKitHelpers)
 FLEXObjectExplorerDefaultsImpl
 
@@ -245,13 +245,13 @@ FLEXObjectExplorerDefaultsImpl
 }
 
 - (UIViewController *)viewerWithTarget:(id)object {
-    NSAssert(!object_isClass(object), @"无法到达的状态：在类对象上查看 ivar");
+    NSAssert(!object_isClass(object), @"无法到达的状态：在类对象上查看实例变量");
     id value = [self currentValueWithTarget:object];
     return [FLEXObjectExplorerFactory explorerViewControllerForObject:value];
 }
 
 - (UIViewController *)editorWithTarget:(id)object section:(FLEXTableViewSection *)section {
-    NSAssert(!object_isClass(object), @"无法到达的状态：在类对象上编辑 ivar");
+    NSAssert(!object_isClass(object), @"无法到达的状态：在类对象上编辑实例变量");
     return [FLEXFieldEditorViewController target:object ivar:self commitHandler:^{
         [section reloadData:YES];
     }];
@@ -262,21 +262,21 @@ FLEXObjectExplorerDefaultsImpl
         return UITableViewCellAccessoryNone;
     }
 
-    // 这里可以使用 .isEditable，但为了速度我们使用 .tag，因为它被缓存了
+    // 可以使用 .isEditable，但我们使用 .tag 提高速度，因为它已缓存
     if ([self getPotentiallyUnboxedValue:object]) {
         if (self.defaults.isEditable) {
-            // 可编辑的非 nil 值，两者都有
+            // 可编辑的非空值，两者都有
             return UITableViewCellAccessoryDetailDisclosureButton;
         } else {
-            // 不可编辑的非 nil 值，仅雪佛龙箭头
+            // 不可编辑的非空值，只有箭头
             return UITableViewCellAccessoryDisclosureIndicator;
         }
     } else {
         if (self.defaults.isEditable) {
-            // 可编辑的 nil 值，仅 (i)
+            // 可编辑的空值，只有 (i)
             return UITableViewCellAccessoryDetailButton;
         } else {
-            // 不可编辑的 nil 值，两者都没有
+            // 不可编辑的空值，两者都没有
             return UITableViewCellAccessoryNone;
         }
     }
@@ -287,7 +287,7 @@ FLEXObjectExplorerDefaultsImpl
 - (NSArray<UIAction *> *)additionalActionsWithTarget:(id)object sender:(UIViewController *)sender __IOS_AVAILABLE(13.0) {
     Class ivarClass = self.typeEncoding.flex_typeClass;
     
-    // 针对具有具体类名的属性显示“浏览属性类”
+    // 对于具有具体类名的属性，提供"浏览属性类"选项
     if (ivarClass) {
         NSString *title = [NSString stringWithFormat:@"浏览 %@", NSStringFromClass(ivarClass)];
         return @[[UIAction actionWithTitle:title image:nil identifier:nil handler:^(UIAction *action) {
@@ -337,7 +337,7 @@ FLEXObjectExplorerDefaultsImpl
 @end
 
 
-#pragma mark - FLEXMethod
+#pragma mark FLEXMethod
 @implementation FLEXMethodBase (UIKitHelpers)
 FLEXObjectExplorerDefaultsImpl
 
@@ -350,7 +350,7 @@ FLEXObjectExplorerDefaultsImpl
 }
 
 - (id)currentValueWithTarget:(id)object {
-    // 方法不能被“编辑”，也没有“值”
+    // 方法不能被"编辑"，也没有"值"
     return nil;
 }
 
@@ -371,7 +371,7 @@ FLEXObjectExplorerDefaultsImpl
 }
 
 - (UITableViewCellAccessoryType)suggestedAccessoryTypeWithTarget:(id)object {
-    // 我们不应该为此使用任何 FLEXMethodBase 对象
+    // 我们不应该使用任何 FLEXMethodBase 对象来做这个
     @throw NSInternalInconsistencyException;
     return UITableViewCellAccessoryNone;
 }
@@ -384,9 +384,9 @@ FLEXObjectExplorerDefaultsImpl
 
 - (NSArray<NSString *> *)copiableMetadataWithTarget:(id)object {
     return @[
-        @"选择器",        self.name ?: @"",
-        @"类型编码",      self.typeEncoding ?: @"",
-        @"声明",          self.description ?: @"",
+        @"选择器",      self.name ?: @"",
+        @"类型编码", self.typeEncoding ?: @"",
+        @"声明",   self.description ?: @"",
     ];
 }
 
@@ -410,10 +410,10 @@ FLEXObjectExplorerDefaultsImpl
 - (UITableViewCellAccessoryType)suggestedAccessoryTypeWithTarget:(id)object {
     if (self.isInstanceMethod) {
         if (object_isClass(object)) {
-            // 来自类的实例方法，无法调用
+            // 从类获取实例方法，不能调用
             return UITableViewCellAccessoryNone;
         } else {
-            // 来自实例的实例方法，可以调用
+            // 从实例获取实例方法，可以调用
             return UITableViewCellAccessoryDisclosureIndicator;
         }
     } else {
@@ -424,18 +424,18 @@ FLEXObjectExplorerDefaultsImpl
 - (NSArray<NSString *> *)copiableMetadataWithTarget:(id)object {
     return [[super copiableMetadataWithTarget:object] arrayByAddingObjectsFromArray:@[
         @"NSMethodSignature *", [FLEXUtility addressOfObject:self.signature],
-        @"签名字符串",          self.signatureString ?: @"",
-        @"参数数量",            @(self.numberOfArguments).stringValue,
-        @"返回类型",            @(self.returnType ?: ""),
-        @"返回大小",            @(self.returnSize).stringValue,
-        @"objc_method",         [FLEXUtility pointerToString:self.objc_method],
+        @"签名字符串",    self.signatureString ?: @"",
+        @"参数数量", @(self.numberOfArguments).stringValue,
+        @"返回类型",         @(self.returnType ?: ""),
+        @"返回大小",         @(self.returnSize).stringValue,
+        @"objc_method",       [FLEXUtility pointerToString:self.objc_method],
     ]];
 }
 
 @end
 
 
-#pragma mark - FLEXProtocol
+#pragma mark FLEXProtocol
 @implementation FLEXProtocol (UIKitHelpers)
 FLEXObjectExplorerDefaultsImpl
 
@@ -480,7 +480,7 @@ FLEXObjectExplorerDefaultsImpl
     NSString *conformances = [conformanceNames componentsJoinedByString:@"\n"];
     return @[
         @"名称",         self.name ?: @"",
-        @"遵循协议",     conformances ?: @"",
+        @"遵循协议", conformances ?: @"",
     ];
 }
 
@@ -491,7 +491,7 @@ FLEXObjectExplorerDefaultsImpl
 @end
 
 
-#pragma mark - FLEXStaticMetadata
+#pragma mark FLEXStaticMetadata
 @interface FLEXStaticMetadata () {
     @protected
     NSString *_name;
@@ -594,7 +594,7 @@ FLEXObjectExplorerDefaultsImpl
 @end
 
 
-#pragma mark - FLEXStaticMetadata_Class
+#pragma mark FLEXStaticMetadata_Class
 @implementation FLEXStaticMetadata_Class
 
 + (instancetype)withClass:(Class)cls {
@@ -622,7 +622,7 @@ FLEXObjectExplorerDefaultsImpl
 
 - (NSArray<NSString *> *)copiableMetadataWithTarget:(id)object {
     return @[
-        @"类名称", self.name,
+        @"类名", self.name,
         @"类", [FLEXUtility addressOfObject:self.metadata]
     ];
 }

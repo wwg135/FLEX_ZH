@@ -1,12 +1,10 @@
-// filepath: NSObject+FLEX_Reflection.m
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  NSObject+FLEX_Reflection.m
 //  FLEX
 //
-//  源自 MirrorKit。
-//  由 Tanner 创建于 6/30/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  衍生自 MirrorKit。
+//  由 Tanner 创建于 6/30/15。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
 //
 
 #import "NSObject+FLEX_Reflection.h"
@@ -138,7 +136,7 @@ NSArray<FLEXMethod *> *FLEXGetAllMethods(_Nullable Class cls, BOOL instance) {
 }
 
 
-#pragma mark - NSProxy
+#pragma mark NSProxy
 
 @interface NSProxy (AnyObjectAdditions) @end
 @implementation NSProxy (AnyObjectAdditions)
@@ -146,14 +144,14 @@ NSArray<FLEXMethod *> *FLEXGetAllMethods(_Nullable Class cls, BOOL instance) {
 + (void)load { FLEX_EXIT_IF_NO_CTORS()
     // 我们需要获取此文件中的所有方法并将它们添加到 NSProxy。
     // 为此，我们需要类本身及其元类。
-    // 编辑：同时也将它们添加到 Swift._SwiftObject
+    // 编辑：也将它们添加到 Swift._SwiftObject
     Class NSProxyClass = [NSProxy class];
     Class NSProxy_meta = object_getClass(NSProxyClass);
     Class SwiftObjectClass = (
         NSClassFromString(@"SwiftObject") ?: NSClassFromString(@"Swift._SwiftObject")
     );
     
-    // 从 NSObject 复制所有 "flex_" 方法
+    // 从 NSObject 复制所有 "flex_" 开头的方法
     id filterFunc = ^BOOL(FLEXMethod *method, NSUInteger idx) {
         return [method.name hasPrefix:@"flex_"];
     };
@@ -181,7 +179,7 @@ NSArray<FLEXMethod *> *FLEXGetAllMethods(_Nullable Class cls, BOOL instance) {
 
 @end
 
-#pragma mark - 反射
+#pragma mark 反射
 
 @implementation NSObject (Reflection)
 
@@ -228,7 +226,7 @@ NSArray<FLEXMethod *> *FLEXGetAllMethods(_Nullable Class cls, BOOL instance) {
 @end
 
 
-#pragma mark - 方法
+#pragma mark 方法
 
 @implementation NSObject (Methods)
 
@@ -304,7 +302,7 @@ NSArray<FLEXMethod *> *FLEXGetAllMethods(_Nullable Class cls, BOOL instance) {
 @end
 
 
-#pragma mark - 实例变量
+#pragma mark 实例变量
 
 @implementation NSObject (Ivars)
 
@@ -376,7 +374,7 @@ NSArray<FLEXMethod *> *FLEXGetAllMethods(_Nullable Class cls, BOOL instance) {
 @end
 
 
-#pragma mark - 属性
+#pragma mark 属性
 
 @implementation NSObject (Properties)
 

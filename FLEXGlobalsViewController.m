@@ -1,11 +1,10 @@
 //
-//  
+//  FLEXGlobalsViewController.m
 //  Flipboard
 //
 //  Created by Ryan Olson on 2014-05-03.
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXGlobalsViewController.h"
 #import "FLEXUtility.h"
@@ -27,7 +26,9 @@
 #import "UIBarButtonItem+FLEX.h"
 
 @interface FLEXGlobalsViewController ()
+/// 表视图中仅显示的部分；空部分从此数组中清除。
 @property (nonatomic) NSArray<FLEXGlobalsSection *> *sections;
+/// 表视图中的所有部分，无论部分是否为空。
 @property (nonatomic, readonly) NSArray<FLEXGlobalsSection *> *allSections;
 @property (nonatomic, readonly) BOOL manuallyDeselectOnAppear;
 @end
@@ -35,7 +36,7 @@
 @implementation FLEXGlobalsViewController
 @dynamic sections, allSections;
 
-#pragma mark - Initialization
+#pragma mark - 初始化
 
 + (NSString *)globalsTitleForSection:(FLEXGlobalsSectionKind)section {
     switch (section) {
@@ -96,17 +97,13 @@
         case FLEXGlobalsRowMainThread:
         case FLEXGlobalsRowOperationQueue:
             return [FLEXObjectExplorerFactory flex_concreteGlobalsEntry:row];
-        case FLEXGlobalsRowCaches:
-        case FLEXGlobalsRowDictionaryPreferences:
-        case FLEXGlobalsRowWebKitPreferences:
-            return [FLEXObjectExplorerFactory flex_concreteGlobalsEntry:row];
-            
+        
         case FLEXGlobalsRowCount: break;
     }
     
     @throw [NSException
         exceptionWithName:NSInternalInconsistencyException
-        reason:@"Switch语句中缺少globals枚举处理" userInfo:nil
+        reason:@"在switch中缺少globals情况" userInfo:nil
     ];
 }
 
@@ -165,7 +162,7 @@
 }
 
 
-#pragma mark - Overrides
+#pragma mark - 重写
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -174,7 +171,6 @@
     self.showsSearchBar = YES;
     self.searchBarDebounceInterval = kFLEXDebounceInstant;
     self.navigationItem.backBarButtonItem = [UIBarButtonItem flex_backItemWithTitle:@"返回"];
-    self.searchController.searchBar.placeholder = @"筛选 (例如 \"NSUserDefaults\", \"touches\")";
     
     _manuallyDeselectOnAppear = NSProcessInfo.processInfo.operatingSystemVersion.majorVersion < 10;
 }
@@ -191,7 +187,7 @@
 
 - (NSArray<FLEXGlobalsSection *> *)makeSections {
     NSMutableArray<FLEXGlobalsSection *> *sections = [NSMutableArray array];
-    // Do we have custom sections to add?
+    // 我们有自定义部分要添加吗？
     if (FLEXManager.sharedManager.userGlobalEntries.count) {
         NSString *title = [[self class] globalsTitleForSection:FLEXGlobalsSectionCustom];
         FLEXGlobalsSection *custom = [FLEXGlobalsSection
@@ -204,28 +200,6 @@
     [sections addObjectsFromArray:[self.class defaultGlobalSections]];
 
     return sections;
-}
-
-- (NSString *)featureDescription {
-    return @"FLEX 是一个强大的开发调试工具,提供以下功能:\n\n"
-           @"• 查看和修改运行时对象\n"
-           @"• 查看网络请求日志\n" 
-           @"• 查看视图层级\n"
-           @"• 查看系统日志\n"
-           @"• 执行自定义代码\n"
-           @"• 更多功能等你发现";
-}
-
-- (NSString *)toolDescription {
-    return @"FLEX 开发者工具提供以下功能:\n\n"
-           @"• 实时查看和编辑视图层级\n"
-           @"• 检查和修改对象属性\n"
-           @"• 动态调用实例和类方法\n"
-           @"• 查看网络请求详情\n"
-           @"• 查看应用沙盒文件\n"
-           @"• 查看系统日志信息\n"
-           @"• 模拟定位和运动\n"
-           @"• 性能检测分析";  
 }
 
 @end

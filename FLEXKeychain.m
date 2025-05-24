@@ -7,8 +7,6 @@
 //  Copyright (c) 2010-2014 Sam Soffes. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXKeychain.h"
 #import "FLEXKeychainQuery.h"
 

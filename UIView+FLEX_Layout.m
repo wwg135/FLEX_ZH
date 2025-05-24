@@ -5,63 +5,61 @@
 //  Created by Tanner Bennett on 7/18/19.
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "UIView+FLEX_Layout.h"
 
 @implementation UIView (FLEX_Layout)
 
 - (void)flex_centerInView:(UIView *)view {
-    self.translatesAutoresizingMaskIntoConstraints = NO;
     [NSLayoutConstraint activateConstraints:@[
         [self.centerXAnchor constraintEqualToAnchor:view.centerXAnchor],
-        [self.centerYAnchor constraintEqualToAnchor:view.centerYAnchor]
+        [self.centerYAnchor constraintEqualToAnchor:view.centerYAnchor],
     ]];
 }
 
 - (void)flex_pinEdgesTo:(UIView *)view {
-    [self flex_pinEdgesTo:view withInsets:UIEdgeInsetsZero];
+   [NSLayoutConstraint activateConstraints:@[
+       [self.topAnchor constraintEqualToAnchor:view.topAnchor],
+       [self.leftAnchor constraintEqualToAnchor:view.leftAnchor],
+       [self.bottomAnchor constraintEqualToAnchor:view.bottomAnchor],
+       [self.rightAnchor constraintEqualToAnchor:view.rightAnchor],
+   ]]; 
 }
 
-- (void)flex_pinEdgesTo:(UIView *)view withInsets:(UIEdgeInsets)insets {
-    self.translatesAutoresizingMaskIntoConstraints = NO;
+- (void)flex_pinEdgesTo:(UIView *)view withInsets:(UIEdgeInsets)i {
     [NSLayoutConstraint activateConstraints:@[
-        [self.topAnchor constraintEqualToAnchor:view.topAnchor constant:insets.top],
-        [self.leftAnchor constraintEqualToAnchor:view.leftAnchor constant:insets.left],
-        [self.bottomAnchor constraintEqualToAnchor:view.bottomAnchor constant:-insets.bottom],
-        [self.rightAnchor constraintEqualToAnchor:view.rightAnchor constant:-insets.right]
+        [self.topAnchor constraintEqualToAnchor:view.topAnchor constant:i.top],
+        [self.leftAnchor constraintEqualToAnchor:view.leftAnchor constant:i.left],
+        [self.bottomAnchor constraintEqualToAnchor:view.bottomAnchor constant:-i.bottom],
+        [self.rightAnchor constraintEqualToAnchor:view.rightAnchor constant:-i.right],
     ]];
 }
 
 - (void)flex_pinEdgesToSuperview {
-    [self flex_pinEdgesToSuperviewWithInsets:UIEdgeInsetsZero];
+    [self flex_pinEdgesTo:self.superview];
 }
 
 - (void)flex_pinEdgesToSuperviewWithInsets:(UIEdgeInsets)insets {
     [self flex_pinEdgesTo:self.superview withInsets:insets];
 }
 
-- (void)flex_pinEdgesToSuperviewWithInsets:(UIEdgeInsets)insets aboveView:(UIView *)sibling {
-    self.translatesAutoresizingMaskIntoConstraints = NO;
-    UIView *superview = self.superview;
-    
+- (void)flex_pinEdgesToSuperviewWithInsets:(UIEdgeInsets)i aboveView:(UIView *)sibling {
+    UIView *view = self.superview;
     [NSLayoutConstraint activateConstraints:@[
-        [self.topAnchor constraintEqualToAnchor:superview.topAnchor constant:insets.top],
-        [self.leftAnchor constraintEqualToAnchor:superview.leftAnchor constant:insets.left],
-        [self.rightAnchor constraintEqualToAnchor:superview.rightAnchor constant:-insets.right],
-        [self.bottomAnchor constraintEqualToAnchor:sibling.topAnchor constant:-insets.bottom]
+        [self.topAnchor constraintEqualToAnchor:view.topAnchor constant:i.top],
+        [self.leftAnchor constraintEqualToAnchor:view.leftAnchor constant:i.left],
+        [self.bottomAnchor constraintEqualToAnchor:sibling.topAnchor constant:-i.bottom],
+        [self.rightAnchor constraintEqualToAnchor:view.rightAnchor constant:-i.right],
     ]];
 }
 
-- (void)flex_pinEdgesToSuperviewWithInsets:(UIEdgeInsets)insets belowView:(UIView *)sibling {
-    self.translatesAutoresizingMaskIntoConstraints = NO;
-    UIView *superview = self.superview;
-    
+- (void)flex_pinEdgesToSuperviewWithInsets:(UIEdgeInsets)i belowView:(UIView *)sibling {
+    UIView *view = self.superview;
     [NSLayoutConstraint activateConstraints:@[
-        [self.topAnchor constraintEqualToAnchor:sibling.bottomAnchor constant:insets.top],
-        [self.leftAnchor constraintEqualToAnchor:superview.leftAnchor constant:insets.left],
-        [self.rightAnchor constraintEqualToAnchor:superview.rightAnchor constant:-insets.right],
-        [self.bottomAnchor constraintEqualToAnchor:superview.bottomAnchor constant:-insets.bottom]
+        [self.topAnchor constraintEqualToAnchor:sibling.bottomAnchor constant:i.top],
+        [self.leftAnchor constraintEqualToAnchor:view.leftAnchor constant:i.left],
+        [self.bottomAnchor constraintEqualToAnchor:view.bottomAnchor constant:-i.bottom],
+        [self.rightAnchor constraintEqualToAnchor:view.rightAnchor constant:-i.right],
     ]];
 }
 

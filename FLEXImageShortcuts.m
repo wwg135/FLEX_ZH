@@ -5,7 +5,6 @@
 //  Created by Tanner Bennett on 8/29/19.
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXImageShortcuts.h"
 #import "FLEXImagePreviewViewController.h"
@@ -19,11 +18,12 @@
 
 @implementation FLEXImageShortcuts
 
-#pragma mark - Overrides
+#pragma mark - 重写
 
 + (instancetype)forObject:(UIImage *)image {
-    // 这些额外的行将出现在快捷方式部分的开头
-    // 下面的方法编写方式不会干扰与这些一起注册的属性/等
+    // 这些附加行将出现在快捷方式部分的开头。
+    // 下面的方法编写方式使它们不会干扰
+    // 与这些一起注册的属性/等
     return [self forObject:image additionalRows:@[
         [FLEXActionShortcut title:@"查看图片" subtitle:nil
             viewer:^UIViewController *(id image) {
@@ -35,9 +35,9 @@
         ],
         [FLEXActionShortcut title:@"保存图片" subtitle:nil
             selectionHandler:^(UIViewController *host, id image) {
-                // 显示模态提醒用户正在保存
+                // 显示模态提醒用户关于保存的信息
                 UIAlertController *alert = [FLEXAlert makeAlert:^(FLEXAlert *make) {
-                    make.title(@"正在保存图片...");
+                    make.title(@"正在保存图片…");
                 }];
                 [host presentViewController:alert animated:YES completion:nil];
             

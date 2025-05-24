@@ -1,11 +1,9 @@
-// filepath: FLEXShortcut.m
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXShortcut.m
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 12/10/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
 
 #import "FLEXShortcut.h"
@@ -71,7 +69,7 @@
     switch (self.metadataKind) {
         case FLEXMetadataKindClassProperties:
         case FLEXMetadataKindProperties:
-            // 因为我们在“属性”部分之外，所以在前面加上 @property 以使其更清晰。
+            // 由于我们在"属性"部分之外，为了清晰起见，添加 @property 前缀
             return [@"@property " stringByAppendingString:[_item description]];
 
         default:
@@ -80,7 +78,7 @@
 
     NSAssert(
         [_item isKindOfClass:[NSString class]],
-        @"意外类型：%@", [_item class]
+        @"意外类型: %@", [_item class]
     );
 
     return _item;
@@ -91,9 +89,9 @@
         return [self.metadata previewWithTarget:object];
     }
 
-    // 项目可能是一个字符串；必须返回空字符串，因为
-    // 这些将被收集到一个数组中。如果对象只是一个字符串，
-    // 它不会有副标题。
+    // 项目可能是字符串；必须返回空字符串，因为
+    // 这些将被收集到一个数组中。如果对象仅
+    // 是一个字符串，它不会有副标题。
     return @"";
 }
 
@@ -243,7 +241,7 @@
 
 - (NSString *)customReuseIdentifierWith:(id)object {
     if (!self.subtitleFuture(object)) {
-        // 如果没有副标题，这种样式的文本会更居中
+        // 如果没有副标题，这种样式的文本更居中
         return kFLEXDefaultCell;
     }
 

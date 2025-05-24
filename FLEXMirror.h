@@ -1,11 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMirror.h
 //  FLEX
 //
-//  派生自 MirrorKit。
-//  由 Tanner 创建于 6/29/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Derived from MirrorKit.
+//  Created by Tanner on 6/29/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -14,19 +13,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark FLEXMirror 协议
+#pragma mark FLEXMirror Protocol
 NS_SWIFT_NAME(FLEXMirrorProtocol)
 @protocol FLEXMirror <NSObject>
 
-/// Swift 初始化程序
-/// @throws 如果传入元类对象。
+/// Swift initializer
+/// @throws If a metaclass object is passed in.
 - (instancetype)initWithSubject:(id)objectOrClass NS_SWIFT_NAME(init(reflecting:));
 
-/// 用于创建此 \c FLEXMirror 的底层对象或 \c Class。
+/// The underlying object or \c Class used to create this \c FLEXMirror.
 @property (nonatomic, readonly) id   value;
-/// \c value 是类还是类实例。
+/// Whether \c value was a class or a class instance.
 @property (nonatomic, readonly) BOOL isClass;
-/// \c value 属性的 \c Class 的名称。
+/// The name of the \c Class of the \c value property.
 @property (nonatomic, readonly) NSString *className;
 
 @property (nonatomic, readonly) NSArray<FLEXProperty *> *properties;
@@ -36,29 +35,30 @@ NS_SWIFT_NAME(FLEXMirrorProtocol)
 @property (nonatomic, readonly) NSArray<FLEXMethod *>   *classMethods;
 @property (nonatomic, readonly) NSArray<FLEXProtocol *> *protocols;
 
-/// 超类镜像使用传入值对应的类进行初始化。
-/// 如果传入类的实例，则使用其超类创建此镜像。
-/// 如果传入一个类，则使用该类的超类。
+/// Super mirrors are initialized with the class that corresponds to the value passed in.
+/// If you passed in an instance of a class, it's superclass is used to create this mirror.
+/// If you passed in a class, then that class's superclass is used.
 ///
-/// @注意 此属性应为计算属性，而非缓存属性。
+/// @note This property should be computed, not cached.
 @property (nonatomic, readonly, nullable) id<FLEXMirror> superMirror NS_SWIFT_NAME(superMirror);
 
 @end
 
-#pragma mark FLEXMirror 类
+#pragma mark FLEXMirror Class
 @interface FLEXMirror : NSObject <FLEXMirror>
 
-/// 反射对象的实例或 \c Class。
-/// @讨论 \c FLEXMirror 将立即收集所有有用的信息。如果您的代码仅使用少量信息，
-/// 或者如果您的代码需要更快地运行，请考虑使用提供的 \c NSObject 类别。
+/// Reflects an instance of an object or \c Class.
+/// @discussion \c FLEXMirror will immediately gather all useful information. Consider using the
+/// \c NSObject categories provided if your code will only use a few pieces of information,
+/// or if your code needs to run faster.
 ///
-/// 无论您反射的是实例还是类对象，\c methods 和 \c properties
-/// 都将填充实例方法和属性，而 \c classMethods 和 \c classProperties
-/// 将填充类方法和属性。
+/// Regardless of whether you reflect an instance or a class object, \c methods and \c properties
+/// will be populated with instance methods and properties, and \c classMethods and \c classProperties
+/// will be populated with class methods and properties.
 ///
-/// @param objectOrClass 对象的实例或 \c Class 对象。
-/// @throws 如果传入元类对象。
-/// @return \c FLEXMirror 的实例。
+/// @param objectOrClass An instance of an objct or a \c Class object.
+/// @throws If a metaclass object is passed in.
+/// @return An instance of \c FLEXMirror.
 + (instancetype)reflect:(id)objectOrClass;
 
 @property (nonatomic, readonly) id   value;
@@ -79,17 +79,17 @@ NS_SWIFT_NAME(FLEXMirrorProtocol)
 
 @interface FLEXMirror (ExtendedMirror)
 
-/// @return具有给定名称的实例方法，如果不存在则为 \c nil。
+/// @return The instance method with the given name, or \c nil if one does not exist.
 - (nullable FLEXMethod *)methodNamed:(nullable NSString *)name;
-/// @return具有给定名称的类方法，如果不存在则为 \c nil。
+/// @return The class method with the given name, or \c nil if one does not exist.
 - (nullable FLEXMethod *)classMethodNamed:(nullable NSString *)name;
-/// @return具有给定名称的实例属性，如果不存在则为 \c nil。
+/// @return The instance property with the given name, or \c nil if one does not exist.
 - (nullable FLEXProperty *)propertyNamed:(nullable NSString *)name;
-/// @return具有给定名称的类属性，如果不存在则为 \c nil。
+/// @return The class property with the given name, or \c nil if one does not exist.
 - (nullable FLEXProperty *)classPropertyNamed:(nullable NSString *)name;
-/// @return具有给定名称的实例变量，如果不存在则为 \c nil。
+/// @return The instance variable with the given name, or \c nil if one does not exist.
 - (nullable FLEXIvar *)ivarNamed:(nullable NSString *)name;
-/// @return具有给定名称的协议，如果不存在则为 \c nil。
+/// @return The protocol with the given name, or \c nil if one does not exist.
 - (nullable FLEXProtocol *)protocolNamed:(nullable NSString *)name;
 
 @end

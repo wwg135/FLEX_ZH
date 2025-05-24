@@ -1,13 +1,14 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntimeKeyPathTokenizer.m
 //  FLEX
 //
 //  由 Tanner 创建于 3/22/17.
-//  版权所有 © 2017 Tanner Bennett。保留所有权利。
+//  版权所有 © 2017 Tanner Bennett. 保留所有权利。
 //
 
 #import "FLEXRuntimeKeyPathTokenizer.h"
+
+#define TBCountOfStringOccurence(target, str) ([target componentsSeparatedByString:str].count - 1)
 
 @implementation FLEXRuntimeKeyPathTokenizer
 
@@ -34,7 +35,7 @@ static NSCharacterSet *methodAllowed     = nil;
     }
 }
 
-#pragma mark 公开方法
+#pragma mark 公共方法
 
 + (FLEXRuntimeKeyPath *)tokenizeString:(NSString *)userInput {
     if (!userInput.length) {
@@ -74,12 +75,8 @@ static NSCharacterSet *methodAllowed     = nil;
 #pragma mark 私有方法
 
 + (NSUInteger)tokenCountOfString:(NSString *)userInput {
-    // 计算转义句点的数量
-    NSUInteger escapedCount = [[userInput componentsSeparatedByString:@"\\."] count] - 1;
-    // 用占位符替换转义句点
-    userInput = [userInput stringByReplacingOccurrencesOfString:@"\\." withString:@"FLEXPeriodPlaceholder"];
-    // 按未转义句点分割
-    NSUInteger tokenCount = [[userInput componentsSeparatedByString:@"."] count] - escapedCount;
+    NSUInteger escapedCount = TBCountOfStringOccurence(userInput, @"\\.");
+    NSUInteger tokenCount  = TBCountOfStringOccurence(userInput, @".") - escapedCount + 1;
 
     return tokenCount;
 }
@@ -95,7 +92,7 @@ static NSCharacterSet *methodAllowed     = nil;
     TBWildcardOptions options = TBWildcardOptionsNone;
     NSMutableString *token = [NSMutableString new];
 
-    // 标记不能以 '.' 开头
+    // 令牌不能以'.'开头
     if ([scanner scanString:@"." intoString:nil]) {
         @throw NSInternalInconsistencyException;
     }
@@ -115,7 +112,7 @@ static NSCharacterSet *methodAllowed     = nil;
     NSCharacterSet *disallowed = allowedChars.invertedSet;
     while (!stop && ![scanner scanString:@"." intoString:&tmp] && !scanner.isAtEnd) {
         // 扫描单词字符
-        // 在此块中，我们尚未扫描任何内容，除了可能的前导 '\' 或 '\.'
+        // 在这个块中，我们还没有扫描任何内容，除了可能的前导'\'或'\.'
         if (!didScanFirstAllowed) {
             if ([scanner scanCharactersFromSet:first intoString:&tmp]) {
                 [token appendString:tmp];
@@ -124,51 +121,51 @@ static NSCharacterSet *methodAllowed     = nil;
                 if (options == TBWildcardOptionsPrefix && [scanner scanString:@"." intoString:nil]) {
                     [token appendString:@"."];
                 } else if (scanner.isAtEnd && options == TBWildcardOptionsPrefix) {
-                    // 仅当以 '*' 为前缀时才允许独立的 '\'
+                    // 只有在前缀为'*'时才允许独立的'\'
                     return FLEXSearchToken.any;
                 } else {
-                    // 标记以数字、句点或其他不允许的字符开头，
-                    // 或者标记是独立的 '\' 且没有 '*' 前缀
+                    // 令牌以数字、句点或其他不允许的内容开头，
+                    // 或者令牌是没有'*'前缀的独立'\'
                     @throw NSInternalInconsistencyException;
                 }
             } else {
-                // 标记以数字、句点或其他不允许的字符开头
+                // 令牌以数字、句点或其他不允许的内容开头
                 @throw NSInternalInconsistencyException;
             }
         } else if ([scanner scanCharactersFromSet:allowedChars intoString:&tmp]) {
             [token appendString:tmp];
         }
-        // 扫描 '\.' 或尾随的 '\'
+        // 扫描'\.'或尾随'\'
         else if ([scanner scanString:@"\\" intoString:nil]) {
             if ([scanner scanString:@"." intoString:nil]) {
                 [token appendString:@"."];
             } else if (scanner.isAtEnd) {
-                // 如果在末尾，忽略后面没有句点的反斜杠
+                // 如果在末尾，忽略不后跟句点的正斜杠
                 return [FLEXSearchToken string:token options:options | TBWildcardOptionsSuffix];
             } else {
-                // 只有句点可以跟在反斜杠后面
+                // 只有句点可以跟在正斜杠后面
                 @throw NSInternalInconsistencyException;
             }
         }
-        // 扫描 '*.'
+        // 扫描'*.'
         else if ([scanner scanString:@"*." intoString:nil]) {
             options |= TBWildcardOptionsSuffix;
             stop = YES;
             didScanDelimiter = YES;
         }
-        // 扫描后面没有 . 的 '*'
+        // 扫描不后跟.的'*'
         else if ([scanner scanString:@"*" intoString:nil]) {
             if (!scanner.isAtEnd) {
-                // 无效标记，通配符在标记中间
+                // 无效令牌，令牌中间有通配符
                 @throw NSInternalInconsistencyException;
             }
         } else if ([scanner scanCharactersFromSet:disallowed intoString:nil]) {
-            // 无效标记，包含无效字符
+            // 无效令牌，无效字符
             @throw NSInternalInconsistencyException;
         }
     }
 
-    // 我们是否扫描到了尾随的、未转义的 '.'？
+    // 我们是否扫描了一个尾随的、未转义的'.'？
     if ([tmp isEqualToString:@"."]) {
         didScanDelimiter = YES;
     }
@@ -189,7 +186,7 @@ static NSCharacterSet *methodAllowed     = nil;
     }
 
     if ([scanner.string hasSuffix:@"."] && ![scanner.string hasSuffix:@"\\."]) {
-        // 方法不能以 '.' 结尾，除非是 '\.'
+        // 方法不能以'.'结尾，除了'\.'
         @throw NSInternalInconsistencyException;
     }
     
@@ -199,14 +196,14 @@ static NSCharacterSet *methodAllowed     = nil;
         *instance = @NO;
     } else {
         if ([scanner scanString:@"*" intoString:nil]) {
-            // 只是检查一下……它必须以这三个字符之一开头！
+            // 只是检查...它必须以这三个之一开头！
             scanner.scanLocation--;
         } else {
             @throw NSInternalInconsistencyException;
         }
     }
 
-    // 不允许 -*foo
+    // -*foo 不允许
     if (*instance && [scanner scanString:@"*" intoString:nil]) {
         @throw NSInternalInconsistencyException;
     }

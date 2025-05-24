@@ -1,18 +1,18 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMethodBase.h
 //  FLEX
 //
-//  派生自 MirrorKit。
-//  由 Tanner 创建于 7/5/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Derived from MirrorKit.
+//  Created by Tanner on 7/5/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 
-/// 方法的基类，包含那些可能尚未添加到类中的方法。
-/// 可单独用于向类中添加方法，或从头开始构建新类。
+/// A base class for methods which encompasses those that may not
+/// have been added to a class yet. Useful on it's own for adding
+/// methods to a class, or building a new class from the ground up.
 @interface FLEXMethodBase : NSObject {
 @protected
     SEL      _selector;
@@ -23,21 +23,21 @@
     NSString *_flex_description;
 }
 
-/// 构建并返回一个具有给定名称、类型编码和实现的 \c FLEXSimpleMethod 实例。
+/// Constructs and returns a \c FLEXSimpleMethod instance with the given name, type encoding, and implementation.
 + (instancetype)buildMethodNamed:(NSString *)name withTypes:(NSString *)typeEncoding implementation:(IMP)implementation;
 
-/// 方法的选择器。
+/// The selector of the method.
 @property (nonatomic, readonly) SEL      selector;
-/// 方法的选择器字符串。
+/// The selector string of the method.
 @property (nonatomic, readonly) NSString *selectorString;
-/// 与 selectorString 相同。
+/// Same as selectorString.
 @property (nonatomic, readonly) NSString *name;
-/// 方法的类型编码。
+/// The type encoding of the method.
 @property (nonatomic, readonly) NSString *typeEncoding;
-/// 方法的实现。
+/// The implementation of the method.
 @property (nonatomic, readonly) IMP      implementation;
 
-/// 供内部使用
+/// For internal use
 @property (nonatomic) id tag;
 
 @end

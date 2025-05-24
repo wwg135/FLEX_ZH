@@ -2,11 +2,10 @@
 //  FLEXIvar.m
 //  FLEX
 //
-//  Derived from MirrorKit.
+//  源自 MirrorKit.
 //  Created by Tanner on 6/30/15.
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXIvar.h"
 #import "FLEXRuntimeUtility.h"
@@ -23,7 +22,7 @@
 
 @implementation FLEXIvar
 
-#pragma mark Initializers
+#pragma mark 初始化器
 
 + (instancetype)ivar:(Ivar)ivar {
     return [[self alloc] initWithIvar:ivar];
@@ -31,7 +30,7 @@
 
 + (instancetype)named:(NSString *)name onClass:(Class)cls {
     Ivar _Nullable ivar = class_getInstanceVariable(cls, name.UTF8String);
-    NSAssert(ivar, @"无法在类 %@ 上找到名为 %@ 的实例变量", cls, name);
+    NSAssert(ivar, @"无法在类 %@ 中找到名为 %@ 的实例变量", cls, name);
     return [self ivar:ivar];
 }
 
@@ -47,7 +46,7 @@
     return self;
 }
 
-#pragma mark Other
+#pragma mark 其他
 
 - (NSString *)description {
     if (!_flex_description) {
@@ -73,7 +72,7 @@
     if (_typeEncoding.length) {
         _type = (FLEXTypeEncoding)[_typeEncoding characterAtIndex:0];
         FLEXGetSizeAndAlignment(_typeEncoding.UTF8String, &_size, nil);
-        sizeForDetails = [@(_size).stringValue stringByAppendingString:@" 字节"];
+        sizeForDetails = [@(_size).stringValue stringByAppendingString:@" bytes"];
     } else {
         _type = FLEXTypeEncodingNull;
         typeForDetails = @"无类型信息";
@@ -86,7 +85,7 @@
     }
 
     _details = [NSString stringWithFormat:
-        @"%@, 偏移量 %@  —  %@",
+        @"%@, offset %@  —  %@",
         sizeForDetails, @(_offset), typeForDetails
     ];
 }
@@ -100,7 +99,7 @@
     }
 
 #ifdef __arm64__
-    // See http://www.sealiesoftware.com/blog/archive/2013/09/24/objc_explain_Non-pointer_isa.html
+    // 参见 http://www.sealiesoftware.com/blog/archive/2013/09/24/objc_explain_Non-pointer_isa.html
     if (self.type == FLEXTypeEncodingObjcClass && [self.name isEqualToString:@"isa"]) {
         value = object_getClass(target);
     } else
@@ -123,13 +122,13 @@
     if (self.type == FLEXTypeEncodingObjcObject) {
         object_setIvar(target, self.objc_ivar, value);
     } else if ([value isKindOfClass:[NSValue class]]) {
-        // 基本类型 - 解包NSValue
+        // 基本类型 - 解开 NSValue
         NSValue *valueValue = (NSValue *)value;
 
-        // 确保包含了正确的类型
+        // 确保容器包含正确的类型
         NSAssert(
             strcmp(valueValue.objCType, typeEncodingCString) == 0,
-            @"类型编码不匹配(值: %s; 实例变量: %s)，设置名为: %@ 的实例变量到对象: %@",
+            @"类型编码不匹配 (值: %s; 实例变量: %s) 在设置名为: %@ 的实例变量到对象: %@",
             valueValue.objCType, typeEncodingCString, self.name, target
         );
 

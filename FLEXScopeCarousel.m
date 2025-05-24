@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXScopeCarousel.m
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 7/17/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
 
 #import "FLEXScopeCarousel.h"
@@ -69,7 +68,7 @@ NSString * const kCarouselCellReuseIdentifier = @"kCarouselCellReuseIdentifier";
         });
 
 
-        // 尺寸调整单元格
+        // 尺寸单元格
         _sizingCell = [FLEXCarouselCell new];
         self.sizingCell.title = @"NSObject";
 
@@ -103,7 +102,7 @@ NSString * const kCarouselCellReuseIdentifier = @"kCarouselCellReuseIdentifier";
 
     CGFloat width = 1.f / UIScreen.mainScreen.scale;
 
-    // 绘制发际线
+    // 绘制细线
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetStrokeColorWithColor(context, FLEXColor.hairlineColor.CGColor);
     CGContextSetLineWidth(context, width);
@@ -134,7 +133,7 @@ NSString * const kCarouselCellReuseIdentifier = @"kCarouselCellReuseIdentifier";
     );
 }
 
-#pragma mark - 公开
+#pragma mark - 公共方法
 
 - (void)setItems:(NSArray<NSString *> *)items {
     NSParameterAssert(items.count);
@@ -185,17 +184,17 @@ NSString * const kCarouselCellReuseIdentifier = @"kCarouselCellReuseIdentifier";
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    _selectedIndex = indexPath.item; // 以防 self.selectedIndex 未触发此调用
+    _selectedIndex = indexPath.item; // 以防 self.selectedIndex 没有触发此调用
 
     if (self.selectedIndexChangedAction) {
         self.selectedIndexChangedAction(indexPath.row);
     }
 
-    // TODO: 动态选择滚动位置。非常宽的项目应该
-    // 获取“左对齐”，而较小的项目根本不应滚动，除非
-    // 它们仅部分显示在屏幕上，在这种情况下，它们
-    // 应该获取“水平居中”以将它们显示在屏幕上。
-    // 目前，所有内容都向左滚动，因为这具有类似的效果。
+    // TODO: 动态选择滚动位置。非常宽的项应该
+    // 获取"左侧"，而较小的项不应该滚动，除非
+    // 它们只有部分在屏幕上，在这种情况下，它们
+    // 应该获取"水平居中"以将它们带到屏幕上。
+    // 目前，所有内容都往左走，因为这有类似的效果。
     [collectionView scrollToItemAtIndexPath:indexPath
                            atScrollPosition:UICollectionViewScrollPositionLeft
                                    animated:YES];

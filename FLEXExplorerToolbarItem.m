@@ -2,10 +2,9 @@
 //  FLEXExplorerToolbarItem.m
 //  Flipboard
 //
-//  创建者：Ryan Olson，日期：4/4/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 4/4/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXColor.h"
 #import "FLEXExplorerToolbarItem.h"
@@ -25,7 +24,7 @@
 
 @implementation FLEXExplorerToolbarItem
 
-#pragma mark - Public // 公共方法
+#pragma mark - Public
 
 + (instancetype)itemWithTitle:(NSString *)title image:(UIImage *)image {
     return [self itemWithTitle:title image:image sibling:nil];
@@ -57,7 +56,7 @@
 }
 
 
-#pragma mark - Display Defaults // 显示默认值
+#pragma mark - Display Defaults
 
 + (NSDictionary<NSString *, id> *)titleAttributes {
     return @{ NSFontAttributeName : [UIFont systemFontOfSize:12.0] };
@@ -80,7 +79,7 @@
 }
 
 
-#pragma mark - State Changes // 状态变更
+#pragma mark - State Changes
 
 - (void)setHighlighted:(BOOL)highlighted {
     super.highlighted = highlighted;
@@ -95,12 +94,12 @@
 - (void)setEnabled:(BOOL)enabled {
     if (self.enabled != enabled) {
         if (self.sibling) {
-            if (enabled) { // 用我自己替换同级项
+            if (enabled) { // Replace sibling with myself
                 UIView *superview = self.sibling.superview;
                 [self.sibling removeFromSuperview];
                 self.frame = self.sibling.frame;
                 [superview addSubview:self];
-            } else { // 用同级项替换我自己
+            } else { // Replace myself with sibling
                 UIView *superview = self.superview;
                 [self removeFromSuperview];
                 self.sibling.frame = self.frame;
@@ -115,7 +114,7 @@
 + (id)_selectedIndicatorImage { return nil; }
 
 - (void)updateColors {
-    // 背景颜色
+    // Background color
     if (self.highlighted) {
         self.backgroundColor = self.class.highlightedBackgroundColor;
     } else if (self.selected) {
@@ -126,11 +125,11 @@
 }
 
 
-#pragma mark - UIButton Layout Overrides // UIButton 布局覆盖
+#pragma mark - UIButton Layout Overrides
 
 - (CGRect)titleRectForContentRect:(CGRect)contentRect {
     NSDictionary *attrs = [[self class] titleAttributes];
-    // 底部对齐并居中。
+    // Bottom aligned and centered.
     CGRect titleRect = CGRectZero;
     CGSize titleSize = [self.title boundingRectWithSize:contentRect.size
                                                 options:0

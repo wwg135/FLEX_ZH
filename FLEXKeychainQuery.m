@@ -2,11 +2,9 @@
 //  FLEXKeychainQuery.m
 //  FLEXKeychain
 //
-//  创建者: Caleb Davenport on 3/19/13.
-//  版权所有 (c) 2013-2014 Sam Soffes. 保留所有权利。
+//  Created by Caleb Davenport on 3/19/13.
+//  Copyright (c) 2013-2014 Sam Soffes. All rights reserved.
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXKeychainQuery.h"
 #import "FLEXKeychain.h"
@@ -75,13 +73,15 @@
     #if TARGET_OS_IPHONE
     status = SecItemDelete((__bridge CFDictionaryRef)query);
     #else
-    // 在Mac OS上，SecItemDelete无法删除在不同应用或同一应用的不同版本中创建的密钥。
+    // 在 Mac OS 上，SecItemDelete 不会删除在不同应用程序中创建的密钥，
+    // 也不会删除同一应用程序的不同版本中创建的密钥。
     //
-    // 要重现此问题，请保存密码，更改代码并重新构建应用，然后尝试删除该密码。
+    // 要复现此问题，请保存密码，更改代码并重新构建应用程序，
+    // 然后尝试删除该密码。
     //
-    // 这个问题在OS X 10.6和可能更高版本中存在。
+    // 这在 OS X 10.6 及可能更高版本中都是如此。
     //
-    // 通过使用SecItemCopyMatching和SecKeychainItemDelete来解决此问题。
+    // 通过使用 SecItemCopyMatching 和 SecKeychainItemDelete 来解决这个问题。
     CFTypeRef result = NULL;
     query[(__bridge id)kSecReturnRef] = @YES;
     status = SecItemCopyMatching((__bridge CFDictionaryRef)query, &result);

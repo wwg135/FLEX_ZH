@@ -1,15 +1,14 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntimeSafety.h
 //  FLEX
 //
-//  由 Tanner 创建于 3/25/17.
+//  Created by Tanner on 3/25/17.
 //
 
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
-#pragma mark - 类
+#pragma mark - Classes
 
 extern NSUInteger const kFLEXKnownUnsafeClassCount;
 extern const Class * FLEXKnownUnsafeClassList(void);
@@ -25,17 +24,17 @@ static void FLEXInitKnownRootClasses(void) {
 }
 
 static inline BOOL FLEXClassIsSafe(Class cls) {
-    // 它是否为 nil 或已知不安全？
+    // Is it nil or known to be unsafe?
     if (!cls || CFSetContainsValue(FLEXKnownUnsafeClasses, (__bridge void *)cls)) {
         return NO;
     }
     
-    // 它是否是已知的根类？
+    // Is it a known root class?
     if (!class_getSuperclass(cls)) {
         return cls == cNSObject || cls == cNSProxy;
     }
     
-    // 可能安全
+    // Probably safe
     return YES;
 }
 
@@ -46,7 +45,7 @@ static inline BOOL FLEXClassNameIsSafe(NSString *cls) {
     return ![ignored containsObject:cls];
 }
 
-#pragma mark - 实例变量
+#pragma mark - Ivars
 
 extern CFSetRef FLEXKnownUnsafeIvars;
 

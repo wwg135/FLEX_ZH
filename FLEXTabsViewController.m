@@ -2,10 +2,9 @@
 //  FLEXTabsViewController.m
 //  FLEX
 //
-//  由 Tanner 创建于 6/29/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  由 Tanner 创建于 2/4/20.
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
-//  遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXTabsViewController.h"
 #import "FLEXNavigationController.h"
@@ -54,8 +53,8 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    // 我们在呈现后更新活动快照，而不是在呈现前更新，
-    // 以避免呈现前的延迟
+    // 我们在显示后更新活动快照，而不是在显示前更新
+    // 这是为了避免显示前的延迟
     dispatch_async(dispatch_get_main_queue(), ^{
         [FLEXTabList.sharedList updateSnapshotForActiveTab];
         [self reloadData:NO];
@@ -64,29 +63,30 @@
 }
 
 
-#pragma mark - 私有
+#pragma mark - 私有方法
 
-/// @param trackActiveTabDelta 是否检查活动标签是否已更改并在“完成”关闭时需要呈现。
-/// @return 活动标签是否已更改（如果还有剩余标签）。
+/// @param trackActiveTabDelta 是否检查活动标签是否已更改
+/// 并需要在按下"完成"关闭时显示。
+/// @return 活动标签是否已更改（如果还有标签剩余）
 - (BOOL)reloadData:(BOOL)trackActiveTabDelta {
     BOOL activeTabDidChange = NO;
     FLEXTabList *list = FLEXTabList.sharedList;
     
-    // 用于启用检查以确定是否的标志
+    // 启用检查以确定是否需要更改活动标签
     if (trackActiveTabDelta) {
         NSInteger oldActiveIndex = self.activeIndex;
         if (oldActiveIndex != list.activeTabIndex && list.activeTabIndex != NSNotFound) {
             self.presentNewActiveTabOnDismiss = YES;
             activeTabDidChange = YES;
         } else if (self.presentNewActiveTabOnDismiss) {
-            // 如果我们之前有东西要呈现，现在没有了
-            // (即 activeTabIndex == NSNotFound)
+            // 如果之前有需要显示的内容，现在没有了
+            // （即 activeTabIndex == NSNotFound）
             self.presentNewActiveTabOnDismiss = NO;
         }
     }
     
-    // 我们假设标签不会在我们不知情的情况下改变，因为
-    // 通过键盘快捷键呈现任何其他工具都应该首先关闭我们
+    // 我们假设标签不会在我们不知情的情况下更改，
+    // 因为通过键盘快捷键显示任何其他工具应该首先关闭我们
     self.openTabs = list.openTabs;
     self.tabSnapshots = list.openTabSnapshots;
     self.activeIndex = list.activeTabIndex;
@@ -95,7 +95,7 @@
 }
 
 - (void)reloadActiveTabRowIfChanged:(BOOL)activeTabChanged {
-    // 如果需要，刷新新激活的标签行
+    // 如果需要，刷新新活动标签行
     if (activeTabChanged) {
         NSIndexPath *active = [NSIndexPath
            indexPathForRow:self.activeIndex inSection:0
@@ -114,16 +114,18 @@
         FLEXBarButtonItemSystem(Edit, self, @selector(toggleEditing)),
     ];
     
-    // 如果没有可用的标签，则禁用编辑
+    // 如果没有可用标签，禁用编辑
     self.toolbarItems.lastObject.enabled = self.openTabs.count > 0;
 }
 
 - (void)setupEditingBarItems {
+    self.navigationItem.rightBarButtonItem = nil;
     self.toolbarItems = @[
+        [UIBarButtonItem flex_itemWithTitle:@"关闭所有" target:self action:@selector(closeAllButtonPressed:)],
         UIBarButtonItem.flex_flexibleSpace,
         [UIBarButtonItem flex_disabledSystemItem:UIBarButtonSystemItemAdd],
         UIBarButtonItem.flex_flexibleSpace,
-        // 我们使用非系统完成项，因为我们动态更改其标题
+        // 我们使用非系统完成项，因为我们需要动态更改其标题
         [UIBarButtonItem flex_doneStyleitemWithTitle:@"完成" target:self action:@selector(toggleEditing)]
     ];
     
@@ -131,13 +133,13 @@
 }
 
 - (FLEXExplorerViewController *)corePresenter {
-    // 我们必须由FLEXExplorerViewController呈现，或由另一个
-    // 由FLEXExplorerViewController呈现的视图控制器呈现
+    // 我们必须由 FLEXExplorerViewController 呈现，或由
+    // 另一个由 FLEXExplorerViewController 呈现的视图控制器呈现
     FLEXExplorerViewController *presenter = (id)self.presentingViewController;
     presenter = (id)presenter.presentingViewController ?: presenter;
     NSAssert(
         [presenter isKindOfClass:[FLEXExplorerViewController class]],
-        @"标签视图控制器期望由浏览器控制器呈现"
+        @"标签视图控制器应该由探索器控制器呈现"
     );
     return presenter;
 }
@@ -147,7 +149,7 @@
 
 - (void)dismissAnimated {
     if (self.presentNewActiveTabOnDismiss) {
-        // 活动标签已关闭，所以我们需要呈现新的标签
+        // 活动标签已关闭，因此我们需要显示新的活动标签
         UIViewController *activeTab = FLEXTabList.sharedList.activeTab;
         FLEXExplorerViewController *presenter = self.corePresenter;
         [presenter dismissViewControllerAnimated:YES completion:^{
@@ -157,7 +159,7 @@
         // 唯一的标签已关闭，因此关闭所有内容
         [self.corePresenter dismissViewControllerAnimated:YES completion:nil];
     } else {
-        // 使用相同的活动标签简单关闭，仅关闭我自己
+        // 使用相同的活动标签简单关闭，仅关闭自己
         [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
@@ -171,7 +173,7 @@
     } else {
         [self setupDefaultBarItems];
         
-        // 获取要关闭的标签的索引集
+        // 获取要关闭的标签索引集
         NSMutableIndexSet *indexes = [NSMutableIndexSet new];
         for (NSIndexPath *ip in selected) {
             [indexes addIndex:ip.row];
@@ -185,7 +187,7 @@
             // 删除已删除的行
             [self.tableView deleteRowsAtIndexPaths:selected withRowAnimation:UITableViewRowAnimationAutomatic];
             
-            // 如果需要，刷新新激活的标签行
+            // 如果需要，刷新新活动标签行
             [self reloadActiveTabRowIfChanged:activeTabChanged];
         }
     }
@@ -241,7 +243,7 @@
     [FLEXTabList.sharedList closeAllTabs];
     [self reloadData:YES];
     
-    // 从表格视图中删除行
+    // 从表视图中删除行
     NSArray<NSIndexPath *> *allRows = [NSArray flex_forEachUpTo:rowCount map:^id(NSUInteger row) {
         return [NSIndexPath indexPathForRow:row inSection:0];
     }];
@@ -249,7 +251,7 @@
 }
 
 
-#pragma mark - 表格视图数据源
+#pragma mark - 表视图数据源
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.openTabs.count;
@@ -261,7 +263,7 @@
     UINavigationController *tab = self.openTabs[indexPath.row];
     cell.imageView.image = self.tabSnapshots[indexPath.row];
     cell.textLabel.text = tab.topViewController.title;
-    cell.detailTextLabel.text = FLEXPluralString(tab.viewControllers.count, @"页", @"页");
+    cell.detailTextLabel.text = FLEXPluralString(tab.viewControllers.count, @"页面", @"页面");
     
     if (!cell.tag) {
         cell.textLabel.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -280,16 +282,16 @@
 }
 
 
-#pragma mark - 表格视图委托
+#pragma mark - 表视图代理
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (self.editing) {
-        // 情况：使用多选进行编辑
+        // 情况：使用多选编辑
         self.toolbarItems.lastObject.title = @"关闭选择的";
         self.toolbarItems.lastObject.tintColor = FLEXColor.destructiveColor;
     } else {
         if (self.activeIndex == indexPath.row && self.corePresenter != self.presentingViewController) {
-            // 情况：选择了已激活的标签
+            // 情况：选择了已经激活的标签
             [self dismissAnimated];
         } else {
             // 情况：选择了不同的标签，
@@ -323,10 +325,10 @@ forRowAtIndexPath:(NSIndexPath *)indexPath {
     [FLEXTabList.sharedList closeTab:self.openTabs[indexPath.row]];
     BOOL activeTabChanged = [self reloadData:YES];
     
-    // 从表格视图中删除行
+    // 从表视图中删除行
     [table deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     
-    // 如果需要，刷新新激活的标签行
+    // 如果需要，刷新新活动标签行
     [self reloadActiveTabRowIfChanged:activeTabChanged];
 }
 

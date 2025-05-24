@@ -27,7 +27,7 @@
 #import "NSUserDefaults+FLEX.h"
 #import <objc/runtime.h>
 
-#pragma mark - Private properties
+#pragma mark - 私有属性
 @interface FLEXObjectExplorerViewController () <UIGestureRecognizerDelegate>
 @property (nonatomic, readonly) FLEXSingleRowSection *descriptionSection;
 @property (nonatomic, readonly) NSArray<FLEXTableViewSection *> *customSections;
@@ -39,7 +39,7 @@
 
 @implementation FLEXObjectExplorerViewController
 
-#pragma mark - Initialization
+#pragma mark - 初始化
 
 + (instancetype)exploringObject:(id)target {
     return [self exploringObject:target customSection:[FLEXShortcutsSection forObject:target]];
@@ -82,7 +82,7 @@
     ];
 }
 
-#pragma mark - View controller lifecycle
+#pragma mark - 视图控制器生命周期
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -90,8 +90,8 @@
     self.showsShareToolbarItem = YES;
     self.wantsSectionIndexTitles = YES;
 
-    // 这里使用[object class]而不是object_getClass
-    // 以避免观察对象的KVO前缀
+    // 在这里使用[object class]而不是object_getClass
+    // 以避免被观察对象的KVO前缀
     self.title = [FLEXRuntimeUtility safeClassNameForObject:self.object];
 
     // 搜索
@@ -105,12 +105,12 @@
         return NSStringFromClass(cls);
     }];
     
-    // ... 按钮用于额外选项
+    // 用于额外选项的...按钮
     [self addToolbarItems:@[[UIBarButtonItem
         flex_itemWithImage:FLEXResources.moreIcon target:self action:@selector(moreButtonPressed:)
     ]]];
 
-    // 滑动手势用于在类层次结构中切换
+    // 在层次结构中的类之间滑动的手势
     UISwipeGestureRecognizer *leftSwipe = [[UISwipeGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleSwipeGesture:)
     ];
@@ -126,8 +126,8 @@
     
     // 观察可能在其他屏幕上更改的首选项
     //
-    // "如果您的应用程序目标是iOS 9.0及更高版本或macOS 10.11及更高版本，
-    // 则不需要在其dealloc方法中取消注册观察者。"
+    // "如果您的应用程序针对iOS 9.0及更高版本或macOS 10.11及更高版本，
+    // 则无需在其dealloc方法中注销观察者。"
     for (NSString *pref in self.observedNotifications) {
         [NSNotificationCenter.defaultCenter
             addObserver:self
@@ -144,7 +144,7 @@
 }
 
 
-#pragma mark - Overrides
+#pragma mark - 重写
 
 /// 重写以在搜索时隐藏描述部分
 - (NSArray<FLEXTableViewSection *> *)nonemptySections {
@@ -160,7 +160,7 @@
 - (NSArray<FLEXTableViewSection *> *)makeSections {
     FLEXObjectExplorer *explorer = self.explorer;
     
-    // 描述部分仅用于实例
+    // 描述部分仅适用于实例
     if (self.explorer.objectIsInstance) {
         _descriptionSection = [FLEXSingleRowSection
             title:@"描述" reuse:kFLEXMultilineCell cell:^(FLEXTableViewCell *cell) {
@@ -173,10 +173,10 @@
         };
     }
 
-    // 对象图谱部分
+    // 对象图部分
     FLEXSingleRowSection *referencesSection = [FLEXSingleRowSection
-        title:@"对象图谱" reuse:kFLEXDefaultCell cell:^(FLEXTableViewCell *cell) {
-            cell.titleLabel.text = @"查看引用此对象的其他对象";
+        title:@"对象图" reuse:kFLEXDefaultCell cell:^(FLEXTableViewCell *cell) {
+            cell.titleLabel.text = @"查看引用此对象的对象";
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
     ];
@@ -214,9 +214,9 @@
 
 /// 在我们的情况下，这只是重新加载表视图，
 /// 或者如果我们在类层次结构中更改了位置，则重新加载部分数据。
-/// 不会刷新 self.explorer
+/// 不刷新 \c self.explorer
 - (void)reloadData {
-    // 检查类作用域是否已更改，相应地更新
+    // 检查类作用域是否已更改，相应更新
     if (self.explorer.classScope != self.selectedScope) {
         self.explorer.classScope = self.selectedScope;
         [self reloadSections];
@@ -241,9 +241,9 @@
 }
 
 
-#pragma mark - Private
+#pragma mark - 私有方法
 
-/// 与 -reloadData 不同，这会刷新所有内容，包括explorer。
+/// 与 \c -reloadData 不同，这会刷新所有内容，包括探索器。
 - (void)fullyReloadData {
     [self.explorer reloadMetadata];
     [self reloadSections];
@@ -286,7 +286,7 @@
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(UISwipeGestureRecognizer *)gesture {
-    // 不允许从轮播栏滑动
+    // 不允许从轮播中滑动
     CGPoint location = [gesture locationInView:self.tableView];
     if ([self.carousel hitTest:location withEvent:nil]) {
         return NO;
@@ -306,10 +306,10 @@
         kFLEXDefaultsHideVariablePreviewsKey: @"变量预览"
     };
     
-    // 将操作本身的键映射到操作描述（"hide X"）的映射
-    // 再映射到当前状态。
+    // 将操作本身的键映射到操作描述的映射
+    // 的操作（"隐藏X"）映射到当前状态。
     //
-    // 因此默认隐藏的键将NO映射到"显示"
+    // 所以默认隐藏的键有NO映射到"显示"
     NSDictionary<NSString *, NSDictionary *> *nextStateDescriptions = @{
         kFLEXDefaultsHidePropertyIvarsKey:    @{ @NO: @"隐藏 ", @YES: @"显示 " },
         kFLEXDefaultsHidePropertyMethodsKey:  @{ @NO: @"隐藏 ", @YES: @"显示 " },
@@ -336,12 +336,11 @@
     } showFrom:self source:sender];
 }
 
-#pragma mark - Description
+#pragma mark - 描述
 
 - (BOOL)shouldShowDescription {
-    // 如果有搜索文本则隐藏；在搜索时
-    // 查看描述很少有用，因为它
-    // 已经位于屏幕顶部
+    // 如果我们有过滤文本则隐藏；在搜索时
+    // 看到描述很少有用，因为它已经在屏幕顶部
     if (self.filterText.length) {
         return NO;
     }
@@ -350,7 +349,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    // 对于描述部分，我们希望它有漂亮的纤细/贴合的行外观。
+    // 对于描述部分，我们希望那个漂亮的纤细/贴合的行。
     // 其他行使用自动大小。
     FLEXTableViewSection *section = self.filterDelegate.sections[indexPath.section];
     
@@ -388,24 +387,6 @@
     if (action == @selector(copy:)) {
         UIPasteboard.generalPasteboard.string = self.explorer.objectDescription;
     }
-}
-
-#pragma mark - Titles
-
-- (NSString *)title {
-    return @"对象浏览器"; 
-}
-
-- (NSArray<NSString *> *)sectionTitles {
-    return @[
-        @"描述",
-        @"对象关系图",
-        @"属性",
-        @"实例变量",
-        @"方法",
-        @"类方法",
-        @"遵循的协议"
-    ];
 }
 
 @end

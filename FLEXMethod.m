@@ -1,11 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMethod.m
 //  FLEX
 //
-//  派生自 MirrorKit。
-//  由 Tanner 创建于 6/30/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  源自 MirrorKit.
+//  Created by Tanner on 6/30/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXMethod.h"
@@ -19,18 +18,18 @@
 @dynamic implementation;
 
 + (instancetype)buildMethodNamed:(NSString *)name withTypes:(NSString *)typeEncoding implementation:(IMP)implementation {
-    [NSException raise:NSInternalInconsistencyException format:@"不应使用 +buildMethodNamed:withTypes:implementation 创建类实例"]; return nil;
+    [NSException raise:NSInternalInconsistencyException format:@"类实例不应该通过 +buildMethodNamed:withTypes:implementation 创建"]; return nil;
 }
 
 - (id)init {
     [NSException
         raise:NSInternalInconsistencyException
-        format:@"不应使用 -init 创建类实例"
+        format:@"类实例不应该通过 -init 创建"
     ];
     return nil;
 }
 
-#pragma mark Initializers
+#pragma mark 初始化
 
 + (instancetype)method:(Method)method {
     return [[self alloc] initWithMethod:method isInstanceMethod:YES];
@@ -42,9 +41,9 @@
 
 + (instancetype)selector:(SEL)selector class:(Class)cls {
     BOOL instance = !class_isMetaClass(cls);
-    // class_getInstanceMethod 如果没有给定元类，则返回实例方法，
-    // 如果给定元类，则返回类方法，但这没有文档说明，
-    // 所以我们在这里只是为了安全起见。
+    // class_getInstanceMethod 如果不给元类将返回实例方法
+    // 如果给元类将返回类方法，但这没有文档说明
+    // 所以我们在这里要确保安全
     Method m = instance ? class_getInstanceMethod(cls, selector) : class_getClassMethod(cls, selector);
     if (m == NULL) return nil;
     
@@ -84,7 +83,7 @@
 }
 
 
-#pragma mark Other
+#pragma mark 其他
 
 - (NSString *)description {
     if (!_flex_description) {
@@ -119,7 +118,7 @@
 
 - (NSArray *)prettyArgumentComponents {
     // NSMethodSignature 无法处理某些类型编码
-    // 例如 ^AI@:ir*，这些编码确实存在
+    // 比如 ^AI@:ir* 这种实际存在的编码
     if (self.signature.numberOfArguments < self.numberOfArguments) {
         return nil;
     }
@@ -160,7 +159,7 @@
     _returnSize        = _signature.methodReturnLength;
 }
 
-#pragma mark Public
+#pragma mark 公开接口
 
 - (void)setImplementation:(IMP)implementation {
     NSParameterAssert(implementation);
@@ -192,7 +191,7 @@
     return _imagePath;
 }
 
-#pragma mark Misc
+#pragma mark 杂项
 
 - (void)swapImplementations:(FLEXMethod *)method {
     method_exchangeImplementations(self.objc_method, method.objc_method);
@@ -200,7 +199,7 @@
     [method examine];
 }
 
-// 一些代码借鉴自 MAObjcRuntime，作者 Mike Ash.
+// 部分代码借鉴自 Mike Ash 的 MAObjcRuntime
 - (id)sendMessage:(id)target, ... {
     id ret = nil;
     va_list args;
@@ -362,7 +361,7 @@
     return ret;
 }
 
-// 代码借鉴自 MAObjcRuntime，作者 Mike Ash.
+// 代码借鉴自 Mike Ash 的 MAObjcRuntime
 - (void)getReturnValue:(void *)retPtr forMessageSend:(id)target, ... {
     va_list args;
     va_start(args, target);
@@ -370,7 +369,7 @@
     va_end(args);
 }
 
-// 代码借鉴自 MAObjcRuntime，作者 Mike Ash.
+// 代码借鉴自 Mike Ash 的 MAObjcRuntime
 - (void)getReturnValue:(void *)retPtr forMessageSend:(id)target arguments:(va_list)args {
     if (!_signature) {
         return;
@@ -386,7 +385,7 @@
         if (cookie != FLEXMagicNumber) {
             [NSException
                 raise:NSInternalInconsistencyException
-                format:@"%s: 不正确的魔术数字 %08x; 请确保你没有忘记任何参数，并且所有参数都用 FLEXArg() 包装。", __func__, cookie
+                format:@"%s: 不正确的魔术数字 %08x；确保您没有忘记任何参数，并且所有参数都用 FLEXArg() 包装。", __func__, cookie
             ];
         }
         const char *typeString = va_arg(args, char *);
@@ -399,7 +398,7 @@
         if (inSize != sigSize) {
             [NSException
                 raise:NSInternalInconsistencyException
-                format:@"%s: 传入参数与所需参数之间的大小不匹配; 输入类型:%s (%lu) 请求类型:%s (%lu)",
+                format:@"%s: 传入参数与所需参数之间的大小不匹配；输入类型:%s (%lu) 请求类型:%s (%lu)",
                 __func__, typeString, (long)inSize, [_signature getArgumentTypeAtIndex:i], (long)sigSize
             ];
         }
@@ -407,7 +406,7 @@
         [invocation setArgument:argPointer atIndex:i];
     }
     
-    // 使 NSInvocation 调用所需实现的技巧
+    // 使用技巧让 NSInvocation 调用所需的实现
     IMP imp = [invocation methodForSelector:NSSelectorFromString(@"invokeUsingIMP:")];
     void (*invokeWithIMP)(id, SEL, IMP) = (void *)imp;
     invokeWithIMP(invocation, 0, _implementation);

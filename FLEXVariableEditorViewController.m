@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXVariableEditorViewController.m
 //  Flipboard
 //
 //  由 Ryan Olson 创建于 5/16/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
 //
 
 #import "FLEXColor.h"
@@ -63,7 +62,7 @@
     self.scrollView.contentInset = scrollInsets;
     self.scrollView.scrollIndicatorInsets = scrollInsets;
     
-    // 找到活动的输入视图并滚动以确保其可见。
+    // 找到活跃的输入视图并滚动以确保其可见。
     for (FLEXArgumentInputView *argumentInputView in self.fieldEditorView.argumentInputViews) {
         if (argumentInputView.inputViewIsFirstResponder) {
             CGRect scrollToVisibleRect = [self.scrollView convertRect:argumentInputView.bounds fromView:argumentInputView];
@@ -113,14 +112,14 @@
     self.scrollView.contentSize = fieldEditorSize;
 }
 
-#pragma mark - 公开
+#pragma mark - 公共方法
 
 - (FLEXArgumentInputView *)firstInputView {
     return [self.fieldEditorView argumentInputViews].firstObject;
 }
 
 - (void)actionButtonPressed:(id)sender {
-    // 子类可以覆盖
+    // 子类可以重写
     [self.fieldEditorView endEditing:YES];
     if (_commitHandler) {
         _commitHandler();
@@ -129,12 +128,12 @@
 
 - (void)exploreObjectOrPopViewController:(id)objectOrNil {
     if (objectOrNil) {
-        // 对于非 nil (或 void) 返回类型，推送一个浏览器视图控制器以显示对象
+        // 对于非空（或非void）返回类型，推送一个浏览器视图控制器来显示对象
         FLEXObjectExplorerViewController *explorerViewController = [FLEXObjectExplorerFactory explorerViewControllerForObject:objectOrNil];
         [self.navigationController pushViewController:explorerViewController animated:YES];
     } else {
-        // 如果我们没有得到返回的对象，但方法调用成功了，
-        // 则将此视图控制器从堆栈中弹出，以指示调用已通过。
+        // 如果我们没有得到返回的对象但方法调用成功，
+        // 弹出此视图控制器以指示调用已通过。
         [self.navigationController popViewControllerAnimated:YES];
     }
 }

@@ -5,8 +5,6 @@
 //  Created by Tanner Bennett on 12/24/21.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXNetworkTransaction.h"
 #import "FLEXUtility.h"
 #import <dlfcn.h>
@@ -30,7 +28,7 @@ typedef std::string (*ReturnsString)(void *);
 static NSString *FLEXStringFromFIRRequestType(FLEXFIRRequestType type) {
     switch (type) {
         case FLEXFIRRequestTypeNotFirebase:
-            return @"非Firebase请求";
+            return @"非 firebase";
         case FLEXFIRRequestTypeFetchQuery:
             return @"查询获取";
         case FLEXFIRRequestTypeFetchDocument:
@@ -114,11 +112,11 @@ static FLEXFIRTransactionDirection FIRDirectionFromRequestType(FLEXFIRRequestTyp
         return _queryDescription;
     }
 
-    // 获取C++符号以描述FIRQuery.query
+    // 获取 C++ 符号来描述 FIRQuery.query
     static ReturnsString firebase_firestore_core_query_tostring = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        // Firebase是否可用？
+        // Firebase 是否可用？
         if (NSClassFromString(@"FIRDocumentReference")) {
             firebase_firestore_core_query_tostring = (ReturnsString)dlsym(
                 RTLD_DEFAULT, "_ZNK8firebase9firestore4core5Query8ToStringEv"
@@ -136,7 +134,7 @@ static FLEXFIRTransactionDirection FIRDirectionFromRequestType(FLEXFIRRequestTyp
     void *core_query = query.query;
     std::string description = firebase_firestore_core_query_tostring(core_query);
 
-    // 查询字符串格式类似于'Query(canonical_id=...)'，所以我移除前导部分和括号
+    // 查询字符串类似于 'Query(canonical_id=...)'，所以我移除前导部分和括号
     NSString *prefix = @"Query(canonical_id=";
     NSString *desc = @(description.c_str());
     desc = [desc stringByReplacingOccurrencesOfString:prefix withString:@""];
@@ -245,11 +243,11 @@ static FLEXFIRTransactionDirection FIRDirectionFromRequestType(FLEXFIRRequestTyp
 
         if (self.state == FLEXNetworkTransactionStateFinished || self.state == FLEXNetworkTransactionStateFailed) {
             if (self.direction == FLEXFIRTransactionDirectionPull) {
-                NSString *docCount = [NSString stringWithFormat:@"%@ 个文档", @(self.documents.count)];
+                NSString *docCount = [NSString stringWithFormat:@"%@ 文档", @(self.documents.count)];
                 [detailComponents addObjectsFromArray:@[docCount]];
             }
         } else {
-            // 未开始、等待响应、接收数据等
+            // 未开始，等待响应，接收数据等
             NSString *state = [self.class readableStringFromTransactionState:self.state];
             [detailComponents addObject:state];
         }
@@ -274,11 +272,11 @@ static FLEXFIRTransactionDirection FIRDirectionFromRequestType(FLEXFIRRequestTyp
 
     // 允许直接过滤推送或拉取
     if (isPull && ([filterString localizedCaseInsensitiveCompare:@"pull"] == NSOrderedSame ||
-                  [filterString localizedCaseInsensitiveCompare:@"拉取"] == NSOrderedSame)) {
+                   [filterString localizedCaseInsensitiveCompare:@"拉取"] == NSOrderedSame)) {
         return YES;
     }
     if (isPush && ([filterString localizedCaseInsensitiveCompare:@"push"] == NSOrderedSame ||
-                  [filterString localizedCaseInsensitiveCompare:@"推送"] == NSOrderedSame)) {
+                   [filterString localizedCaseInsensitiveCompare:@"推送"] == NSOrderedSame)) {
         return YES;
     }
 

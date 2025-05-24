@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXUtility.h
 //  Flipboard
 //
 //  由 Ryan Olson 创建于 4/18/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
 //
 
 #import <Availability.h>
@@ -25,7 +24,7 @@
 @property (nonatomic, readonly, class) UIWindow *appKeyWindow;
 /// @return +[UIWindow allWindowsIncludingInternalWindows:onlyVisibleWindows:] 的结果
 @property (nonatomic, readonly, class) NSArray<UIWindow *> *allWindows;
-/// 应用程序的第一个活动的 \c UIWindowScene。
+/// 应用程序的第一个活跃的 \c UIWindowScene。
 @property (nonatomic, readonly, class) UIWindowScene *activeScene API_AVAILABLE(ios(13.0));
 /// @return 给定窗口的最顶层视图控制器
 + (UIViewController *)topViewControllerInWindow:(UIWindow *)window;
@@ -54,7 +53,7 @@
 + (NSData *)inflatedDataFromCompressedData:(NSData *)compressedData;
 + (BOOL)hasCompressedContentEncoding:(NSURLRequest *)request;
 
-// Swizzling 工具类
+// 方法交换工具
 
 + (SEL)swizzledSelectorForSelector:(SEL)selector;
 + (BOOL)instanceRespondsButDoesNotImplementSelector:(SEL)selector class:(Class)cls;

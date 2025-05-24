@@ -2,11 +2,9 @@
 //  FLEXTableViewSection.m
 //  FLEX
 //
-//  Created by Tanner on 1/29/20.
-//  Copyright © 2020 FLEX Team. All rights reserved.
+//  由 Tanner 创建于 1/29/20.
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXTableViewSection.h"
 #import "FLEXTableView.h"

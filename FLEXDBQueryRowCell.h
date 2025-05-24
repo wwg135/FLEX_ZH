@@ -2,11 +2,9 @@
 //  FLEXDBQueryRowCell.h
 //  FLEX
 //
-//  创建者：Peng Tao，日期：15/11/24.
-//  版权所有 © 2015年 f。保留所有权利。
+//  Created by Peng Tao on 15/11/24.
+//  Copyright © 2015年 f. All rights reserved.
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import <UIKit/UIKit.h>
 
@@ -23,7 +21,7 @@ extern NSString * const kFLEXDBQueryRowCellReuse;
 
 @interface FLEXDBQueryRowCell : UITableViewCell
 
-/// NSString、NSNumber 或 NSData 对象的数组
+/// An array of NSString, NSNumber, or NSData objects
 @property (nonatomic) NSArray *data;
 @property (nonatomic, weak) id<FLEXDBQueryRowCellLayoutSource> layoutSource;
 

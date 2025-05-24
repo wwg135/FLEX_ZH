@@ -6,8 +6,6 @@
 //
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXFileBrowserController.h"
 #import "FLEXUtility.h"
 #import "FLEXWebViewController.h"
@@ -69,7 +67,7 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
                 attributes = [fileManager attributesOfItemAtPath:[path stringByAppendingPathComponent:fileName] error:NULL];
                 totalSize += [attributes fileSize];
 
-                // 如果视图控制器已销毁则退出
+                // 如果感兴趣的视图控制器已经消失，则退出
                 if (!self) {
                     return;
                 }
@@ -154,7 +152,7 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
     [self.tableView reloadData];
 }
 
-#pragma mark - 搜索栏
+#pragma mark - Search bar
 
 - (void)updateSearchResults:(NSString *)newText {
     [self reloadDisplayedPaths];
@@ -168,7 +166,7 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
     [self.tableView reloadData];
 }
 
-#pragma mark - 表格视图数据源
+#pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
@@ -185,7 +183,7 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
 
     NSString *sizeString = nil;
     if (!currentSize) {
-        sizeString = @"正在计算大小…";
+        sizeString = @"正在计算大小...";
     } else {
         sizeString = [NSByteCountFormatter stringFromByteCount:[currentSize longLongValue] countStyle:NSByteCountFormatterCountStyleFile];
     }
@@ -203,14 +201,14 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
         subtitle = [NSString stringWithFormat:@"%lu 项%@", (unsigned long)count, (count == 1 ? @"" : @"")];
     } else {
         NSString *sizeString = [NSByteCountFormatter stringFromByteCount:attributes.fileSize countStyle:NSByteCountFormatterCountStyleFile];
-        subtitle = [NSString stringWithFormat:@"%@ - %@", sizeString, attributes.fileModificationDate ?: @"从未修改"];
+        subtitle = [NSString stringWithFormat:@"%@ - %@", sizeString, attributes.fileModificationDate ?: @"从未修改过"];
     }
 
     static NSString *textCellIdentifier = @"textCell";
     static NSString *imageCellIdentifier = @"imageCell";
     UITableViewCell *cell = nil;
 
-    // 分开图像和纯文本单元格，否则分隔线会在图像单元格重用为纯文本时出现问题
+    // Separate image and text only cells because otherwise the separator lines get out-of-whack on image cells reused with text only.
     UIImage *image = [UIImage imageWithContentsOfFile:fullPath];
     NSString *cellIdentifier = image ? imageCellIdentifier : textCellIdentifier;
 
@@ -246,7 +244,7 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
     UIImage *image = cell.imageView.image;
 
     if (!stillExists) {
-        [FLEXAlert showAlert:@"文件未找到" message:@"指定路径的文件不再存在。" from:self];
+        [FLEXAlert showAlert:@"文件未找到" message:@"指定路径上的文件不再存在" from:self];
         [self reloadDisplayedPaths];
         return;
     }
@@ -259,29 +257,29 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
     } else {
         NSData *fileData = [NSData dataWithContentsOfFile:fullPath];
         if (!fileData.length) {
-            [FLEXAlert showAlert:@"空文件" message:@"文件未返回任何数据。" from:self];
+            [FLEXAlert showAlert:@"空文件" message:@"文件未返回任何数据" from:self];
             return;
         }
 
-        // 特殊处理键值存档、JSON和plist以获得更可读的数据
+        // Special case keyed archives, json, and plists to get more readable data.
         NSString *prettyString = nil;
         if ([pathExtension isEqualToString:@"json"]) {
             prettyString = [FLEXUtility prettyJSONStringFromData:fileData];
         } else {
-            // 尝试解码存档对象，不考虑文件扩展名
+            // Try to decode an archived object, regardless of file extension
             NSKeyedUnarchiver *unarchiver = ({
                 NSKeyedUnarchiver *obj = nil;
-                NSError *error = nil;
-                obj = [[NSKeyedUnarchiver alloc] initForReadingFromData:fileData error:&error];
-                if (error) {
-                    NSLog(@"解码数据时出错: %@", error);
+                if (@available(iOS 12.0, *)) {
+                    obj = [[NSKeyedUnarchiver alloc] initForReadingFromData:fileData error:nil];
+                } else {
+                    obj = [[NSKeyedUnarchiver alloc] initForReadingWithData:fileData];
                 }
                 obj.requiresSecureCoding = NO;
                 obj;
             });
             id object = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
 
-            // 尝试解码其他内容
+            // Try to decode other things instead
             object = object ?: [NSPropertyListSerialization
                 propertyListWithData:fileData
                 options:0
@@ -293,14 +291,14 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
             if (object) {
                 drillInViewController = [FLEXObjectExplorerFactory explorerViewControllerForObject:object];
             } else {
-                // 可能是Mach-O文件？
+                // Is it possibly a mach-O file?
                 if (fileData.length > sizeof(struct mach_header_64)) {
                     struct mach_header_64 header;
                     [fileData getBytes:&header length:sizeof(struct mach_header_64)];
                     
-                    // 是否有Mach头魔数？
+                    // Does it have the mach header magic number?
                     if (header.magic == MH_MAGIC_64) {
-                        // 看看是否能从中获取一些类...
+                        // See if we can get some classes out of it...
                         unsigned int count = 0;
                         const char **classList = objc_copyClassNamesForImage(
                             fullPath.UTF8String, &count
@@ -336,7 +334,7 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
         drillInViewController.title = subpath.lastPathComponent;
         [self.navigationController pushViewController:drillInViewController animated:YES];
     } else {
-        // 否则共享文件
+        // Share the file otherwise
         [self openFileController:fullPath];
     }
 }
@@ -360,9 +358,9 @@ typedef NS_ENUM(NSUInteger, FLEXFileBrowserSortAttribute) {
 }
 
 - (void)tableView:(UITableView *)tableView performAction:(SEL)action forRowAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender {
-    // 空方法，但必须存在才能显示菜单
-    // 表视图只调用UIResponderStandardEditActions非正式协议中的操作方法
-    // 由于我们的操作不在该协议中，我们需要手动处理从单元格转发的操作
+    // 为空，但必须存在才能显示菜单
+    // 表视图只会为 UIResponderStandardEditActions 非正式协议中的操作调用此方法。
+    // 由于我们的操作不在该协议内，我们需要手动处理从单元格转发的操作。
 }
 
 - (UIContextMenuConfiguration *)tableView:(UITableView *)tableView
@@ -474,10 +472,10 @@ contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
     [NSFileManager.defaultManager fileExistsAtPath:pathString isDirectory:&isDirectory];
 
     if (isDirectory) {
-        // 文件夹使用UIDocumentInteractionController
+        // UIDocumentInteractionController for folders
         [self openFileController:pathString];
     } else {
-        // 文件使用共享表单
+        // Share sheet for files
         UIViewController *shareSheet = [FLEXActivityViewController sharing:@[filePath] source:sender];
         [self presentViewController:shareSheet animated:true completion:nil];
     }
@@ -502,7 +500,7 @@ contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
         [childPaths sortUsingComparator:^NSComparisonResult(NSString *path1, NSString *path2) {
             switch (self.sortAttribute) {
                 case FLEXFileBrowserSortAttributeNone:
-                    // 无效状态
+                    // invalid state
                     return NSOrderedSame;
                 case FLEXFileBrowserSortAttributeName:
                     return [path1 compare:path2];
@@ -526,7 +524,7 @@ contextMenuConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
     self.searchPaths = nil;
     self.searchPathsSize = nil;
 
-    // 清除先前的搜索请求并开始新的请求
+    // 清除之前的搜索请求并开始一个新的
     [self.operationQueue cancelAllOperations];
     FLEXFileBrowserSearchOperation *newOperation = [[FLEXFileBrowserSearchOperation alloc] initWithPath:self.path searchString:self.searchText];
     newOperation.delegate = self;

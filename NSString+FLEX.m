@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  NSString+FLEX.m
 //  FLEX
 //
 //  由 Tanner 创建于 3/26/17.
-//  版权所有 © 2017 Tanner Bennett。保留所有权利。
+//  版权所有 © 2017 Tanner Bennett. 保留所有权利。
 //
 
 #import "NSString+FLEX.h"
@@ -30,7 +29,7 @@
     if ([self containsString:@"\\."]) {
         [self replaceOccurencesOfString:@"\\." with:@"\\~"];
 
-        // 类似 "UIKit\.framework" 的情况
+        // 像 "UIKit\.framework" 这样的情况
         if (![self containsString:@"."]) {
             [self deleteCharactersInRange:NSMakeRange(0, self.length)];
             return;
@@ -39,7 +38,7 @@
         putEscapesBack = YES;
     }
 
-    // 类似 "Bund" 或 "Bundle.cla" 的情况
+    // 像 "Bund" 或 "Bundle.cla" 这样的情况
     if (![self hasSuffix:@"."]) {
         NSUInteger len = self.pathExtension.length;
         [self deleteCharactersInRange:NSMakeRange(self.length-len, len)];
@@ -140,13 +139,13 @@
 }
 
 - (NSString *)flex_stringByReplacingLastKeyPathComponent:(NSString *)replacement {
-    // replacement 不应包含任何转义的 '.'，
-    // 因此我们转义所有的 '.'
+    // 替换内容不应该有任何转义的'.'，
+    // 所以我们转义所有的'.'
     if ([replacement containsString:@"."]) {
         replacement = [replacement stringByReplacingOccurrencesOfString:@"." withString:@"\\."];
     }
 
-    // 类似 "Foo" 的情况
+    // 像 "Foo" 这样的情况
     if (![self containsString:@"."]) {
         return [replacement stringByAppendingString:@"."];
     }

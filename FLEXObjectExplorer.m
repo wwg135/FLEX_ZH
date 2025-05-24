@@ -1,11 +1,9 @@
-// filepath: FLEXObjectExplorer.m
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXObjectExplorer.m
 //  FLEX
 //
-//  由 Tanner Bennett 创建于 8/28/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner Bennett on 8/28/19.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXObjectExplorer.h"
@@ -77,9 +75,9 @@
 - (id<FLEXMirror>)mirrorForClass:(Class)cls {
     static Class FLEXSwiftMirror = nil;
     
-    // 我们应该使用 Reflex 吗？
+    // 我们应该使用Reflex吗？
     if (FLEXIsSwiftObjectOrClass(cls) && FLEXObjectExplorer.reflexAvailable) {
-        // 如果需要，初始化 FLEXSwiftMirror 类
+        // 如有需要初始化FLEXSwiftMirror类
         if (!FLEXSwiftMirror) {
             FLEXSwiftMirror = NSClassFromString(@"FLEXSwiftMirror");            
         }
@@ -87,12 +85,12 @@
         return [(id<FLEXMirror>)[FLEXSwiftMirror alloc] initWithSubject:cls];
     }
     
-    // 否；不是 swift 对象，或者 Reflex 不可用
+    // 否则；不是swift对象，或者Reflex不可用
     return [FLEXMirror reflect:cls];
 }
 
 
-#pragma mark - 公开方法
+#pragma mark - 公共方法
 
 + (void)configureDefaultsForItems:(NSArray<id<FLEXObjectExplorerItem>> *)items {
     BOOL hidePreviews = NSUserDefaults.standardUserDefaults.flex_explorerHidesVariablePreviews;
@@ -103,9 +101,10 @@
         canEdit:NO wantsPreviews:!hidePreviews
     ];
 
-    // .tag 用于缓存 .isEditable 的值；
-    // 这在运行时可能会改变，因此每次请求快捷方式时
-    // 都缓存它非常重要，而不仅仅是在快捷方式最初注册时缓存一次
+    // .tag用于缓存.isEditable的值；
+    // 这可能在运行时更改，所以重要的是
+    // 每次请求快捷方式时都要缓存它，而不是
+    // 只在最初注册快捷方式时缓存一次
     for (id<FLEXObjectExplorerItem> metadata in items) {
         metadata.defaults = metadata.isEditable ? mutable : immutable;
     }
@@ -113,14 +112,14 @@
 
 - (NSString *)objectDescription {
     if (!_objectDescription) {
-        // 硬编码 UIColor 描述
+        // 硬编码UIColor描述
         if ([FLEXRuntimeUtility safeObject:self.object isKindOfClass:[UIColor class]]) {
             CGFloat h, s, l, r, g, b, a;
             [self.object getRed:&r green:&g blue:&b alpha:&a];
             [self.object getHue:&h saturation:&s brightness:&l alpha:nil];
 
             return [NSString stringWithFormat:
-                @"色相饱和度亮度: (%.3f, %.3f, %.3f)\n红绿蓝: (%.3f, %.3f, %.3f)\n透明度: %.3f",
+                @"HSL: (%.3f, %.3f, %.3f)\nRGB: (%.3f, %.3f, %.3f)\n透明度: %.3f",
                 h, s, l, r, g, b, a
             ];
         }
@@ -129,7 +128,7 @@
 
         if (!description.length) {
             NSString *address = [FLEXUtility addressOfObject:self.object];
-            return [NSString stringWithFormat:@"位于 %@ 的对象返回了空描述", address];
+            return [NSString stringWithFormat:@"%@ 处的对象返回了空描述", address];
         }
         
         if (description.length > 10000) {
@@ -172,8 +171,8 @@
     NSMutableArray<NSArray<FLEXMethod *> *> *allMethods = [NSMutableArray new];
     NSMutableArray<NSArray<FLEXMethod *> *> *allClassMethods = [NSMutableArray new];
 
-    // 遍历每个类和每个超类，收集
-    // 每个类别中新的和唯一的元数据
+    // 循环遍历每个类和每个超类，收集
+    // 每个类别中的新的和唯一的元数据
     Class superclass = nil;
     NSInteger count = self.classHierarchyClasses.count;
     NSInteger rootIdx = count - 1;
@@ -219,15 +218,15 @@
             skip:NO
         ]];
         
-        // TODO: 将实例大小、镜像名称和类层次结构合并到一个模型对象中
-        // 这将大大减少此处开始显现的惰性
+        // TODO: 将实例大小、图像名称和类层次结构合并为单个模型对象
+        // 这将大大减少已开始在这里表现出来的懒惰
         [_allInstanceSizes addObject:[FLEXStaticMetadata
             style:FLEXStaticMetadataRowStyleKeyValue
             title:@"实例大小" number:@(class_getInstanceSize(cls))
         ]];
         [_allImageNames addObject:[FLEXStaticMetadata
             style:FLEXStaticMetadataRowStyleDefault
-            title:@"镜像名称" string:@(class_getImageName(cls) ?: "运行时创建")
+            title:@"图像名称" string:@(class_getImageName(cls) ?: "运行时创建")
         ]];
     }
     
@@ -239,10 +238,10 @@
     if (hideBackingIvars) {
         NSArray<NSArray<FLEXIvar *> *> *ivars = _allIvars.copy;
         _allIvars = [ivars flex_mapped:^id(NSArray<FLEXIvar *> *list, NSUInteger idx) {
-            // 获取当前类层次结构中所有支持实例变量名称的集合
+            // 获取当前层次结构类中所有支持实例变量名称的集合
             NSSet *ivarNames = [NSSet setWithArray:({
                 [properties[idx] flex_mapped:^id(FLEXProperty *p, NSUInteger idx) {
-                    // 如果没有实例变量，则为 Nil，并且数组是扁平化的
+                    // 如果没有实例变量则为nil，数组被扁平化
                     return p.likelyIvarName;
                 }];
             })];
@@ -257,7 +256,7 @@
     // 可能过滤属性支持的方法
     if (hidePropertyMethods) {
         allMethods = [allMethods flex_mapped:^id(NSArray<FLEXMethod *> *list, NSUInteger idx) {
-            // 获取当前类层次结构中所有属性方法名称的集合
+            // 获取当前层次结构类中所有属性方法名称的集合
             NSSet *methodNames = [NSSet setWithArray:({
                 [properties[idx] flex_flatmapped:^NSArray *(FLEXProperty *p, NSUInteger idx) {
                     if (p.likelyGetterExists) {
@@ -289,7 +288,7 @@
             }];
         };
         id propertyMapBlock = ^id(NSArray<FLEXProperty *> *list, NSUInteger idx) {
-            // 删除包含下划线的属性
+            // 删除包含下划线的方法
             return [list flex_filtered:^BOOL(FLEXProperty *prop, NSUInteger idx) {
                 return ![prop.name containsString:@"_"];
             }];
@@ -306,8 +305,8 @@
     _allMethods = allMethods;
     _allClassMethods = allClassMethods;
 
-    // 设置 UIKit 辅助数据
-    // 实际上，我们只需要在属性和实例变量上调用它
+    // 设置UIKit助手数据
+    // 实际上，我们只需要在属性和实例变量上调用此方法
     // 因为没有其他元数据类型支持编辑。
     NSArray<NSArray *>*metadatas = @[
         _allProperties, _allClassProperties, _allIvars,
@@ -336,8 +335,9 @@
     _imageName = self.allImageNames[self.classScope];
 }
 
-/// 接受一个 flex 元数据对象数组，并丢弃具有重复名称的对象，
-/// 以及不是“新的”属性和方法（即超类响应的那些）
+/// 接受一个flex元数据对象数组并丢弃具有
+/// 重复名称的对象，以及不是"新的"的属性和方法
+/// （即，超类响应的那些）
 - (NSArray *)metadataUniquedByName:(NSArray *)list
                         superclass:(Class)superclass
                               kind:(FLEXMetadataKind)kind
@@ -359,8 +359,8 @@
             
             [names addObject:name];
 
-            // 跳过只是重写的方法和属性，
-            // 可能跳过与属性关联的实例变量和方法
+            // 跳过仅是重写的方法和属性，
+            // 可能跳过与属性相关的实例变量和方法
             switch (kind) {
                 case FLEXMetadataKindProperties:
                     if ([superclass instancesRespondToSelector:[obj likelyGetter]]) {
@@ -386,10 +386,10 @@
                 case FLEXMetadataKindProtocols:
                 case FLEXMetadataKindClassHierarchy:
                 case FLEXMetadataKindOther:
-                    return YES; // 这些类型已经去重
+                    return YES; // 这些类型已经是唯一的
                     break;
                     
-                // Ivars 不能被覆盖
+                // 实例变量不能被重写
                 case FLEXMetadataKindIvars: break;
             }
 
@@ -402,8 +402,8 @@
 #pragma mark - 超类
 
 - (void)reloadClassHierarchy {
-    // 根据此逻辑，类层次结构永远不会包含元类对象；
-    // 对于给定的类及其实例，它始终是相同的
+    // 根据这个逻辑，类层次结构永远不会包含元类对象；
+    // 对于给定的类和它的实例，它总是相同的
     _classHierarchyClasses = [[self.object class] flex_classHierarchy];
 }
 

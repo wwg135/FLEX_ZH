@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXManager+Private.h
 //  PebbleApp
 //
-//  由 Javier Soto 创建于 7/26/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Javier Soto on 7/26/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXManager.h"
@@ -17,7 +16,7 @@
 @property (nonatomic, readonly) FLEXWindow *explorerWindow;
 @property (nonatomic, readonly) FLEXExplorerViewController *explorerViewController;
 
-/// 用户已注册的 FLEXGlobalsEntry 对象数组。
+/// An array of FLEXGlobalsEntry objects that have been registered by the user.
 @property (nonatomic, readonly) NSMutableArray<FLEXGlobalsEntry *> *userGlobalEntries;
 @property (nonatomic, readonly) NSMutableDictionary<NSString *, FLEXCustomContentViewerFuture> *customContentTypeViewers;
 

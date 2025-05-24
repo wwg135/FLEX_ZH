@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  NSDictionary+ObjcRuntime.m
 //  FLEX
 //
-//  源自 MirrorKit。
-//  由 Tanner 创建于 7/5/15.
+//  衍生自 MirrorKit。
+//  由 Tanner 创建于 7/5/15。
 //  版权所有 (c) 2020 FLEX Team。保留所有权利。
 //
 
@@ -13,7 +12,7 @@
 
 @implementation NSDictionary (ObjcRuntime)
 
-/// 关于如何构造正确的属性字符串，请参阅此链接：
+/// 查看此链接了解如何构造正确的属性字符串：
 /// https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html
 - (NSString *)propertyAttributesString {
     if (!self[kFLEXPropertyAttributeKeyTypeEncoding]) return nil;
@@ -87,7 +86,6 @@
     return attributes.copy;
 }
 
-/// 为属性创建一个属性字典
 + (instancetype)attributesDictionaryForProperty:(objc_property_t)property {
     NSMutableDictionary *attrs = [NSMutableDictionary new];
 

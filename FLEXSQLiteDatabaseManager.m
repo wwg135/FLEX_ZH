@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  PTDatabaseManager.m
 //  PTDatabaseReader
 //
 //  由 Peng Tao 创建于 15/11/23.
-//  版权所有 © 2015年 Peng Tao。保留所有权利。
+//  版权所有 © 2015年 Peng Tao. 保留所有权利。
+//
 
 #import "FLEXSQLiteDatabaseManager.h"
 #import "FLEXManager.h"
@@ -24,7 +24,7 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
 
 @implementation FLEXSQLiteDatabaseManager
 
-#pragma mark - FLEX数据库管理器
+#pragma mark - FLEXDatabaseManager
 
 + (instancetype)managerForDatabase:(NSString *)path {
     return [[self alloc] initWithPath:path];
@@ -81,7 +81,7 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
                 triedFinalizingOpenStatements = YES;
                 sqlite3_stmt *pStmt;
                 while ((pStmt = sqlite3_next_stmt(_db, nil)) !=0) {
-                    NSLog(@"正在关闭泄漏的语句");
+                    NSLog(@"关闭泄漏的语句");
                     sqlite3_finalize(pStmt);
                     retry = YES;
                 }
@@ -156,7 +156,7 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
     if ((status = sqlite3_prepare_v2(_db, sql.UTF8String, -1, &pstmt, 0)) == SQLITE_OK) {
         NSMutableArray<NSArray *> *rows = [NSMutableArray new];
         
-        // 绑定参数（如果存在）
+        // 绑定参数（如果有）
         if (![self bindParameters:args toStatement:pstmt]) {
             return self.lastResult;
         }
@@ -169,7 +169,7 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
         
         // 执行语句
         while ((status = sqlite3_step(pstmt)) == SQLITE_ROW) {
-            // 如果是选择查询，则获取行
+            // 如果这是选择查询，则获取行
             int dataCount = sqlite3_data_count(pstmt);
             if (dataCount > 0) {
                 [rows addObject:[NSArray flex_forEachUpTo:columnCount map:^id(NSUInteger i) {
@@ -181,10 +181,10 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
         if (status == SQLITE_DONE) {
             // 对于 insert/update/delete，columnCount 将为 0
             if (rows.count || columnCount > 0) {
-                // 我们执行了一个 SELECT 查询
+                // 我们执行了 SELECT 查询
                 result = _lastResult = [FLEXSQLResult columns:columns rows:rows];
             } else {
-                // 我们执行了一个类似 INSERT、UPDATE 或 DELETE 的查询
+                // 我们执行了 INSERT、UDPATE 或 DELETE 等查询
                 int rowsAffected = sqlite3_changes(_db);
                 NSString *message = [NSString stringWithFormat:@"%d 行受影响", rowsAffected];
                 result = _lastResult = [FLEXSQLResult message:message];
@@ -203,9 +203,9 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
 }
 
 
-#pragma mark - 私有
+#pragma mark - 私有方法
 
-/// @return 成功时返回 YES，如果遇到错误并存储在 \c lastResult 中则返回 NO
+/// @return 成功返回 YES，如果遇到错误并存储在 \c lastResult 中则返回 NO
 - (BOOL)bindParameters:(NSDictionary *)args toStatement:(sqlite3_stmt *)pstmt {
     for (NSString *param in args.allKeys) {
         int status = SQLITE_OK, idx = sqlite3_bind_parameter_index(pstmt, param.UTF8String);
@@ -230,7 +230,7 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
             const void *blob = [value bytes];
             status = sqlite3_bind_blob64(pstmt, idx, blob, [value length], SQLITE_TRANSIENT);
         }
-        // 基本类型参数
+        // 原始类型参数
         else if ([value isKindOfClass:[NSNumber class]]) {
             FLEXTypeEncoding type = [value objCType][0];
             switch (type) {
@@ -265,7 +265,7 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
         
         if (status != SQLITE_OK) {
             return [self storeErrorForLastTask:
-                [NSString stringWithFormat:@"绑定名为“%@”的参数", param]
+                [NSString stringWithFormat:@"绑定名为 '%@' 的参数", param]
             ];
         }
     }
@@ -281,7 +281,7 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
 - (FLEXSQLResult *)errorResult:(NSString *)description {
     const char *error = sqlite3_errmsg(_db);
     NSString *message = error ? @(error) : [NSString
-        stringWithFormat:@"(%@：空错误)", description
+        stringWithFormat:@"(%@: 空错误)", description
     ];
     
     return [FLEXSQLResult error:message];
@@ -301,7 +301,7 @@ kQuery(ROWIDS, @"SELECT rowid FROM \"%@\" ORDER BY rowid ASC");
             ];
             
         default:
-            // 其他所有情况默认使用字符串
+            // 对于其他所有类型，默认使用字符串
             return [self stringForColumnIndex:columnIdx stmt:stmt] ?: NSNull.null;
     }
 }

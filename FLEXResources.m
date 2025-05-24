@@ -5,10 +5,32 @@
 //  Created by Ryan Olson on 6/8/14.
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXResources.h"
 
+// Useful regex for formatting pasted hex
+//
+// To replace something with a newline, you need to manually copy
+// a newline from a text editor and paste it into the replace box.
+// For the "find" box, you can simply copy and paste the regexes below.
+//
+// Split into rows of 16:
+// ((?:0x[a-f\d][a-f\d], ){16})
+// Replace with: \n    $1
+//
+// Split last greater-than-16 row into two rows of 16 and less than 16:
+// ((?:0x[a-f\d][a-f\d], ){16})((?:0x[a-f\d][a-f\d](?:, )?)+)
+// Replace with: $1\n    $2
+//
+// Trim trailing spaces:
+// , \n
+// Replace with: ,\n
+//
+// Trim trailing newline after hex:
+// \n\n\}
+// Replace with: \n}
+
+// The 1x icons are unused now since some new icons don't have a 1x version at all
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused"
 

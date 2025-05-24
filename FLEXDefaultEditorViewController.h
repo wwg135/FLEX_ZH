@@ -2,10 +2,9 @@
 //  FLEXDefaultEditorViewController.h
 //  Flipboard
 //
-//  创建者：Ryan Olson，日期：5/23/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 5/23/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXFieldEditorViewController.h"
 

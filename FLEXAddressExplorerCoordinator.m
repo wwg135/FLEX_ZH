@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXAddressExplorerCoordinator.m
 //  FLEX
@@ -15,9 +14,7 @@
 #import "FLEXUtility.h"
 
 @interface UITableViewController (FLEXAddressExploration)
-// 取消选中行
 - (void)deselectSelectedRow;
-// 尝试探索地址
 - (void)tryExploreAddress:(NSString *)addressString safely:(BOOL)safely;
 @end
 
@@ -26,40 +23,35 @@
 #pragma mark - FLEXGlobalsEntry
 
 + (NSString *)globalsEntryTitle:(FLEXGlobalsRow)row {
-    // 全局入口标题
-    return @"🔍  地址浏览器";
+    return @"🔎  地址浏览";
 }
 
 + (FLEXGlobalsEntryRowAction)globalsEntryRowAction:(FLEXGlobalsRow)row {
-    // 全局入口行操作
     return ^(UITableViewController *host) {
 
-        NSString *title = @"通过地址探索对象";
-        NSString *message = @"在下方粘贴一个以 '0x' 开头的十六进制地址。"
+        NSString *title = @"在地址处探索对象";
+        NSString *message = @"在下面粘贴一个十六进制地址，以“0x”开头。"
         "如果您需要绕过指针验证，请使用不安全选项，"
-        "但请注意，如果地址无效，应用程序可能会崩溃。";
+        "但要知道，如果地址无效，应用程序可能会崩溃。";
 
-        // 显示输入弹窗
         [FLEXAlert makeAlert:^(FLEXAlert *make) {
             make.title(title).message(message);
             make.configuredTextField(^(UITextField *textField) {
-                NSString *copied = UIPasteboard.generalPasteboard.string; // 获取剪贴板内容
-                textField.placeholder = @"0x00000070deadbeef"; // 设置占位符
-                // 如果剪贴板内容是地址，则自动粘贴
+                NSString *copied = UIPasteboard.generalPasteboard.string;
+                textField.placeholder = @"0x00000070deadbeef";
+                // Go ahead and paste our clipboard if we have an address copied
                 if ([copied hasPrefix:@"0x"]) {
                     textField.text = copied;
-                    [textField selectAll:nil]; // 全选文本
+                    [textField selectAll:nil];
                 }
             });
-            // 安全探索按钮
-            make.button(@"探索").handler(^(NSArray<NSString *> *strings) {
+            make.button(@"勘察").handler(^(NSArray<NSString *> *strings) {
                 [host tryExploreAddress:strings.firstObject safely:YES];
             });
-            // 不安全探索按钮
-            make.button(@"不安全探索").destructiveStyle().handler(^(NSArray *strings) {
+            make.button(@"不安全的探索").destructiveStyle().handler(^(NSArray *strings) {
                 [host tryExploreAddress:strings.firstObject safely:NO];
             });
-            make.button(@"取消").cancelStyle(); // 取消按钮
+            make.button(@"取消").cancelStyle();
         } showFrom:host];
 
     };
@@ -69,13 +61,11 @@
 
 @implementation UITableViewController (FLEXAddressExploration)
 
-// 取消选中表格中的当前选中行
 - (void)deselectSelectedRow {
     NSIndexPath *selected = self.tableView.indexPathForSelectedRow;
     [self.tableView deselectRowAtIndexPath:selected animated:YES];
 }
 
-// 尝试探索地址
 - (void)tryExploreAddress:(NSString *)addressString safely:(BOOL)safely {
     NSScanner *scanner = [NSScanner scannerWithString:addressString];
     unsigned long long hexValue = 0;
@@ -86,10 +76,10 @@
 
     if (didParseAddress) {
         if (safely && ![FLEXRuntimeUtility pointerIsValidObjcObject:pointerValue]) {
-            error = @"给定的地址可能不是一个有效的 Objective-C 对象。";
+            error = @"给定的地址可能是一个无效的对象。";
         }
     } else {
-        error = @"地址格式错误。请确保它不太长并且以 '0x' 开头。";
+        error = @"格式不一的地址。确保它不会太长，并以“0x”开头。";
     }
 
     if (!error) {
@@ -97,7 +87,7 @@
         FLEXObjectExplorerViewController *explorer = [FLEXObjectExplorerFactory explorerViewControllerForObject:object];
         [self.navigationController pushViewController:explorer animated:YES];
     } else {
-        [FLEXAlert showAlert:@"错误" message:error from:self];
+        [FLEXAlert showAlert:@"Uh-oh" message:error from:self];
         [self deselectSelectedRow];
     }
 }

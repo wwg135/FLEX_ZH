@@ -2,10 +2,9 @@
 //  FLEXViewControllerShortcuts.m
 //  FLEX
 //
-//  Created by Tanner Bennett on 12/12/19.
-//  Copyright © 2020 FLEX Team. All rights reserved.
+//  由 Tanner Bennett 创建于 12/12/19.
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXViewControllerShortcuts.h"
 #import "FLEXObjectExplorerFactory.h"
@@ -13,13 +12,12 @@
 #import "FLEXShortcut.h"
 #import "FLEXAlert.h"
 
-
 @interface FLEXViewControllerShortcuts ()
 @end
 
 @implementation FLEXViewControllerShortcuts
 
-#pragma mark - Overrides
+#pragma mark - 重写
 
 + (instancetype)forObject:(UIViewController *)viewController {
     BOOL (^vcIsInuse)(UIViewController *) = ^BOOL(UIViewController *controller) {
@@ -31,16 +29,16 @@
     };
     
     return [self forObject:viewController additionalRows:@[
-        [FLEXActionShortcut title:@"推送视图控制器"
+        [FLEXActionShortcut title:@"进入视图控制器"
             subtitle:^NSString *(UIViewController *controller) {
-                return vcIsInuse(controller) ? @"正在使用，无法推送" : nil;
+                return vcIsInuse(controller) ? @"正在使用中，无法进入" : nil;
             }
             selectionHandler:^void(UIViewController *host, UIViewController *controller) {
                 if (!vcIsInuse(controller)) {
                     [host.navigationController pushViewController:controller animated:YES];
                 } else {
                     [FLEXAlert
-                        showAlert:@"无法推送视图控制器"
+                        showAlert:@"无法进入视图控制器"
                         message:@"此视图控制器的视图当前正在使用中。"
                         from:host
                     ];

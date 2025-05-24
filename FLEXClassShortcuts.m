@@ -2,10 +2,9 @@
 //  FLEXClassShortcuts.m
 //  FLEX
 //
-//  创建者：Tanner Bennett，日期：11/22/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner Bennett on 11/22/19.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXClassShortcuts.h"
 #import "FLEXShortcut.h"
@@ -20,11 +19,11 @@
 @implementation FLEXClassShortcuts
 
 + (instancetype)forObject:(Class)cls {
-    // 这些额外的行将出现在快捷方式部分的开头。
-    // 下面的方法编写方式使其不会干扰
-    // 与这些一起注册的属性等。
+    // 这些附加行将出现在快捷方式部分的开头。
+    // 下面的方法编写方式使它们不会干扰
+    // 与这些一起注册的属性/等
     return [self forObject:cls additionalRows:@[
-        [FLEXActionShortcut title:@"查找活动实例" subtitle:nil
+        [FLEXActionShortcut title:@"查找活跃实例" subtitle:nil
             viewer:^UIViewController *(id obj) {
                 return [FLEXObjectListViewController
                     instancesOfClassWithName:NSStringFromClass(obj)
@@ -44,7 +43,7 @@
                 return UITableViewCellAccessoryDisclosureIndicator;
             }
         ],
-        [FLEXActionShortcut title:@"探索类所在的包"
+        [FLEXActionShortcut title:@"浏览类的Bundle"
             subtitle:^NSString *(id obj) {
                 return [self shortNameForBundlePath:[NSBundle bundleForClass:obj].executablePath];
             }

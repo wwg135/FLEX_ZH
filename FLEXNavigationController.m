@@ -2,8 +2,8 @@
 //  FLEXNavigationController.m
 //  FLEX
 //
-//  由 Tanner 创建于 1/30/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 1/30/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXNavigationController.h"
@@ -38,16 +38,16 @@
     
     self.waitingToAddTab = YES;
     
-    // 如果隐藏，则添加手势以显示工具栏
+    // Add gesture to reveal toolbar if hidden
     UITapGestureRecognizer *navbarTapGesture = [[UITapGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleNavigationBarTap:)
     ];
     
-    // 不要取消触摸以解决 iOS 13 之前版本上的错误
+    // Don't cancel touches to work around bug on versions of iOS prior to 13
     navbarTapGesture.cancelsTouchesInView = NO;
     [self.navigationBar addGestureRecognizer:navbarTapGesture];
     
-    // 如果不是以表单样式呈现，则添加手势以关闭
+    // Add gesture to dismiss if not presented with a sheet style
     if (@available(iOS 13, *)) {
         switch (self.modalPresentationStyle) {
             case UIModalPresentationAutomatic:
@@ -90,11 +90,11 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    // 仅当我们正确呈现时才添加新选项卡
     if (self.waitingToAddTab) {
+        // Only add new tab if we're presented properly
         if ([self.presentingViewController isKindOfClass:[FLEXExplorerViewController class]]) {
-            // 新的导航控制器总是将自己添加为新选项卡，
-            // 选项卡由 FLEXExplorerViewController 关闭
+            // New navigation controllers always add themselves as new tabs,
+            // tabs are closed by FLEXExplorerViewController
             [FLEXTabList.sharedList addTab:self];
             self.waitingToAddTab = NO;
         }
@@ -107,15 +107,15 @@
 }
 
 - (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion {
-    // 解决 UIActivityViewController 出于某种原因尝试关闭我们的问题
+    // Workaround for UIActivityViewController trying to dismiss us for some reason
     if (![self.viewControllers.lastObject.presentedViewController isKindOfClass:UIActivityViewController.self]) {
         [super dismissViewControllerAnimated:flag completion:completion];
     }
 }
 
 - (void)dismissAnimated {
-    // 仅当按下完成按钮时才关闭选项卡；这
-    // 允许您通过向下拖动以关闭来保持选项卡打开
+    // Tabs are only closed if the done button is pressed; this
+    // allows you to leave a tab open by dragging down to dismiss
     if ([self.presentingViewController isKindOfClass:[FLEXExplorerViewController class]]) {
         [FLEXTabList.sharedList closeTab:self];        
     }
@@ -132,21 +132,21 @@
         return;
     }
     
-    // 检查完成项是否已存在
+    // Check if a done item already exists
     for (UIBarButtonItem *item in navigationItem.rightBarButtonItems) {
         if (item.style == UIBarButtonItemStyleDone) {
             return;
         }
     }
     
-    // 如果根视图控制器没有“完成”按钮，则为其提供一个
+    // Give root view controllers a Done button if it does not already have one
     UIBarButtonItem *done = [[UIBarButtonItem alloc]
         initWithBarButtonSystemItem:UIBarButtonSystemItemDone
         target:self
         action:@selector(dismissAnimated)
     ];
     
-    // 如果已存在其他按钮，则将该按钮前置
+    // Prepend the button if other buttons exist already
     NSArray *existingItems = navigationItem.rightBarButtonItems;
     if (existingItems.count) {
         navigationItem.rightBarButtonItems = [@[done] arrayByAddingObjectsFromArray:existingItems];
@@ -154,7 +154,8 @@
         navigationItem.rightBarButtonItem = done;
     }
     
-    // 防止我们在 -viewWillAppear: 中再次对相同的视图控制器调用此方法
+    // Keeps us from calling this method again on
+    // the same view controllers in -viewWillAppear:
     self.didSetupPendingDismissButtons = YES;
 }
 
@@ -175,7 +176,7 @@
 }
      
 - (void)handleNavigationBarTap:(UIGestureRecognizer *)sender {
-    // 如果我们只是点击一个按钮，则不显示工具栏
+    // Don't reveal the toolbar if we were just tapping a button
     CGPoint location = [sender locationInView:self.navigationBar];
     UIView *hitView = [self.navigationBar hitTest:location withEvent:nil];
     if ([hitView isKindOfClass:[UIControl class]]) {

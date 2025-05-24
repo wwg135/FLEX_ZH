@@ -5,7 +5,6 @@
 //  Created by Ryan Olson on 6/12/14.
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXImagePreviewViewController.h"
 #import "FLEXActivityViewController.h"
@@ -25,7 +24,7 @@
 #pragma mark -
 @implementation FLEXImagePreviewViewController
 
-#pragma mark Initialization
+#pragma mark 初始化
 
 + (instancetype)previewForView:(UIView *)view {
     return [self forImage:[FLEXUtility previewImageForView:view]];
@@ -44,7 +43,7 @@
     
     self = [super init];
     if (self) {
-        self.title = @"图片";
+        self.title = @"预览";
         self.image = image;
         _backgroundColors = @[FLEXResources.checkerPatternColor, UIColor.whiteColor, UIColor.blackColor];
     }
@@ -57,7 +56,7 @@
 }
 
 
-#pragma mark Lifecycle
+#pragma mark 生命周期
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -99,7 +98,7 @@
 }
 
 
-#pragma mark Private
+#pragma mark 私有方法
 
 - (void)centerContentInScrollViewIfNeeded {
     CGFloat horizontalInset = 0.0;

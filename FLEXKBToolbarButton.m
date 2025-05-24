@@ -6,8 +6,6 @@
 //  Copyright © 2017 Tanner Bennett. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXKBToolbarButton.h"
 #import "UIFont+FLEX.h"
 #import "FLEXUtility.h"
@@ -16,9 +14,9 @@
 @interface FLEXKBToolbarButton ()
 @property (nonatomic      ) NSString *title;
 @property (nonatomic, copy) FLEXKBToolbarAction buttonPressBlock;
-/// 当外观设置为`default`时为YES
+/// YES if appearance is set to `default`
 @property (nonatomic, readonly) BOOL useSystemAppearance;
-/// 当当前特性集合设置为暗黑模式且\c useSystemAppearance为YES时为YES
+/// YES if the current trait collection is set to dark mode and \c useSystemAppearance is YES
 @property (nonatomic, readonly) BOOL usingDarkMode;
 @end
 
@@ -90,10 +88,10 @@
                 titleColor = UIColor.labelColor;
                 
                 if (self.usingDarkMode) {
-                    // 样式 = UIBlurEffectStyleSystemUltraThinMaterialLight;
+                    // style = UIBlurEffectStyleSystemUltraThinMaterialLight;
                     backgroundColor = darkColor;
                 } else {
-                    // 样式 = UIBlurEffectStyleSystemMaterialLight;
+                    // style = UIBlurEffectStyleSystemMaterialLight;
                     backgroundColor = lightColor;
                 }
                 break;
@@ -101,12 +99,12 @@
         case UIKeyboardAppearanceLight:
             titleColor = UIColor.blackColor;
             backgroundColor = lightColor;
-            // 样式 = UIBlurEffectStyleExtraLight;
+            // style = UIBlurEffectStyleExtraLight;
             break;
         case UIKeyboardAppearanceDark:
             titleColor = UIColor.whiteColor;
             backgroundColor = darkColor;
-            // 样式 = UIBlurEffectStyleDark;
+            // style = UIBlurEffectStyleDark;
             break;
     }
     
@@ -140,10 +138,10 @@
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previous {
     if (@available(iOS 12, *)) {
-        // 暗黑模式是否被切换？
+        // Was darkmode toggled?
         if (previous.userInterfaceStyle != self.traitCollection.userInterfaceStyle) {
             if (self.useSystemAppearance) {
-                // 使用正确的颜色重新创建背景视图
+                // Recreate the background view with the proper colors
                 self.appearance = self.appearance;
             }
         }

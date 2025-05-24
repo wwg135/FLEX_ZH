@@ -5,7 +5,6 @@
 //  Created by Tanner on 4/17/19.
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXTableViewCell.h"
 #import "FLEXUtility.h"
@@ -13,11 +12,13 @@
 #import "FLEXTableView.h"
 
 @interface UITableView (Internal)
+// Exists at least since iOS 5
 - (BOOL)_canPerformAction:(SEL)action forCell:(UITableViewCell *)cell sender:(id)sender;
 - (void)_performAction:(SEL)action forCell:(UITableViewCell *)cell sender:(id)sender;
 @end
 
 @interface UITableViewCell (Internal)
+// Exists at least since iOS 5
 @property (nonatomic, readonly) FLEXTableView *_tableView;
 @end
 

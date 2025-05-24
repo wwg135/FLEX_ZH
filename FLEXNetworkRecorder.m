@@ -5,7 +5,6 @@
 //  Created by Ryan Olson on 2/4/15.
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXNetworkRecorder.h"
 #import "FLEXNetworkCurlLogger.h"
@@ -50,7 +49,7 @@ NSString *const kFLEXNetworkRecorderResponseCacheLimitDefaultsKey = @"com.flex.r
             objectForKey:kFLEXNetworkRecorderResponseCacheLimitDefaultsKey] unsignedIntegerValue
         ];
         
-        // 默认最大25MB。如果内存压力大，缓存会提前清除。
+        // Default to 25 MB max. The cache will purge earlier if there is memory pressure.
         self.restCache.totalCostLimit = responseCacheLimit ?: 25 * 1024 * 1024;
         [self.restCache setTotalCostLimit:responseCacheLimit];
         
@@ -60,7 +59,7 @@ NSString *const kFLEXNetworkRecorderResponseCacheLimitDefaultsKey = @"com.flex.r
         self.requestIDsToTransactions = [NSMutableDictionary new];
         self.hostDenylist = NSUserDefaults.standardUserDefaults.flex_networkHostDenylist.mutableCopy;
 
-        // 使用串行队列因为我们使用的可变对象不是线程安全的
+        // Serial queue used because we use mutable objects that are not thread safe
         self.queue = dispatch_queue_create("com.flex.FLEXNetworkRecorder", DISPATCH_QUEUE_SERIAL);
     }
     
@@ -179,57 +178,34 @@ NSString *const kFLEXNetworkRecorderResponseCacheLimitDefaultsKey = @"com.flex.r
 
 #pragma mark - Network Events
 
-- (void)recordRequestWillBeSent:(NSURLRequest *)request {
-    if (!request) {
-        NSLog(@"错误: 请求对象不能为空");
-        return;
-    }
-    
-    if (![NSThread isMainThread]) {
-        NSLog(@"警告: 必须在主线程调用网络请求记录");
-        return;
-    }
-}
-
-- (void)recordRequestWillBeSent:(NSURLRequest *)request identifier:(NSString *)requestID {
-    NSParameterAssert(request);
-    if (!request) {
-        NSLog(@"错误: 请求对象不能为空");
-        return;
-    }
-
-    dispatch_async(self.queue, ^{
-        FLEXHTTPTransaction *transaction = [FLEXHTTPTransaction request:request identifier:requestID];
-        [self.orderedHTTPTransactions insertObject:transaction atIndex:0];
-        self.requestIDsToTransactions[requestID] = transaction;
-        [self postNewTransactionNotificationWithTransaction:transaction];
-    });
-}
-
-- (void)recordRequestWillBeSentWithRequestID:(NSString *)requestID 
-                                   request:(NSURLRequest *)request 
-                          redirectResponse:(NSURLResponse *)redirectResponse {
-    // 修复redirectResponse未声明的问题
-    NSParameterAssert(requestID.length);
-    NSParameterAssert(request);
-    
-    dispatch_async(self.queue, ^{
-        FLEXHTTPTransaction *transaction = [FLEXHTTPTransaction request:request identifier:requestID];
-        
-        if (redirectResponse) {
-            [self recordResponseReceivedWithRequestID:requestID response:redirectResponse];
-            [self recordLoadingFinishedWithRequestID:requestID responseBody:nil];
+- (void)recordRequestWillBeSentWithRequestID:(NSString *)requestID
+                                     request:(NSURLRequest *)request
+                            redirectResponse:(NSURLResponse *)redirectResponse {
+    for (NSString *host in self.hostDenylist) {
+        if ([request.URL.host hasSuffix:host]) {
+            return;
         }
-        
+    }
+    
+    FLEXHTTPTransaction *transaction = [FLEXHTTPTransaction request:request identifier:requestID];
+
+    // Before async block to keep times accurate
+    if (redirectResponse) {
+        [self recordResponseReceivedWithRequestID:requestID response:redirectResponse];
+        [self recordLoadingFinishedWithRequestID:requestID responseBody:nil];
+    }
+
+    // A redirect is always a new request
+    dispatch_async(self.queue, ^{
         [self.orderedHTTPTransactions insertObject:transaction atIndex:0];
         self.requestIDsToTransactions[requestID] = transaction;
-        
+
         [self postNewTransactionNotificationWithTransaction:transaction];
     });
 }
 
 - (void)recordResponseReceivedWithRequestID:(NSString *)requestID response:(NSURLResponse *)response {
-    // 在异步块之前记录时间以保持准确性
+    // Before async block to stay accurate
     NSDate *responseDate = [NSDate date];
 
     dispatch_async(self.queue, ^{
@@ -284,7 +260,7 @@ NSString *const kFLEXNetworkRecorderResponseCacheLimitDefaultsKey = @"com.flex.r
 
         NSString *mimeType = transaction.response.MIMEType;
         if ([mimeType hasPrefix:@"image/"] && responseBody.length > 0) {
-            // 在单独的后台队列上生成缩略图预览
+            // Thumbnail image previews on a separate background queue
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 NSInteger maxPixelDimension = UIScreen.mainScreen.scale * 32.0;
                 transaction.thumbnail = [FLEXUtility

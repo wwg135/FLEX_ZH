@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXNSDataShortcuts.h
 //  FLEX
@@ -8,7 +7,7 @@
 
 #import "FLEXShortcutsSection.h"
 
-/// 添加“UTF-8 字符串”快捷方式
+/// Adds a "UTF-8 String" shortcut
 @interface FLEXNSDataShortcuts : FLEXShortcutsSection
 
 @end

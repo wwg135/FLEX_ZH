@@ -5,7 +5,6 @@
 //  Created by Ryan Olson on 9/19/15.
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import <UIKit/UIKit.h>
 
@@ -13,11 +12,11 @@
 
 @property (nonatomic, readonly, class) FLEXKeyboardShortcutManager *sharedManager;
 
-/// @param key 与键盘上按键匹配的单个字符字符串
-/// @param modifiers 修饰键，如shift、command或alt/option
-/// @param action 当识别到按键和修饰键组合时在主线程上运行的代码块
-/// @param description 显示在键盘快捷键帮助菜单中，可通过'?'键访问
-/// @param allowOverride 即使该按键/修饰键组合已有关联操作，也允许注册
+/// @param key A single character string matching a key on the keyboard
+/// @param modifiers Modifier keys such as shift, command, or alt/option
+/// @param action The block to run on the main thread when the key & modifier combination is recognized.
+/// @param description Shown the the keyboard shortcut help menu, which is accessed via the '?' key.
+/// @param allowOverride Allow registering even if there's an existing action associated with that key/modifier.
 - (void)registerSimulatorShortcutWithKey:(NSString *)key
                                modifiers:(UIKeyModifierFlags)modifiers
                                   action:(dispatch_block_t)action

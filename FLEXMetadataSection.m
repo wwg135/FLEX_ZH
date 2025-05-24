@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMetadataSection.m
 //  FLEX
 //
-//  由 Tanner Bennett 创建于 9/19/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利.
+//  Created by Tanner Bennett on 9/19/19.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXMetadataSection.h"
@@ -27,7 +26,7 @@
 
 @implementation FLEXMetadataSection
 
-#pragma mark - Initialization
+#pragma mark - 初始化
 
 + (instancetype)explorer:(FLEXObjectExplorer *)explorer kind:(FLEXMetadataKind)metadataKind {
     return [[self alloc] initWithExplorer:explorer kind:metadataKind];
@@ -45,7 +44,7 @@
     return self;
 }
 
-#pragma mark - Private
+#pragma mark - 私有方法
 
 - (NSString *)titleWithBaseName:(NSString *)baseName {
     unsigned long totalCount = self.allMetadata.count;
@@ -54,7 +53,7 @@
     if (totalCount == filteredCount) {
         return [baseName stringByAppendingFormat:@" (%lu)", totalCount];
     } else {
-        return [baseName stringByAppendingFormat:@" (%lu/%lu)", filteredCount, totalCount];
+        return [baseName stringByAppendingFormat:@" (%lu / %lu)", filteredCount, totalCount];
     }
 }
 
@@ -62,14 +61,14 @@
     return [self.metadata[row] suggestedAccessoryTypeWithTarget:self.explorer.object];
 }
 
-#pragma mark - Public
+#pragma mark - 公共方法
 
 - (void)setExcludedMetadata:(NSSet<NSString *> *)excludedMetadata {
     _excludedMetadata = excludedMetadata;
     [self reloadData];
 }
 
-#pragma mark - Overrides
+#pragma mark - 重写方法
 
 - (NSString *)titleForRow:(NSInteger)row {
     return [self.metadata[row] description];
@@ -144,7 +143,7 @@
             break;
     }
 
-    // 删除排除的元数据
+    // 移除被排除的元数据
     if (self.excludedMetadata.count) {
         id filterBlock = ^BOOL(id<FLEXRuntimeMetadata> obj, NSUInteger idx) {
             return ![self.excludedMetadata containsObject:obj.name];
@@ -197,7 +196,7 @@
 - (NSArray<UIMenuElement *> *)menuItemsForRow:(NSInteger)row sender:(UIViewController *)sender {
     NSArray<UIMenuElement *> *existingItems = [super menuItemsForRow:row sender:sender];
     
-    // 这两个元数据种类不需要下面任何其他选项
+    // 这两种元数据类型不需要下面的额外选项
     switch (self.metadataKind) {
         case FLEXMetadataKindClassHierarchy:
         case FLEXMetadataKindOther:
@@ -210,7 +209,7 @@
     NSMutableArray<UIMenuElement *> *menuItems = [NSMutableArray new];
     
     [menuItems addObject:[UIAction
-        actionWithTitle:@"探索元数据"
+        actionWithTitle:@"浏览元数据"
         image:nil
         identifier:nil
         handler:^(__kindof UIAction *action) {

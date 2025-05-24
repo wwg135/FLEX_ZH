@@ -1,15 +1,14 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMultilineTableViewCell.h
 //  FLEX
 //
-//  由 Ryan Olson 创建于 2/13/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 2/13/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXTableViewCell.h"
 
-/// 一个标签均设置为能够多行显示的单元格。
+/// A cell with both labels set to be multi-line capable.
 @interface FLEXMultilineTableViewCell : FLEXTableViewCell
 
 + (CGFloat)preferredHeightWithAttributedText:(NSAttributedString *)attributedText
@@ -19,7 +18,7 @@
 
 @end
 
-/// 使用 \c UITableViewCellStyleSubtitle 初始化的 \c FLEXMultilineTableViewCell
+/// A \c FLEXMultilineTableViewCell initialized with \c UITableViewCellStyleSubtitle
 @interface FLEXMultilineDetailTableViewCell : FLEXMultilineTableViewCell
 
 @end

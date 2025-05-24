@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXManager.h
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 4/4/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 4/4/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXExplorerToolbar.h"
@@ -22,31 +21,32 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)hideExplorer;
 - (void)toggleExplorer;
 
-/// 以编程方式关闭 FLEX 显示的任何工具，仅保留工具栏可见。
+/// Programmatically dismiss anything presented by FLEX, leaving only the toolbar visible.
 - (void)dismissAnyPresentedTools:(void (^_Nullable)(void))completion;
 
-/// 以编程方式在 FLEX 工具栏顶部显示某些内容。
-/// 此方法将自动关闭任何当前显示的工具，
-/// 因此您无需自己调用 \c dismissAnyPresentedTools:。
+/// Programmatically present something on top of the FLEX toolbar.
+/// This method will automatically dismiss any currently presented tool,
+/// so you do not need to call \c dismissAnyPresentedTools: yourself.
 - (void)presentTool:(UINavigationController *(^)(void))viewControllerFuture
          completion:(void (^_Nullable)(void))completion;
 
-/// 以编程方式使用给定的视图控制器显示一个新的导航控制器。
-/// 完成块将传递此新的导航控制器。
+/// Programmatically presents a new navigation controller with the given view controller.
+/// The completion block is passed this new navigation controller.
 - (void)presentEmbeddedTool:(UIViewController *)viewController
                  completion:(void (^_Nullable)(UINavigationController *))completion;
 
-/// 以编程方式显示一个新的导航控制器，用于浏览给定的对象。
-/// 完成块将传递此新的导航控制器。
+/// Programmatically presents a new navigation controller exploring the given object.
+/// The completion block is passed this new navigation controller.
 - (void)presentObjectExplorer:(id)object completion:(void (^_Nullable)(UINavigationController *))completion;
 
-/// 当默认选择的场景不是您希望显示浏览器的场景时，使用此选项在特定场景中显示浏览器。
+/// Use this to present the explorer in a specific scene when the one
+/// it chooses by default is not the one you wish to display it in.
 - (void)showExplorerFromScene:(UIWindowScene *)scene API_AVAILABLE(ios(13.0));
 
-#pragma mark - 其他
+#pragma mark - Misc
 
-/// 默认数据库密码默认为 \c nil。
-/// 将此设置为您希望数据库打开时使用的密码。
+/// Default database password is @c nil by default.
+/// Set this to the password you want the databases to open with.
 @property (copy, nonatomic) NSString *defaultSqliteDatabasePassword;
 
 @end

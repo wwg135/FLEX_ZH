@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXTableLeftCell.m
 //  FLEX
 //
-//  由 Peng Tao 创建于 15/11/24.
-//  版权所有 © 2015年 f。保留所有权利。
+//  Created by Peng Tao on 15/11/24.
+//  Copyright © 2015年 f. All rights reserved.
+//
 
 #import "FLEXTableLeftCell.h"
 

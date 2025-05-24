@@ -6,8 +6,6 @@
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXKeyboardShortcutManager.h"
 #import "FLEXUtility.h"
 #import <objc/runtime.h>
@@ -85,7 +83,7 @@
         prettyFlags = [prettyFlags stringByAppendingString:@"⌘"];
     }
     
-    // 调整以使用制表符获得简单的列
+    // 使用制表符调整格式以获得整齐的列对齐
     if (prettyFlags.length < 2) {
         prettyKey = [prettyKey stringByAppendingString:@"\t"];
     }
@@ -266,7 +264,7 @@ static const long kFLEXCommandKeyCode = 0xe3;
             }
         }
         
-        // 当有活跃的响应者时忽略按键命令（除了Escape键）
+        // 当有活跃响应者时忽略键盘命令（除了退出键）
         if (firstResponder) {
             if ([unmodifiedInput isEqual:UIKeyInputEscape]) {
                 [firstResponder resignFirstResponder];
@@ -296,8 +294,8 @@ static const long kFLEXCommandKeyCode = 0xe3;
         }
     }
     
-    // 在模拟器键盘事件上调用_keyCode会导致崩溃
-    // 只有在没有活跃响应者时调用_keyCode才是安全的
+    // 从模拟器键盘上的事件调用 _keyCode 会导致崩溃。
+    // 只有在没有活跃响应者时才能安全地调用 _keyCode。
     if (!hasFirstResponder && [event respondsToSelector:@selector(_keyCode)]) {
         long keyCode = [event _keyCode];
         if (keyCode == kFLEXControlKeyCode) {

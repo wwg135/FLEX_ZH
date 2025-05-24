@@ -6,8 +6,6 @@
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXColor.h"
 #import "FLEXHTTPTransactionDetailController.h"
 #import "FLEXNetworkCurlLogger.h"
@@ -57,7 +55,7 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
 }
 
 - (instancetype)initWithStyle:(UITableViewStyle)style {
-    // 强制使用分组样式
+    // Force grouped style
     return [super initWithStyle:UITableViewStyleGrouped];
 }
 
@@ -72,7 +70,7 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
     self.toolbarItems = @[
         UIBarButtonItem.flex_flexibleSpace,
         [UIBarButtonItem
-            flex_itemWithTitle:@"复制cURL请求"
+            flex_itemWithTitle:@"复制 curl"
             target:self
             action:@selector(copyButtonPressed:)
         ]
@@ -132,7 +130,6 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
 
 - (void)copyButtonPressed:(id)sender {
     [UIPasteboard.generalPasteboard setString:[FLEXNetworkCurlLogger curlCommandString:_transaction.request]];
-    [FLEXAlert showAlert:@"已复制到剪贴板" message:@"cURL请求已复制到剪贴板" from:self];
 }
 
 #pragma mark - Table view data source
@@ -156,50 +153,7 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
 
     FLEXNetworkDetailRow *rowModel = [self rowModelAtIndexPath:indexPath];
 
-    if ([rowModel.title isEqualToString:@"请求地址"]) {
-        cell.textLabel.text = @"请求";
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ %@", self.transaction.request.HTTPMethod ?: @"GET", self.transaction.request.URL.absoluteString];
-    } else if ([rowModel.title isEqualToString:@"响应大小"]) {
-        cell.textLabel.text = @"响应";
-        if ([self.transaction.response isKindOfClass:[NSHTTPURLResponse class]]) {
-            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)self.transaction.response;
-            cell.detailTextLabel.text = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
-        } else {
-            cell.detailTextLabel.text = @"N/A";
-        }
-    } else if ([rowModel.title isEqualToString:@"总持续时间"]) {
-        cell.textLabel.text = @"持续时间";
-        cell.detailTextLabel.text = [FLEXUtility stringFromRequestDuration:self.transaction.duration];
-    } else if ([rowModel.title isEqualToString:@"请求体大小"]) {
-        cell.textLabel.text = @"大小";
-        cell.detailTextLabel.text = [NSByteCountFormatter stringFromByteCount:self.transaction.receivedDataLength countStyle:NSByteCountFormatterCountStyleBinary];
-    } else if ([rowModel.title isEqualToString:@"内容类型"]) {
-        cell.textLabel.text = @"MIME类型";
-        cell.detailTextLabel.text = self.transaction.response.MIMEType;
-    } else if ([rowModel.title isEqualToString:@"请求机制"]) {
-        cell.textLabel.text = @"机制";
-        cell.detailTextLabel.text = self.transaction.requestMechanism;
-    } else if ([rowModel.title isEqualToString:@"请求头信息"]) {
-        cell.textLabel.text = @"请求头";
-    } else if ([rowModel.title isEqualToString:@"查询参数"]) {
-        cell.textLabel.text = @"查询参数";
-    } else if ([rowModel.title isEqualToString:@"Request Body Parameters"]) {
-        cell.textLabel.text = @"POST数据体";
-    } else if ([rowModel.title isEqualToString:@"Response Headers"]) {
-        cell.textLabel.text = @"响应头";
-    } else if ([rowModel.title isEqualToString:@"响应内容"]) {
-        cell.textLabel.text = @"查看响应";
-    } else if ([rowModel.title isEqualToString:@"复制URL"]) {
-        cell.textLabel.text = @"复制URL";
-    } else if ([rowModel.title isEqualToString:@"Copy curl"]) {
-        cell.textLabel.text = @"复制cURL请求";
-    } else if ([rowModel.title isEqualToString:@"共享事务"]) {
-        cell.textLabel.text = @"共享事务";
-    } else {
-        cell.textLabel.text = rowModel.title;
-        cell.detailTextLabel.text = rowModel.detailText;
-    }
-
+    cell.textLabel.attributedText = [[self class] attributedTextForRow:rowModel];
     cell.accessoryType = rowModel.selectionFuture ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
     cell.selectionStyle = rowModel.selectionFuture ? UITableViewCellSelectionStyleDefault : UITableViewCellSelectionStyleNone;
 
@@ -303,100 +257,174 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
     return attributedText;
 }
 
-#pragma mark - Table Data Generation
+#pragma mark - 表格数据生成
 
-// 一般信息部分
 + (FLEXNetworkDetailSection *)generalSectionForTransaction:(FLEXHTTPTransaction *)transaction {
     NSMutableArray<FLEXNetworkDetailRow *> *rows = [NSMutableArray new];
 
     FLEXNetworkDetailRow *requestURLRow = [FLEXNetworkDetailRow new];
-    requestURLRow.title = @"请求地址";
-    requestURLRow.detailText = transaction.request.URL.absoluteString;
+    requestURLRow.title = @"请求URL";
+    NSURL *url = transaction.request.URL;
+    requestURLRow.detailText = url.absoluteString;
+    requestURLRow.selectionFuture = ^{
+        UIViewController *urlWebViewController = [[FLEXWebViewController alloc] initWithURL:url];
+        urlWebViewController.title = url.absoluteString;
+        return urlWebViewController;
+    };
+    [rows addObject:requestURLRow];
 
     FLEXNetworkDetailRow *requestMethodRow = [FLEXNetworkDetailRow new];
     requestMethodRow.title = @"请求方法";
     requestMethodRow.detailText = transaction.request.HTTPMethod;
+    [rows addObject:requestMethodRow];
 
-    FLEXNetworkDetailRow *requestBodySizeRow = [FLEXNetworkDetailRow new];
-    requestBodySizeRow.title = @"请求体大小";
-    requestBodySizeRow.detailText = [NSByteCountFormatter 
-        stringFromByteCount:transaction.cachedRequestBody.length 
-        countStyle:NSByteCountFormatterCountStyleBinary
-    ];
+    if (transaction.cachedRequestBody.length > 0) {
+        FLEXNetworkDetailRow *postBodySizeRow = [FLEXNetworkDetailRow new];
+        postBodySizeRow.title = @"请求体大小";
+        postBodySizeRow.detailText = [NSByteCountFormatter stringFromByteCount:transaction.cachedRequestBody.length countStyle:NSByteCountFormatterCountStyleBinary];
+        [rows addObject:postBodySizeRow];
 
-    // 响应相关
-    FLEXNetworkDetailRow *responseSizeRow = [FLEXNetworkDetailRow new];
-    responseSizeRow.title = @"响应大小";
-    responseSizeRow.detailText = [NSByteCountFormatter 
-        stringFromByteCount:transaction.receivedDataLength 
-        countStyle:NSByteCountFormatterCountStyleBinary
-    ];
+        FLEXNetworkDetailRow *postBodyRow = [FLEXNetworkDetailRow new];
+        postBodyRow.title = @"请求体";
+        postBodyRow.detailText = @"点击查看";
+        postBodyRow.selectionFuture = ^UIViewController * () {
+            // 如果可以就显示请求体
+            NSString *contentType = [transaction.request valueForHTTPHeaderField:@"Content-Type"];
+            NSData *body = [self postBodyDataForTransaction:transaction];
+            UIViewController *detailViewController = [self detailViewControllerForMIMEType:contentType data:body];
+            if (detailViewController) {
+                detailViewController.title = @"请求体";
+                return detailViewController;
+            }
 
-    FLEXNetworkDetailRow *mimeTypeRow = [FLEXNetworkDetailRow new];
-    mimeTypeRow.title = @"内容类型";
-    mimeTypeRow.detailText = transaction.response.MIMEType;
+            // 不能显示请求体，提醒用户
+            return [FLEXAlert makeAlert:^(FLEXAlert *make) {
+                if (!body) {
+                    make.title(@"空HTTP体");
+                } else {
+                    make.title(@"无法查看HTTP体数据");
+                    make.message(@"FLEX没有适用于此MIME类型的请求体数据查看器: ");
+                }
+                
+                make.message(contentType);
+                make.button(@"关闭").cancelStyle();
+            }];
+        };
 
-    FLEXNetworkDetailRow *mechanismRow = [FLEXNetworkDetailRow new];
-    mechanismRow.title = @"请求机制";
-    mechanismRow.detailText = transaction.requestMechanism;
+        [rows addObject:postBodyRow];
+    }
 
-    // 错误信息
+    NSString *statusCodeString = [FLEXUtility statusCodeStringFromURLResponse:transaction.response];
+    if (statusCodeString.length > 0) {
+        FLEXNetworkDetailRow *statusCodeRow = [FLEXNetworkDetailRow new];
+        statusCodeRow.title = @"状态码";
+        statusCodeRow.detailText = statusCodeString;
+        [rows addObject:statusCodeRow];
+    }
+
     if (transaction.error) {
         FLEXNetworkDetailRow *errorRow = [FLEXNetworkDetailRow new];
-        errorRow.title = @"错误信息";
+        errorRow.title = @"错误";
         errorRow.detailText = transaction.error.localizedDescription;
         [rows addObject:errorRow];
     }
 
-    // 响应体相关
     FLEXNetworkDetailRow *responseBodyRow = [FLEXNetworkDetailRow new];
-    responseBodyRow.title = @"响应内容";
-    NSData *responseData = [FLEXNetworkRecorder.defaultRecorder 
-        cachedResponseBodyForTransaction:transaction
-    ];
+    responseBodyRow.title = @"响应体";
+    NSData *responseData = [FLEXNetworkRecorder.defaultRecorder cachedResponseBodyForTransaction:transaction];
     if (responseData.length > 0) {
         responseBodyRow.detailText = @"点击查看";
+
+        // 避免对响应数据的长期强引用，以防我们需要从缓存中清除它
+        weakify(responseData)
+        responseBodyRow.selectionFuture = ^UIViewController *() { strongify(responseData)
+
+            // 如果可以就显示响应
+            NSString *contentType = transaction.response.MIMEType;
+            if (responseData) {
+                UIViewController *bodyDetails = [self detailViewControllerForMIMEType:contentType data:responseData];
+                if (bodyDetails) {
+                    bodyDetails.title = @"响应";
+                    return bodyDetails;
+                }
+            }
+
+            // 无法显示响应，提醒用户
+            return [FLEXAlert makeAlert:^(FLEXAlert *make) {
+                make.title(@"无法查看响应");
+                if (responseData) {
+                    make.message(@"没有查看器支持的内容类型: ").message(contentType);
+                } else {
+                    make.message(@"响应已从缓存中清除");
+                }
+                make.button(@"确定").cancelStyle();
+            }];
+        };
     } else {
         BOOL emptyResponse = transaction.receivedDataLength == 0;
-        responseBodyRow.detailText = emptyResponse ? @"空响应" : @"未缓存";
+        responseBodyRow.detailText = emptyResponse ? @"空" : @"不在缓存中";
     }
+
     [rows addObject:responseBodyRow];
 
-    [rows addObject:requestURLRow];
-    [rows addObject:requestMethodRow];
-    [rows addObject:requestBodySizeRow];
+    FLEXNetworkDetailRow *responseSizeRow = [FLEXNetworkDetailRow new];
+    responseSizeRow.title = @"响应大小";
+    responseSizeRow.detailText = [NSByteCountFormatter stringFromByteCount:transaction.receivedDataLength countStyle:NSByteCountFormatterCountStyleBinary];
     [rows addObject:responseSizeRow];
+
+    FLEXNetworkDetailRow *mimeTypeRow = [FLEXNetworkDetailRow new];
+    mimeTypeRow.title = @"MIME类型";
+    mimeTypeRow.detailText = transaction.response.MIMEType;
     [rows addObject:mimeTypeRow];
+
+    FLEXNetworkDetailRow *mechanismRow = [FLEXNetworkDetailRow new];
+    mechanismRow.title = @"机制";
+    mechanismRow.detailText = transaction.requestMechanism;
     [rows addObject:mechanismRow];
-    [rows addObject:responseBodyRow];
 
-    // 创建并返回 section
-    FLEXNetworkDetailSection *section = [FLEXNetworkDetailSection new];
-    section.title = @"常规信息";
-    section.rows = rows;
-    return section;
+    FLEXNetworkDetailRow *localStartTimeRow = [FLEXNetworkDetailRow new];
+    localStartTimeRow.title = [NSString stringWithFormat:@"开始时间 (%@)", [NSTimeZone.localTimeZone abbreviationForDate:transaction.startTime]];
+    localStartTimeRow.detailText = [NSDateFormatter flex_stringFrom:transaction.startTime format:FLEXDateFormatVerbose];
+    [rows addObject:localStartTimeRow];
+
+    FLEXNetworkDetailRow *utcStartTimeRow = [FLEXNetworkDetailRow new];
+    utcStartTimeRow.title = @"开始时间 (UTC)";
+    utcStartTimeRow.detailText = [NSDateFormatter flex_stringFrom:transaction.startTime format:FLEXDateFormatVerbose];
+    [rows addObject:utcStartTimeRow];
+
+    FLEXNetworkDetailRow *unixStartTime = [FLEXNetworkDetailRow new];
+    unixStartTime.title = @"Unix开始时间";
+    unixStartTime.detailText = [NSString stringWithFormat:@"%f", [transaction.startTime timeIntervalSince1970]];
+    [rows addObject:unixStartTime];
+
+    FLEXNetworkDetailRow *durationRow = [FLEXNetworkDetailRow new];
+    durationRow.title = @"总持续时间";
+    durationRow.detailText = [FLEXUtility stringFromRequestDuration:transaction.duration];
+    [rows addObject:durationRow];
+
+    FLEXNetworkDetailRow *latencyRow = [FLEXNetworkDetailRow new];
+    latencyRow.title = @"延迟";
+    latencyRow.detailText = [FLEXUtility stringFromRequestDuration:transaction.latency];
+    [rows addObject:latencyRow];
+
+    FLEXNetworkDetailSection *generalSection = [FLEXNetworkDetailSection new];
+    generalSection.title = @"常规";
+    generalSection.rows = rows;
+
+    return generalSection;
 }
 
-// 请求头部分 
 + (FLEXNetworkDetailSection *)requestHeadersSectionForTransaction:(FLEXHTTPTransaction *)transaction {
-    FLEXNetworkDetailSection *section = [FLEXNetworkDetailSection new];
-    section.title = @"请求头信息";
-    section.rows = [self networkDetailRowsFromDictionary:transaction.request.allHTTPHeaderFields];
-    return section;
-}
+    FLEXNetworkDetailSection *requestHeadersSection = [FLEXNetworkDetailSection new];
+    requestHeadersSection.title = @"请求头";
+    requestHeadersSection.rows = [self networkDetailRowsFromDictionary:transaction.request.allHTTPHeaderFields];
 
-// 查询参数部分
-+ (FLEXNetworkDetailSection *)queryParametersSectionForTransaction:(FLEXHTTPTransaction *)transaction {
-    FLEXNetworkDetailSection *section = [FLEXNetworkDetailSection new];
-    section.title = @"查询参数";
-    NSArray<NSURLQueryItem *> *queries = [FLEXUtility itemsFromQueryString:transaction.request.URL.query];
-    section.rows = [self networkDetailRowsFromQueryItems:queries];
-    return section;
+    return requestHeadersSection;
 }
 
 + (FLEXNetworkDetailSection *)postBodySectionForTransaction:(FLEXHTTPTransaction *)transaction {
     FLEXNetworkDetailSection *postBodySection = [FLEXNetworkDetailSection new];
-    postBodySection.title = @"POST数据体";
+    postBodySection.title = @"请求体参数";
     if (transaction.cachedRequestBody.length > 0) {
         NSString *contentType = [transaction.request valueForHTTPHeaderField:@"Content-Type"];
         if ([contentType hasPrefix:@"application/x-www-form-urlencoded"]) {
@@ -406,6 +434,15 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
         }
     }
     return postBodySection;
+}
+
++ (FLEXNetworkDetailSection *)queryParametersSectionForTransaction:(FLEXHTTPTransaction *)transaction {
+    NSArray<NSURLQueryItem *> *queries = [FLEXUtility itemsFromQueryString:transaction.request.URL.query];
+    FLEXNetworkDetailSection *querySection = [FLEXNetworkDetailSection new];
+    querySection.title = @"查询参数";
+    querySection.rows = [self networkDetailRowsFromQueryItems:queries];
+
+    return querySection;
 }
 
 + (FLEXNetworkDetailSection *)responseHeadersSectionForTransaction:(FLEXHTTPTransaction *)transaction {
@@ -434,7 +471,7 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
 }
 
 + (NSArray<FLEXNetworkDetailRow *> *)networkDetailRowsFromQueryItems:(NSArray<NSURLQueryItem *> *)items {
-    // 按名称排序项目
+    // Sort the items by name
     items = [items sortedArrayUsingComparator:^NSComparisonResult(NSURLQueryItem *item1, NSURLQueryItem *item2) {
         return [item1.name caseInsensitiveCompare:item2.name];
     }];
@@ -452,7 +489,7 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
 
 + (UIViewController *)detailViewControllerForMIMEType:(NSString *)mimeType data:(NSData *)data {
     if (!data) {
-        return nil; // 将在此屏幕位置显示一个警告
+        return nil; // An alert will be presented in place of this screen
     }
     
     FLEXCustomContentViewerFuture makeCustomViewer = FLEXManager.sharedManager.customContentTypeViewers[mimeType.lowercaseString];
@@ -465,7 +502,7 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
         }
     }
 
-    // 待修复 (RKO): 不要依赖UTF8字符编码
+    // FIXME (RKO): Don't rely on UTF8 string encoding
     UIViewController *detailViewController = nil;
     if ([FLEXUtility isValidJSONData:data]) {
         NSString *prettyJSON = [FLEXUtility prettyJSONStringFromData:data];
@@ -480,7 +517,7 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
         detailViewController = [[FLEXWebViewController alloc] initWithText:[propertyList description]];
     }
 
-    // 回退到尝试将响应显示为文本
+    // Fall back to trying to show the response as text
     if (!detailViewController) {
         NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         if (text.length > 0) {
@@ -496,29 +533,6 @@ typedef UIViewController *(^FLEXNetworkDetailRowSelectionFuture)(void);
         bodyData = [FLEXUtility inflatedDataFromCompressedData:bodyData];
     }
     return bodyData;
-}
-
-- (NSArray<FLEXNetworkDetailRow *> *)timeDetails {
-    NSMutableArray *rows = [NSMutableArray array];
-
-    FLEXNetworkDetailRow *localStartTimeRow = [FLEXNetworkDetailRow new];
-    localStartTimeRow.title = [NSString stringWithFormat:@"开始时间 (%@)", 
-        [NSTimeZone.localTimeZone abbreviationForDate:self.transaction.startTime]
-    ];
-    localStartTimeRow.detailText = [NSDateFormatter flex_stringFrom:self.transaction.startTime format:FLEXDateFormatPreciseClock];
-    [rows addObject:localStartTimeRow];
-
-    FLEXNetworkDetailRow *utcStartTimeRow = [FLEXNetworkDetailRow new];
-    utcStartTimeRow.title = @"开始时间 (UTC)";
-    utcStartTimeRow.detailText = [NSDateFormatter flex_stringFrom:self.transaction.startTime format:FLEXDateFormatPreciseClock];
-    [rows addObject:utcStartTimeRow];
-
-    FLEXNetworkDetailRow *durationRow = [FLEXNetworkDetailRow new];
-    durationRow.title = @"总持续时间";
-    durationRow.detailText = [FLEXUtility stringFromRequestDuration:self.transaction.duration];
-    [rows addObject:durationRow];
-
-    return rows;
 }
 
 @end

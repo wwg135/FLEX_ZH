@@ -6,13 +6,11 @@
 //  Created by Tanner on 7/4/15.
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXProtocolBuilder.h"
 #import "FLEXProtocol.h"
 #import "FLEXProperty.h"
 #import <objc/runtime.h>
-
 
 #define MutationAssertion(msg) if (self.isRegistered) { \
     [NSException \

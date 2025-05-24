@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntimeExporter.m
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 3/26/20.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
+//
 
 #import "FLEXRuntimeExporter.h"
 #import "FLEXSQLiteDatabaseManager.h"
@@ -59,7 +59,7 @@ NSString * const kFREInsertClass = @"INSERT INTO Class ( "
 
 NSString * const kFREUpdateClassSetSuper = @"UPDATE Class SET superclass = $super WHERE id = $id;";
 
-/// 唯一的 Objc 选择器
+/// 唯一的 objc 选择器
 NSString * const kFRECreateTableSelectorCommand = @"CREATE TABLE Selector( "
     "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
     "name text NOT NULL UNIQUE "
@@ -67,7 +67,7 @@ NSString * const kFRECreateTableSelectorCommand = @"CREATE TABLE Selector( "
 
 NSString * const kFREInsertSelector = @"INSERT OR IGNORE INTO Selector (name) VALUES ($name);";
 
-/// 唯一的 Objc 类型编码
+/// 唯一的 objc 类型编码
 NSString * const kFRECreateTableTypeEncodingCommand = @"CREATE TABLE TypeEncoding( "
     "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
     "string text NOT NULL UNIQUE, "
@@ -77,7 +77,7 @@ NSString * const kFRECreateTableTypeEncodingCommand = @"CREATE TABLE TypeEncodin
 NSString * const kFREInsertTypeEncoding = @"INSERT OR IGNORE INTO TypeEncoding "
     "(string, size) VALUES ($type, $size);";
 
-/// 唯一的 Objc 类型签名
+/// 唯一的 objc 类型签名
 NSString * const kFRECreateTableTypeSignatureCommand = @"CREATE TABLE TypeSignature( "
     "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
     "string text NOT NULL UNIQUE "
@@ -106,7 +106,7 @@ NSString * const kFRECreateTableMethodCommand = @"CREATE TABLE Method( "
     "id INTEGER PRIMARY KEY AUTOINCREMENT, "
     "sel INTEGER, "
     "class INTEGER, "
-    "instance INTEGER, " // 如果是类方法则为 0，如果是实例方法则为 1
+    "instance INTEGER, " // 如果是类方法为0，如果是实例方法为1
     "signature INTEGER, "
     "image INTEGER, "
 
@@ -126,7 +126,7 @@ NSString * const kFRECreateTablePropertyCommand = @"CREATE TABLE Property( "
     "id INTEGER PRIMARY KEY AUTOINCREMENT, "
     "name TEXT, "
     "class INTEGER, "
-    "instance INTEGER, " // 如果是类属性则为 0，如果是实例属性则为 1
+    "instance INTEGER, " // 如果是类属性为0，如果是实例属性为1
     "image INTEGER, "
     "attributes TEXT, "
 
@@ -193,9 +193,9 @@ NSString * const kFRECreateTableProtocolPropertyCommand = @"CREATE TABLE Protoco
     "id INTEGER PRIMARY KEY AUTOINCREMENT, "
     "protocol INTEGER, "
     "required INTEGER, "
-    "instance INTEGER, " // 如果是类成员则为 0，如果是实例成员则为 1
+    "instance INTEGER, " // 如果是类成员为0，如果是实例成员为1
 
-    // 下面两者只使用其一
+    // 只使用下面两个之一
     "property TEXT, "
     "method TEXT, "
 
@@ -211,7 +211,7 @@ NSString * const kFREInsertProtocolMember = @"INSERT INTO ProtocolMember ( "
     "$protocol, $required, $instance, $property, $method, $image "
 ");";
 
-/// 用于协议遵循其他协议的情况
+/// 用于协议符合其他协议
 NSString * const kFRECreateTableProtocolConformanceCommand = @"CREATE TABLE ProtocolConformance( "
     "protocol INTEGER, "
     "conformance INTEGER, "
@@ -220,13 +220,10 @@ NSString * const kFRECreateTableProtocolConformanceCommand = @"CREATE TABLE Prot
     "FOREIGN KEY(conformance) REFERENCES Protocol(id) "
 ");";
 
-NSString * const kFREInsertProtocolConformance = @"INSERT INTO ProtocolConformance ( "
-    "protocol_id, conformed_protocol_id "
-") VALUES ( "
-    ":protocol, :conformsTo "
-");";
+NSString * const kFREInsertProtocolConformance = @"INSERT INTO ProtocolConformance "
+"(protocol, conformance) VALUES ($protocol, $conformance);";
 
-/// 用于类遵循协议的情况
+/// 用于类符合协议
 NSString * const kFRECreateTableClassConformanceCommand = @"CREATE TABLE ClassConformance( "
     "class INTEGER, "
     "conformance INTEGER, "
@@ -235,11 +232,8 @@ NSString * const kFRECreateTableClassConformanceCommand = @"CREATE TABLE ClassCo
     "FOREIGN KEY(conformance) REFERENCES Protocol(id) "
 ");";
 
-NSString * const kFREInsertClassConformance = @"INSERT INTO ClassConformance ( "
-    "class_id, protocol_id "
-") VALUES ( "
-    ":class, :protocol "
-");";
+NSString * const kFREInsertClassConformance = @"INSERT INTO ClassConformance "
+"(class, conformance) VALUES ($class, $conformance);";
 
 @interface FLEXRuntimeExporter ()
 @property (nonatomic, readonly) FLEXSQLiteDatabaseManager *db;
@@ -310,7 +304,7 @@ NSString * const kFREInsertClassConformance = @"INSERT INTO ClassConformance ( "
         if (![exporter createAndPopulateDatabaseAtPath:tempPath
                                        progressHandler:progress
                                                  error:&errorMessage]) {
-            // 如果临时数据库未移动，则将其删除
+            // 如果未移动，则删除临时数据库
             if ([NSFileManager.defaultManager fileExistsAtPath:tempPath]) {
                 [NSFileManager.defaultManager removeItemAtPath:tempPath error:nil];
             }
@@ -319,7 +313,7 @@ NSString * const kFREInsertClassConformance = @"INSERT INTO ClassConformance ( "
             return;
         }
         
-        // 删除给定路径下的旧数据库
+        // 删除给定路径上的旧数据库
         if ([NSFileManager.defaultManager fileExistsAtPath:path]) {
             [NSFileManager.defaultManager removeItemAtPath:path error:&error];
             if (error) {
@@ -334,7 +328,7 @@ NSString * const kFREInsertClassConformance = @"INSERT INTO ClassConformance ( "
             callback(error.localizedDescription);
         }
         
-        // 如果临时数据库未移动，则将其删除
+        // 如果未移动，则删除临时数据库
         if ([NSFileManager.defaultManager fileExistsAtPath:tempPath]) {
             [NSFileManager.defaultManager removeItemAtPath:tempPath error:nil];
         }
@@ -383,7 +377,7 @@ NSString * const kFREInsertClassConformance = @"INSERT INTO ClassConformance ( "
     
     FLEXRuntimeClient *runtime = FLEXRuntimeClient.runtime;
     
-    // 仅加载现有路径的元数据（如果存在）
+    // 如果有现有路径，则仅加载这些路径的元数据
     if (self.loadedBundlePaths) {
         // 镜像
         self.loadedShortBundleNames = [self.loadedBundlePaths flex_mapped:^id(NSString *path, NSUInteger idx) {
@@ -407,8 +401,8 @@ NSString * const kFREInsertClassConformance = @"INSERT INTO ClassConformance ( "
         self.classes = [runtime copySafeClassList];
     }
     
-    // ...除了协议，因为协议数量不多
-    // 并且无法加载给定镜像的协议
+    // ...除了协议，因为它们不多
+    // 而且没有办法加载给定镜像的协议
     self.protocols = [[runtime copyProtocolList] flex_mapped:^id(Protocol *proto, NSUInteger idx) {
         return [FLEXProtocol protocol:proto];
     }];
@@ -510,37 +504,46 @@ NS_INLINE BOOL FREInsertProtocolMember(FLEXSQLiteDatabaseManager *db,
         
         // 插入其成员 //
         
-        if (@available(iOS 10.0, *)) {
-            // 使用新的 API 处理属性
-            for (FLEXProperty *property in proto.requiredProperties) {
-                BOOL success = FREInsertProtocolMember(
-                    database, pid, @YES, @(property.isClassProperty), property.name, NSNull.null, image
-                );
-                if (!success) return NO;
-            }
-            
-            for (FLEXProperty *property in proto.optionalProperties) {
-                BOOL success = FREInsertProtocolMember(
-                    database, pid, @NO, @(property.isClassProperty), property.name, NSNull.null, image
-                );
-                if (!success) return NO;
-            }
-        } else {
-            return YES; // iOS 10 以下版本不支持属性导出
-        }
-        
-        // 必需方法
+        // 必需的方法
         for (FLEXMethodDescription *method in proto.requiredMethods) {
             NSString *selector = NSStringFromSelector(method.selector);
             if (!FREInsertProtocolMember(database, pid, @YES, method.instance, nil, selector, image)) {
                 return NO;
             }
         }
-        // 可选方法
+        // 可选的方法
         for (FLEXMethodDescription *method in proto.optionalMethods) {
             NSString *selector = NSStringFromSelector(method.selector);
             if (!FREInsertProtocolMember(database, pid, @NO, method.instance, nil, selector, image)) {
                 return NO;
+            }
+        }
+        
+        if (@available(iOS 10, *)) {
+            // 必需的属性
+            for (FLEXProperty *property in proto.requiredProperties) {
+                BOOL success = FREInsertProtocolMember(
+                   database, pid, @YES, @(property.isClassProperty), property.name, NSNull.null, image
+                );
+                
+                if (!success) return NO;
+            }
+            // 可选的属性
+            for (FLEXProperty *property in proto.optionalProperties) {
+                BOOL success = FREInsertProtocolMember(
+                    database, pid, @NO, @(property.isClassProperty), property.name, NSNull.null, image
+                );
+                
+                if (!success) return NO;
+            }
+        } else {
+            // 仅...属性
+            for (FLEXProperty *property in proto.properties) {
+                BOOL success = FREInsertProtocolMember(
+                    database, pid, nil, @(property.isClassProperty), property.name, NSNull.null, image
+                );
+                
+                if (!success) return NO;
             }
         }
     }
@@ -601,16 +604,17 @@ NS_INLINE BOOL FREInsertProtocolMember(FLEXSQLiteDatabaseManager *db,
 }
 
 - (BOOL)setSuperclasses:(void(^)(NSString *status))progress {
-    progress(@"正在设置超类…");
+    progress(@"正在设置父类…");
     
     FLEXSQLiteDatabaseManager *database = self.db;
     
     for (Class cls in self.classes) {
-        // 获取超类 ID
+        // 获取父类 ID
         Class superclass = class_getSuperclass(cls);
         NSNumber *superclassID = _classesToIDs[class_getSuperclass(cls)];
         
-        // ... 或者如果超类不在目标镜像中，则添加超类并缓存其 ID
+        // ... 或者添加父类并缓存其 ID，如果
+        // 父类不存在于目标镜像中
         if (!superclassID) {
             NSDictionary *args = @{ @"$className": NSStringFromClass(superclass) };
             BOOL failed = [database executeStatement:kFREInsertClass arguments:args].isError;
@@ -666,7 +670,7 @@ NS_INLINE BOOL FREInsertProtocolMember(FLEXSQLiteDatabaseManager *db,
     
     for (Class cls in self.classes) {
         for (FLEXIvar *ivar in FLEXGetAllIvars(cls)) {
-            // 首先插入类型
+            // 插入类型编码
             if (![self addTypeEncoding:ivar.typeEncoding size:ivar.size]) {
                 return NO;
             }

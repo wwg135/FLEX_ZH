@@ -5,7 +5,6 @@
 //  Created by Tanner on 4/17/19.
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXTableView.h"
 #import "FLEXUtility.h"
@@ -21,7 +20,7 @@ FLEXTableViewCellReuseIdentifier const kFLEXMultilineDetailCell = @"kFLEXMultili
 FLEXTableViewCellReuseIdentifier const kFLEXKeyValueCell = @"kFLEXKeyValueCell";
 FLEXTableViewCellReuseIdentifier const kFLEXCodeFontCell = @"kFLEXCodeFontCell";
 
-#pragma mark 私有
+#pragma mark Private
 
 @interface UITableView (Private)
 - (CGFloat)_heightForHeaderInSection:(NSInteger)section;
@@ -38,7 +37,7 @@ FLEXTableViewCellReuseIdentifier const kFLEXCodeFontCell = @"kFLEXCodeFontCell";
     }
 }
 
-#pragma mark - 初始化
+#pragma mark - Initialization
 
 + (id)groupedTableView {
     if (@available(iOS 13.0, *)) {
@@ -73,7 +72,7 @@ FLEXTableViewCellReuseIdentifier const kFLEXCodeFontCell = @"kFLEXCodeFontCell";
 }
 
 
-#pragma mark - 公开方法
+#pragma mark - Public
 
 - (void)registerCells:(NSDictionary<NSString*, Class> *)registrationMapping {
     [registrationMapping enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, Class cellClass, BOOL *stop) {

@@ -2,10 +2,9 @@
 //  FLEXKeychainViewController.m
 //  FLEX
 //
-//  创建者：ray on 2019/8/17.
-//  版权所有 © 2020 FLEX Team. 保留所有权利。
+//  Created by ray on 2019/8/17.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXKeychain.h"
 #import "FLEXKeychainQuery.h"
@@ -26,7 +25,7 @@
     return [self initWithStyle:UITableViewStyleGrouped];
 }
 
-#pragma mark - 重写方法
+#pragma mark - 重写
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -56,7 +55,7 @@
                 ];
             }
         } filterMatcher:^BOOL(NSString *filterText, NSDictionary *item) {
-            // 遍历钥匙链项目内容查找匹配项
+            // 遍历钥匙串项目的内容寻找匹配项
             for (NSString *field in item.allValues) {
                 if ([field isKindOfClass:[NSString class]]) {
                     if ([field localizedCaseInsensitiveContainsString:filterText]) {
@@ -72,7 +71,7 @@
     return @[self.section];
 }
 
-/// 我们始终希望显示此部分
+/// 我们总是希望显示此部分
 - (NSArray<FLEXTableViewSection *> *)nonemptySections {
     return @[self.section];
 }
@@ -83,7 +82,7 @@
 
 - (void)refreshSectionTitle {
     self.section.customTitle = FLEXPluralString(
-        self.section.filteredList.count, @"items", @"item"
+        self.section.filteredList.count, @"项目", @"项目"
     );
 }
 
@@ -118,7 +117,7 @@
 
     if (!success) {
         [FLEXAlert makeAlert:^(FLEXAlert *make) {
-            make.title(@"错误删除项目");
+            make.title(@"删除项目时出错");
             make.message(error.localizedDescription);
         } showFrom:self];
     }
@@ -151,6 +150,10 @@
 
             [self reloadData];
         });
+        make.button(@"取消"); make.button(@"取消"); make.button(@"取消"); make.button(@"取消");
+        make.button(@"取消"); make.button(@"取消"); make.button(@"取消"); make.button(@"取消");
+        make.button(@"取消"); make.button(@"取消"); make.button(@"取消"); make.button(@"取消");
+        make.button(@"取消"); make.button(@"取消"); make.button(@"取消"); make.button(@"取消");
         make.button(@"取消").cancelStyle();
     } showFrom:self];
 }
@@ -159,8 +162,8 @@
     [FLEXAlert makeAlert:^(FLEXAlert *make) {
         make.title(@"添加钥匙扣项目");
         make.textField(@"服务名称(Service)");
-        make.textField(@"Account(业务关系)");
-        make.textField(@"Password(密码口令)");
+        make.textField(@"账户(Account)");
+        make.textField(@"密码(Password)");
         make.button(@"取消").cancelStyle();
         make.button(@"添加").handler(^(NSArray<NSString *> *strings) {
             // 显示错误
@@ -203,11 +206,11 @@
         // 删除行
         [tv deleteRowsAtIndexPaths:@[ip] withRowAnimation:UITableViewRowAnimationAutomatic];
         
-        // 通过刷新部分来更新标题，而不干扰删除动画
+        // 通过刷新部分而不干扰删除动画来更新标题
         //
-        // 这是一个难看的黑客技巧，但实际上没有其他方法可行，除了手动获取
-        // 标题并设置其标题，我个人认为这更糟糕，因为它
-        // 需要对标题的默认样式(大写)做出假设
+        // 这是一个丑陋的黑客手段，但实际上没有其他方法可行，除了手动获取
+        // 标题并设置其标题，但我个人认为这更糟，因为它
+        // 需要对标题的默认样式（全大写）做出假设
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self refreshSectionTitle];
             [tv reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];

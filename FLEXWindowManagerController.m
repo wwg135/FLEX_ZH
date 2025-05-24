@@ -2,17 +2,14 @@
 //  FLEXWindowManagerController.m
 //  FLEX
 //
-//  Created by Tanner on 6/29/20.
-//  Copyright © 2020 FLEX Team. All rights reserved.
+//  由 Tanner 创建于 2/6/20.
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
-//  遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXWindowManagerController.h"
 #import "FLEXManager+Private.h"
 #import "FLEXUtility.h"
 #import "FLEXObjectExplorerFactory.h"
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 @interface FLEXWindowManagerController ()
 @property (nonatomic) UIWindow *keyWindow;
@@ -26,7 +23,7 @@
 
 @implementation FLEXWindowManagerController
 
-#pragma mark - Initialization
+#pragma mark - 初始化
 
 - (id)init {
     return [self initWithStyle:UITableViewStylePlain];
@@ -45,32 +42,24 @@
 }
 
 
-#pragma mark - Private
+#pragma mark - 私有方法
 
 - (void)reloadData {
-    if (@available(iOS 13.0, *)) {
-        // 获取当前活跃的场景
-        UIWindowScene *scene = FLEXUtility.activeScene;
-        self.keyWindow = scene.windows.firstObject;
-        self.windows = [scene.windows copy];
-    } else {
-        // 降级处理
-        self.keyWindow = [[UIApplication sharedApplication].delegate window];
-        self.windows = @[self.keyWindow];
-    }
-    
+    self.keyWindow = UIApplication.sharedApplication.keyWindow;
+    self.windows = UIApplication.sharedApplication.windows;
     self.keyWindowSubtitle = self.windowSubtitles[[self.windows indexOfObject:self.keyWindow]];
     self.windowSubtitles = [self.windows flex_mapped:^id(UIWindow *window, NSUInteger idx) {
-        return [NSString stringWithFormat:@"Level: %@ — Root: %@",
+        return [NSString stringWithFormat:@"层级: %@ — 根控制器: %@",
             @(window.windowLevel), window.rootViewController
         ];
     }];
     
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13, *)) {
         self.scenes = UIApplication.sharedApplication.connectedScenes.allObjects;
         self.sceneSubtitles = [self.scenes flex_mapped:^id(UIScene *scene, NSUInteger idx) {
             return [self sceneDescription:scene];
         }];
+        
         self.sections = @[@[self.keyWindow], self.windows, self.scenes];
     } else {
         self.sections = @[@[self.keyWindow], self.windows];
@@ -88,22 +77,18 @@
     [self reloadData];
     [self.tableView reloadData];
     
-    UIWindow *highestWindow = nil;
-    if (@available(iOS 13.0, *)) {
-        // 获取当前活跃场景的窗口
-        UIWindowScene *scene = FLEXUtility.activeScene;
-        for (UIWindow *window in scene.windows) {
-            if (!highestWindow || window.windowLevel > highestWindow.windowLevel) {
-                highestWindow = window;
-            }
+    UIWindow *highestWindow = UIApplication.sharedApplication.keyWindow;
+    UIWindowLevel maxLevel = 0;
+    for (UIWindow *window in UIApplication.sharedApplication.windows) {
+        if (window.windowLevel > maxLevel) {
+            maxLevel = window.windowLevel;
+            highestWindow = window;
         }
-    } else {
-        highestWindow = [[UIApplication sharedApplication].delegate window];
     }
     
     [FLEXAlert makeAlert:^(FLEXAlert *make) {
         make.title(@"保留更改？");
-        make.message(@"如果您不希望保留这些设置，请在下方选择\"还原更改\"。");
+        make.message(@"如果您不希望保留这些设置，请选择下面的'还原更改'。");
         
         make.button(@"保留更改").destructiveStyle();
         make.button(@"保留更改并关闭").destructiveStyle().handler(^(NSArray<NSString *> *strings) {
@@ -124,7 +109,7 @@
     
     if ([scene isKindOfClass:[UIWindowScene class]]) {
         UIWindowScene *windowScene = (id)scene;
-        suffix = FLEXPluralString(windowScene.windows.count, @"windows", @"window");
+        suffix = FLEXPluralString(windowScene.windows.count, @"窗口", @"窗口");
     }
     
     NSMutableString *description = state.mutableCopy;
@@ -132,7 +117,7 @@
         [description appendFormat:@" — %@", title];
     }
     if (suffix) {
-        [description appendFormat:@" — %@", suffix];
+        [description appendFormat:@" — %@", suffix];
     }
     
     return description.copy;
@@ -145,7 +130,7 @@
         case UISceneActivationStateForegroundActive:
             return @"活跃";
         case UISceneActivationStateForegroundInactive:
-            return @"未活跃";
+            return @"不活跃";
         case UISceneActivationStateBackground:
             return @"后台";
     }
@@ -154,7 +139,7 @@
 }
 
 
-#pragma mark - Table View Data Source
+#pragma mark - 表格视图数据源
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return self.sections.count;
@@ -166,7 +151,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch (section) {
-        case 0: return @"键窗口";
+        case 0: return @"主窗口";
         case 1: return @"窗口";
         case 2: return @"已连接场景";
     }
@@ -180,13 +165,16 @@
     cell.textLabel.lineBreakMode = NSLineBreakByTruncatingTail;
     
     UIWindow *window = nil;
+    NSString *subtitle = nil;
     
     switch (indexPath.section) {
         case 0:
             window = self.keyWindow;
+            subtitle = self.keyWindowSubtitle;
             break;
         case 1:
             window = self.windows[indexPath.row];
+            subtitle = self.windowSubtitles[indexPath.row];
             break;
         case 2:
             if (@available(iOS 13, *)) {
@@ -199,7 +187,7 @@
     
     cell.textLabel.text = window.description;
     cell.detailTextLabel.text = [NSString
-        stringWithFormat:@"Level: %@ — Root: %@",
+        stringWithFormat:@"层级: %@ — 根控制器: %@",
         @((NSInteger)window.windowLevel), window.rootViewController.class
     ];
     
@@ -207,13 +195,9 @@
 }
 
 
-#pragma mark - Table View Delegate
+#pragma mark - 表格视图代理
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    __block UIWindow *oldKeyWindow = nil;
-    __block UIWindowLevel oldLevel;
-    __block BOOL wasVisible;
-    
     UIWindow *window = nil;
     NSString *subtitle = nil;
     FLEXWindow *flex = FLEXManager.sharedManager.explorerWindow;
@@ -235,70 +219,66 @@
             if (@available(iOS 13, *)) {
                 UIScene *scene = self.scenes[indexPath.row];
                 UIWindowScene *oldScene = flex.windowScene;
-                subtitle = self.sceneSubtitles[indexPath.row];
+                BOOL isWindowScene = [scene isKindOfClass:[UIWindowScene class]];
+                BOOL isFLEXScene = isWindowScene ? flex.windowScene == scene : NO;
                 
                 [FLEXAlert makeAlert:^(FLEXAlert *make) {
                     make.title(NSStringFromClass(scene.class));
                     
-                    if ([scene isKindOfClass:[UIWindowScene class]]) {
-                        if (flex.windowScene == scene) {
-                            make.message(@"已是FLEX窗口场景");
+                    if (isWindowScene) {
+                        if (isFLEXScene) {
+                            make.message(@"已经是 FLEX 窗口场景");
                         }
                         
-                        make.button(@"设为FLEX窗口场景")
+                        make.button(@"设为 FLEX 窗口场景")
                         .handler(^(NSArray<NSString *> *strings) {
                             flex.windowScene = (id)scene;
                             [self showRevertOrDismissAlert:^{
                                 flex.windowScene = oldScene;
                             }];
-                        }).enabled(flex.windowScene != scene);
-                        make.button(@"关闭").cancelStyle();
+                        }).enabled(!isFLEXScene);
+                        make.button(@"取消").cancelStyle();
                     } else {
-                        make.message(@"不是UIWindowScene");
+                        make.message(@"不是 UIWindowScene");
                         make.button(@"关闭").cancelStyle().handler(cancelHandler);
                     }
                 } showFrom:self];
             }
-            return;
     }
 
-    __block UIWindow *targetWindow = nil;
+    __block UIWindow *targetWindow = nil, *oldKeyWindow = nil;
+    __block UIWindowLevel oldLevel;
+    __block BOOL wasVisible;
     
-    NSString *title = window ? NSStringFromClass(window.class) : @"窗口";
     subtitle = [subtitle stringByAppendingString:
-        @"\n\n1) 调整FLEX窗口级别相对于此窗口，\n"
-        "2) 调整此窗口的级别相对于FLEX窗口，\n"
-        "3) 将此窗口的级别设置为特定值，或\n"
-        "4) 如果此窗口尚未成为键窗口，则将其设为键窗口。"
+        @"\n\n1) 调整 FLEX 窗口层级相对于此窗口，\n"
+        "2) 调整此窗口的层级相对于 FLEX 窗口，\n"
+        "3) 将此窗口的层级设置为特定值，或\n"
+        "4) 如果还不是主窗口，则将此窗口设为主窗口。"
     ];
     
     [FLEXAlert makeAlert:^(FLEXAlert *make) {
-        make.title(title).message(subtitle);
-        make.button(@"调整FLEX窗口级别").handler(^(NSArray<NSString *> *strings) {
+        make.title(NSStringFromClass(window.class)).message(subtitle);
+        make.button(@"调整 FLEX 窗口层级").handler(^(NSArray<NSString *> *strings) {
             targetWindow = flex; oldLevel = flex.windowLevel;
             flex.windowLevel = window.windowLevel + strings.firstObject.integerValue;
             
             [self showRevertOrDismissAlert:^{ targetWindow.windowLevel = oldLevel; }];
         });
-        make.button(@"调整此窗口的级别").handler(^(NSArray<NSString *> *strings) {
+        make.button(@"调整此窗口层级").handler(^(NSArray<NSString *> *strings) {
             targetWindow = window; oldLevel = window.windowLevel;
             window.windowLevel = flex.windowLevel + strings.firstObject.integerValue;
             
             [self showRevertOrDismissAlert:^{ targetWindow.windowLevel = oldLevel; }];
         });
-        make.button(@"设置此窗口级别").handler(^(NSArray<NSString *> *strings) {
+        make.button(@"设置此窗口层级").handler(^(NSArray<NSString *> *strings) {
             targetWindow = window; oldLevel = window.windowLevel;
             window.windowLevel = strings.firstObject.integerValue;
             
             [self showRevertOrDismissAlert:^{ targetWindow.windowLevel = oldLevel; }];
         });
-        make.button(@"设为键窗口并可见").handler(^(NSArray<NSString *> *strings) {
-            // 使用当前活跃场景的第一个窗口作为旧的 key window
-            if (@available(iOS 13.0, *)) {
-                oldKeyWindow = FLEXUtility.activeScene.windows.firstObject;
-            } else {
-                oldKeyWindow = [[UIApplication sharedApplication].delegate window];
-            }
+        make.button(@"设为主窗口并可见").handler(^(NSArray<NSString *> *strings) {
+            oldKeyWindow = UIApplication.sharedApplication.keyWindow;
             wasVisible = window.hidden;
             [window makeKeyAndVisible];
             
@@ -307,9 +287,9 @@
                 [oldKeyWindow makeKeyWindow];
             }];
         }).enabled(!window.isKeyWindow && !window.hidden);
-        make.button(@"关闭").cancelStyle().handler(cancelHandler);
+        make.button(@"取消").cancelStyle().handler(cancelHandler);
         
-        make.textField(@"+/- 窗口级别，例如 5 或 -10");
+        make.textField(@"+/- 窗口层级, 例如 5 或 -10");
     } showFrom:self];
 }
 

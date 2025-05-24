@@ -5,14 +5,13 @@
 //  Created by Tanner Bennett on 7/24/18.
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-//  遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXObjectRef.h"
 #import "FLEXRuntimeUtility.h"
 #import "NSArray+FLEX.h"
 
 @interface FLEXObjectRef () {
-    /// 用于在需要时保留对象
+    /// Used to retain the object if desired
     id _retainer;
 }
 @property (nonatomic, readonly) BOOL wantsSummary;

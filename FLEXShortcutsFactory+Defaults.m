@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXShortcutsFactory+Defaults.m
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 8/29/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
+//
 
 #import "FLEXShortcutsFactory+Defaults.h"
 #import "FLEXShortcut.h"
@@ -20,7 +20,7 @@
 @implementation FLEXShortcutsFactory (UIApplication)
 
 + (void)load { FLEX_EXIT_IF_NO_CTORS()
-    // sharedApplication类属性可能直到iOS 10才作为
+    // sharedApplication 类属性可能直到 iOS 10 才作为
     // 字面类属性添加
     FLEXRuntimeUtilityTryAddObjectProperty(
         2, sharedApplication, UIApplication.flex_metaclass, UIApplication, PropertyKey(ReadOnly)
@@ -40,18 +40,19 @@
 
 @end
 
-#pragma mark - 视图
+#pragma mark - Views
 
 @implementation FLEXShortcutsFactory (Views)
 
 + (void)load { FLEX_EXIT_IF_NO_CTORS()
-    // UIView 和其他一些类的一个怪癖：很多 `@property` 从运行时的角度来看实际上并不是属性。
+    // UIView 和其他一些类的一个特点：很多 `@property` 
+    // 从运行时的角度来看实际上不是属性。
     //
-    // 如果这些属性尚未添加，我们会在运行时将它们添加到类中。
+    // 如果还没有添加这些属性，我们会在运行时将它们添加到类中。
     // 这样，我们就可以使用我们的属性编辑器来访问和更改它们。
-    // 属性特性与其头文件中声明的特性相匹配。
+    // 属性特性与其头文件中声明的特性匹配。
 
-    // UIView，公开
+    // UIView, 公共
     Class UIView_ = UIView.class;
     FLEXRuntimeUtilityTryAddNonatomicProperty(2, frame, UIView_, CGRect);
     FLEXRuntimeUtilityTryAddNonatomicProperty(2, alpha, UIView_, CGFloat);
@@ -64,10 +65,10 @@
     FLEXRuntimeUtilityTryAddObjectProperty(2, superview, UIView_, UIView, PropertyKey(ReadOnly));
     FLEXRuntimeUtilityTryAddObjectProperty(7, tintColor, UIView_, UIView);
 
-    // UIButton，私有
+    // UIButton, 私有
     FLEXRuntimeUtilityTryAddObjectProperty(2, font, UIButton.class, UIFont, PropertyKey(ReadOnly));
     
-    // 仅从 iOS 3.2 开始可用，但我们从未支持过 iOS 3，所以无所谓
+    // 仅从 iOS 3.2 开始可用，但我们从未支持 iOS 3，所以无所谓
     NSArray *ivars = @[@"_gestureRecognizers"];
     NSArray *methods = @[@"sizeToFit", @"setNeedsLayout", @"removeFromSuperview"];
 
@@ -105,7 +106,7 @@
 
     ivars = @[@"_targetActions", @"_gestureRecognizers"];
     
-    // 该属性在 iOS 10 中添加，但我们也希望在 iOS 9 上使用它
+    // 属性在 iOS 10 中添加，但我们希望在 iOS 9 上也有
     FLEXRuntimeUtilityTryAddObjectProperty(9, allTargets, UIControl.class, NSArray, PropertyKey(ReadOnly));
 
     // UIControl
@@ -136,12 +137,12 @@
 @end
 
 
-#pragma mark - 视图控制器
+#pragma mark - View Controllers
 
 @implementation FLEXShortcutsFactory (ViewControllers)
 
 + (void)load { FLEX_EXIT_IF_NO_CTORS()
-    // toolbarItems 实际上不是一个属性，将其设为一个属性
+    // toolbarItems 实际上不是一个属性，使其成为一个属性
     FLEXRuntimeUtilityTryAddObjectProperty(3, toolbarItems, UIViewController.class, NSArray);
     
     // UIViewController
@@ -210,7 +211,7 @@
 @end
 
 
-#pragma mark - 类
+#pragma mark - Classes
 
 @implementation FLEXShortcutsFactory (Classes)
 
@@ -221,12 +222,12 @@
 @end
 
 
-#pragma mark - 活动
+#pragma mark - Activities
 
 @implementation FLEXShortcutsFactory (Activities)
 
 + (void)load { FLEX_EXIT_IF_NO_CTORS()
-    // 该属性在 iOS 10 中添加，但我们也希望在 iOS 9 上使用它
+    // 属性在 iOS 10 中添加，但我们希望在 iOS 9 上也有
     FLEXRuntimeUtilityTryAddNonatomicProperty(9, item, UIActivityItemProvider.class, id, PropertyKey(ReadOnly));
     
     self.append.properties(@[
@@ -241,7 +242,7 @@
 @end
 
 
-#pragma mark - 代码块
+#pragma mark - Blocks
 
 @implementation FLEXShortcutsFactory (Blocks)
 
@@ -276,7 +277,7 @@
         @"removeObserver:name:object:",
     ]).forClass(NSNotificationCenter.class);
     
-    // NSTimeZone 类属性不是真正的属性
+    // NSTimeZone 类属性不是实际属性
     FLEXRuntimeUtilityTryAddObjectProperty(2, localTimeZone, NSTimeZone.flex_metaclass, NSTimeZone);
     FLEXRuntimeUtilityTryAddObjectProperty(2, systemTimeZone, NSTimeZone.flex_metaclass, NSTimeZone);
     FLEXRuntimeUtilityTryAddObjectProperty(2, defaultTimeZone, NSTimeZone.flex_metaclass, NSTimeZone);
@@ -291,7 +292,7 @@
         @"defaultTimeZone", @"systemTimeZone", @"localTimeZone",
     ]).forClass(NSTimeZone.class);
     
-    // UTF8String 底层不是一个真正的属性
+    // UTF8String 不是底层的实际属性
     FLEXRuntimeUtilityTryAddNonatomicProperty(2, UTF8String, NSString.class, const char *, PropertyKey(ReadOnly));
     
     self.append.properties(@[@"length"]).methods(@[@"characterAtIndex:"]).forClass(NSString.class);
@@ -398,7 +399,7 @@
 
 @end
 
-#pragma mark - 粘贴板
+#pragma mark - Pasteboard
 
 @implementation FLEXShortcutsFactory (Pasteboard)
 

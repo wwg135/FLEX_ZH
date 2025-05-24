@@ -3,9 +3,8 @@
 //  Flipboard
 //
 //  由 Ryan Olson 创建于 6/8/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import <UIKit/UIKit.h>
 #import "FLEXRuntimeUtility.h"
@@ -19,7 +18,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 
 @implementation FLEXRuntimeUtility
 
-#pragma mark - 通用辅助方法 (公开)
+#pragma mark - 通用辅助方法 (公共)
 
 + (BOOL)pointerIsValidObjcObject:(const void *)pointer {
     return FLEXPointerIsValidObjcObject(pointer);
@@ -41,17 +40,17 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
                                 returnType[i+1] == FLEXTypeEncodingVoid;
     BOOL returnsCString       = returnType[i] == FLEXTypeEncodingCString;
 
-    // 如果我们得到一个 NSValue，并且返回类型不是一个对象，
-    // 我们会检查指针是否指向一个有效的对象。如果不是，
-    // 我们只显示 NSValue。
+    // 如果我们得到一个NSValue且返回类型不是对象，
+    // 我们检查指针是否是有效对象。如果不是，
+    // 我们只显示NSValue。
     if (!returnsObjectOrClass) {
-        // 跳过 NSNumber 实例
+        // 跳过NSNumber实例
         if ([returnedObjectOrNil isKindOfClass:[NSNumber class]]) {
             return returnedObjectOrNil;
         }
         
-        // 由于返回类型不是对象，所以只能是 NSValue，
-        // 因此如果类型不符，我们就退出
+        // 只能是NSValue，因为返回类型不是对象，
+        // 如果这不成立，我们就退出
         if (![returnedObjectOrNil isKindOfClass:[NSValue class]]) {
             return returnedObjectOrNil;
         }
@@ -59,11 +58,11 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
         NSValue *value = (NSValue *)returnedObjectOrNil;
 
         if (returnsCString) {
-            // 将 char * 包装在 NSString 中
+            // 将char*包装在NSString中
             const char *string = (const char *)value.pointerValue;
             returnedObjectOrNil = string ? [NSString stringWithCString:string encoding:NSUTF8StringEncoding] : NULL;
         } else if (returnsVoidPointer) {
-            // 将伪装成 void * 的有效对象转换为 id
+            // 将伪装为void*的有效对象转换为id
             if ([FLEXRuntimeUtility pointerIsValidObjcObject:value.pointerValue]) {
                 returnedObjectOrNil = (__bridge id)value.pointerValue;
             }
@@ -102,7 +101,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 }
 
 + (NSString *)safeClassNameForObject:(id)object {
-    // 不要假设我们有一个 NSObject 子类
+    // 不要假设我们有一个NSObject子类
     if ([self safeObject:object respondsToSelector:@selector(class)]) {
         return NSStringFromClass([object class]);
     }
@@ -110,9 +109,9 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     return NSStringFromClass(object_getClass(object));
 }
 
-/// 可能为 nil
+/// 可能为nil
 + (NSString *)safeDescriptionForObject:(id)object {
-    // 不要假设我们有一个 NSObject 子类；并非所有对象都响应 -description
+    // 不要假设我们有一个NSObject子类；并非所有对象都响应-description
     if ([self safeObject:object respondsToSelector:@selector(description)]) {
         @try {
             return [object description];
@@ -124,7 +123,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     return nil;
 }
 
-/// 永不为 nil
+/// 永不为nil
 + (NSString *)safeDebugDescriptionForObject:(id)object {
     NSString *description = nil;
 
@@ -151,7 +150,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 + (NSString *)summaryForObject:(id)value {
     NSString *description = nil;
 
-    // 特殊处理 BOOL 类型以提高可读性。
+    // 为了更好的可读性，特殊处理BOOL。
     if ([self safeObject:value isKindOfClass:[NSValue class]]) {
         const char *type = [value objCType];
         if (strcmp(type, @encode(BOOL)) == 0) {
@@ -166,12 +165,12 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     }
 
     @try {
-        // 单行显示 - 将换行符和制表符替换为空格。
+        // 单行显示 - 用空格替换换行符和制表符。
         description = [[self safeDescriptionForObject:value] stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
         description = [description stringByReplacingOccurrencesOfString:@"\t" withString:@" "];
         description = [description stringByReplacingOccurrencesOfString:@"    " withString:@" "];
     } @catch (NSException *e) {
-        description = [@"抛出: " stringByAppendingString:e.reason ?: @"(nil 异常原因)"];
+        description = [@"抛出: " stringByAppendingString:e.reason ?: @"(无异常原因)"];
     }
 
     if (!description) {
@@ -195,8 +194,8 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 }
 
 + (BOOL)safeObject:(id)object respondsToSelector:(SEL)sel {
-    // 如果给定一个类，我们想知道类是否响应此选择器。
-    // 类似地，如果给定一个实例，我们想知道实例是否响应。
+    // 如果我们给定一个类，我们想知道类是否响应此选择器。
+    // 同样，如果我们给定一个实例，我们想知道实例是否响应。
     BOOL isClass = object_isClass(object);
     Class cls = isClass ? object : object_getClass(object);
     // BOOL isMetaclass = class_isMetaClass(cls);
@@ -210,7 +209,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 }
 
 
-#pragma mark - 属性辅助方法 (公开)
+#pragma mark - 属性辅助方法 (公共)
 
 + (BOOL)tryAddPropertyWithName:(const char *)name
                     attributes:(NSDictionary<NSString *, NSString *> *)attributePairs
@@ -263,7 +262,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 }
 
 
-#pragma mark - 方法辅助方法 (公开)
+#pragma mark - 方法辅助方法 (公共)
 
 + (NSArray<NSString *> *)prettyArgumentComponentsForMethod:(Method)method {
     NSMutableArray<NSString *> *components = [NSMutableArray new];
@@ -271,7 +270,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     NSString *selectorName = NSStringFromSelector(method_getName(method));
     NSMutableArray<NSString *> *selectorComponents = [selectorName componentsSeparatedByString:@":"].mutableCopy;
 
-    // 这是一个权宜之计，因为 method_getNumberOfArguments() 对于某些方法返回错误的数量
+    // 这是一个解决方法，因为method_getNumberOfArguments()对于某些方法返回错误的数量
     if (selectorComponents.count == 1) {
         return @[];
     }
@@ -296,7 +295,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 }
 
 
-#pragma mark - 方法调用/字段编辑 (公开)
+#pragma mark - 方法调用/字段编辑 (公共)
 
 + (id)performSelector:(SEL)selector onObject:(id)object {
     return [self performSelector:selector onObject:object withArguments:@[] error:nil];
@@ -325,7 +324,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
         stdStringExclusion = NSSelectorFromString(@"stdString");
     });
 
-    // 如果对象不响应此选择器，则退出
+    // 如果对象不会响应此选择器，则退出
     if (mightForwardMsgSend || ![self safeObject:object respondsToSelector:selector]) {
         if (error) {
             NSString *msg = [NSString
@@ -343,8 +342,8 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
         return nil;
     }
 
-    // 在这里使用 object_getClass 而不是 -class 很重要，因为
-    // object_getClass 对于类对象会返回不同的结果
+    // 在这里使用object_getClass而不是-class很重要，因为
+    // object_getClass对类对象会返回不同的结果
     Class cls = object_getClass(object);
     NSMethodSignature *methodSignature = [FLEXMethod selector:selector class:cls].signature;
     if (!methodSignature) {
@@ -352,12 +351,12 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
         return nil;
     }
     
-    // 可能是不支持的类型编码，例如位域。
+    // 可能是不支持的类型编码，如位字段。
     // 将来，我们可以自己计算返回长度。
     // 目前，我们中止。
     //
-    // 供将来参考，此处的代码将获取真实的类型编码。
-    // NSMethodSignature 会将 {?=b8b4b1b1b18[8S]} 转换为 {?}
+    // 供将来参考，这里的代码将获取真实的类型编码。
+    // NSMethodSignature会将{?=b8b4b1b1b18[8S]}转换为{?}
     //
     // returnType = method_getTypeEncoding(class_getInstanceMethod([object class], selector));
     if (!methodSignature.methodReturnLength &&
@@ -371,14 +370,14 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     [invocation setTarget:object];
     [invocation retainArguments];
 
-    // 总是 self 和 _cmd
+    // 总是有self和_cmd
     NSUInteger numberOfArguments = methodSignature.numberOfArguments;
     for (NSUInteger argumentIndex = kFLEXNumberOfImplicitArgs; argumentIndex < numberOfArguments; argumentIndex++) {
         NSUInteger argumentsArrayIndex = argumentIndex - kFLEXNumberOfImplicitArgs;
         id argumentObject = arguments.count > argumentsArrayIndex ? arguments[argumentsArrayIndex] : nil;
 
-        // 参数数组中的 NSNull 可以作为占位符传递以指示 nil。
-        // 我们只需要在参数非 nil 时设置它。
+        // 参数数组中的NSNull可以作为占位符传递以表示nil。
+        // 只有当参数为非nil时，我们才需要设置参数。
         if (argumentObject && ![argumentObject isKindOfClass:[NSNull class]]) {
             const char *typeEncodingCString = [methodSignature getArgumentTypeAtIndex:argumentIndex];
             if (typeEncodingCString[0] == FLEXTypeEncodingObjcObject ||
@@ -388,18 +387,18 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
                 [invocation setArgument:&argumentObject atIndex:argumentIndex];
             } else if (strcmp(typeEncodingCString, @encode(CGColorRef)) == 0 &&
                     [argumentObject isKindOfClass:[UIColor class]]) {
-                // 桥接 UIColor 到 CGColorRef
+                // 将UIColor桥接到CGColorRef
                 CGColorRef colorRef = [argumentObject CGColor];
                 [invocation setArgument:&colorRef atIndex:argumentIndex];
             } else if ([argumentObject isKindOfClass:[NSValue class]]) {
-                // NSValue 中包装的原始类型
+                // 在NSValue中装箱的基本类型
                 NSValue *argumentValue = (NSValue *)argumentObject;
 
-                // 确保 NSValue 上的类型编码与方法签名中参数的类型编码匹配
+                // 确保NSValue上的类型编码与方法签名中参数的类型编码匹配
                 if (strcmp([argumentValue objCType], typeEncodingCString) != 0) {
                     if (error) {
                         NSString *msg =  [NSString
-                            stringWithFormat:@"索引 %lu 处的参数类型编码不匹配。"
+                            stringWithFormat:@"索引%lu处参数的类型编码不匹配。"
                             "值类型: %s; 方法参数类型: %s.",
                             (unsigned long)argumentsArrayIndex, argumentValue.objCType, typeEncodingCString
                         ];
@@ -427,12 +426,12 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
         }
     }
 
-    // 尝试调用，但要防止抛出异常。
+    // 尝试调用调用，但防止抛出异常。
     id returnObject = nil;
     @try {
         [invocation invoke];
 
-        // 检索返回值并在必要时进行包装。
+        // 检索返回值并在必要时装箱。
         const char *returnType = methodSignature.methodReturnType;
 
         if (returnType[0] == FLEXTypeEncodingObjcObject || returnType[0] == FLEXTypeEncodingObjcClass) {
@@ -441,11 +440,11 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
             [invocation getReturnValue:&objectReturnedFromMethod];
             returnObject = objectReturnedFromMethod;
         } else if (returnType[0] != FLEXTypeEncodingVoid) {
-            NSAssert(methodSignature.methodReturnLength, @"内存损坏在前方");
+            NSAssert(methodSignature.methodReturnLength, @"前方有内存损坏");
 
             if (returnType[0] == FLEXTypeEncodingStructBegin) {
                 if (selector == stdStringExclusion && [object isKindOfClass:[NSString class]]) {
-                    // stdString 是一个 C++ 对象，如果我们尝试访问它将会崩溃
+                    // stdString是一个C++对象，如果我们尝试访问它，我们会崩溃
                     if (error) {
                         *error = [NSError
                             errorWithDomain:FLEXRuntimeUtilityErrorDomain
@@ -458,22 +457,22 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
                 }
             }
 
-            // 将使用任意缓冲区存储返回值并进行包装。
+            // 将使用任意缓冲区作为返回值并进行装箱。
             void *returnValue = malloc(methodSignature.methodReturnLength);
             [invocation getReturnValue:returnValue];
             returnObject = [self valueForPrimitivePointer:returnValue objCType:returnType];
             free(returnValue);
         }
     } @catch (NSException *exception) {
-        // 真糟糕...
+        // 糟糕...
         if (error) {
             // "… on <class>" / "… on instance of <class>"
             NSString *class = NSStringFromClass([object class]);
-            NSString *calledOn = object == [object class] ? class : [@"的实例 " stringByAppendingString:class];
+            NSString *calledOn = object == [object class] ? class : [@"一个实例: " stringByAppendingString:class];
 
             NSString *message = [NSString
-                stringWithFormat:@"异常 '%@' 在执行选择器 '%@' 时抛出于 %@。\n原因：\n\n%@",
-                exception.name, NSStringFromSelector(selector), calledOn, exception.reason
+                stringWithFormat:@"执行选择器'%@'时在%@上抛出异常'%@'。\n原因:\n\n%@",
+                NSStringFromSelector(selector), calledOn, exception.name, exception.reason
             ];
 
             *error = [NSError
@@ -528,9 +527,9 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     NSString *editableDescription = nil;
 
     if (object) {
-        // 这是一个使用 JSON 序列化来处理可编辑对象的技巧。
-        // NSJSONSerialization 不允许写入片段 - 顶级对象必须是数组或字典。
-        // 我们总是将对象包装在数组中，然后从最终字符串中剥离外部方括号。
+        // 这是一个使用JSON序列化来编辑对象的黑客手段。
+        // NSJSONSerialization不允许写入片段 - 顶级对象必须是数组或字典。
+        // 我们总是将对象包装在一个数组中，然后从最终字符串中去掉外部方括号。
         NSArray *wrappedObject = @[object];
         if ([NSJSONSerialization isValidJSONObject:wrappedObject]) {
             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:wrappedObject options:0 error:NULL];
@@ -544,7 +543,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 
 + (id)objectValueFromEditableJSONString:(NSString *)string {
     id value = nil;
-    // 对于空字符串/空白字符，返回 nil
+    // nil表示空字符串/空白
     if ([string stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length) {
         value = [NSJSONSerialization
             JSONObjectWithData:[string dataUsingEncoding:NSUTF8StringEncoding]
@@ -564,7 +563,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     if (strlen(typeEncoding) > 1) {
         NSString *type = @(typeEncoding);
         
-        // 是 NSDecimalNumber 还是 NSNumber？
+        // 是NSDecimalNumber还是NSNumber？
         if ([type isEqualToString:@FLEXEncodeClass(NSDecimalNumber)]) {
             return [NSDecimalNumber decimalNumberWithString:inputString];
         } else if ([type isEqualToString:@FLEXEncodeClass(NSNumber)]) {
@@ -574,13 +573,13 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
         return nil;
     }
     
-    // 类型编码是一个字符，根据类型进行切换
+    // 类型编码是一个字符，切换类型
     FLEXTypeEncoding type = typeEncoding[0];
     uint8_t value[32];
     void *bufferStart = &value[0];
     
-    // 确保我们使用正确的类型编码来包装数字
-    // 以便稍后可以通过 getValue: 正确地解包
+    // 确保我们用正确的类型编码装箱数字
+    // 以便稍后通过getValue:正确解箱：
     switch (type) {
         case FLEXTypeEncodingChar:
             *(char *)bufferStart = number.charValue; break;
@@ -608,7 +607,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
             *(double *)bufferStart = number.doubleValue; break;
             
         case FLEXTypeEncodingLongDouble:
-            // NSNumber 不支持 long double
+            // NSNumber不支持long double
         default:
             return nil;
     }
@@ -638,15 +637,15 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
                 
                 while (*typeStart != FLEXTypeEncodingStructEnd) {
                     NSUInteger fieldSize = 0;
-                    // 如果结构体类型编码已由上面的 FLEXGetSizeAndAlignment 成功处理，
-                    // 那么我们 *应该* 可以处理此处的字段。
+                    // 如果结构体类型编码由FLEXGetSizeAndAlignment成功处理
+                    // 我们*应该*在这里处理字段没问题。
                     const char *nextTypeStart = NSGetSizeAndAlignment(typeStart, &fieldSize, NULL);
                     NSString *typeEncoding = [@(structEncoding)
                         substringWithRange:NSMakeRange(typeStart - structEncoding, nextTypeStart - typeStart)
                     ];
                     
-                    // 用于保持正确对齐的填充。__attribute((packed)) 结构体
-                    // 在这里会出问题。压缩结构体的类型编码没有区别，
+                    // 填充以保持正确的对齐。__attribute((packed))结构体
+                    // 会在这里出问题。紧凑结构体的类型编码没有不同，
                     // 所以不清楚我们能为它们做些什么。
                     const NSUInteger currentSizeSum = runningFieldOffset % fieldAlignment;
                     if (currentSizeSum != 0 && currentSizeSum + fieldSize > fieldAlignment) {
@@ -674,7 +673,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 
 + (NSDictionary<NSString *, NSString *> *)attributesForProperty:(objc_property_t)property {
     NSString *attributes = @(property_getAttributes(property) ?: "");
-    // 感谢 MAObjcRuntime 在此处的启发。
+    // 感谢MAObjcRuntime在这里的灵感。
     NSArray<NSString *> *attributePairs = [attributes componentsSeparatedByString:@","];
     NSMutableDictionary<NSString *, NSString *> *attributesDictionary = [NSMutableDictionary new];
     for (NSString *attributePair in attributePairs) {
@@ -703,17 +702,17 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     }
 
     // 参见 https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html
-    // class-dump 有一个更好更完整的实现，但它是 GPLv2 许可的 :/
+    // class-dump有一个更好更完整的实现，但它是在GPLv2下分发的 :/
     // 参见 https://github.com/nygard/class-dump/blob/master/Source/CDType.m
     // 警告：此方法使用多个中间返回和宏来减少样板代码。
-    // 此处宏的使用灵感来自 https://www.mikeash.com/pyblog/friday-qa-2013-02-08-lets-build-key-value-coding.html
+    // 这里使用宏的灵感来自 https://www.mikeash.com/pyblog/friday-qa-2013-02-08-lets-build-key-value-coding.html
     const char *encodingCString = encodingString.UTF8String;
 
-    // 某些字段带有名称，例如 {Size=\"width\"d\"height\"d}，我们需要提取名称并递归处理
+    // 有些字段有名字，如{Size=\"width\"d\"height\"d}，我们需要提取名字并递归
     const NSUInteger fieldNameOffset = [FLEXRuntimeUtility fieldNameOffsetForTypeEncoding:encodingCString];
     if (fieldNameOffset > 0) {
         // 根据 https://github.com/nygard/class-dump/commit/33fb5ed221810685f57c192e1ce8ab6054949a7c，
-        // 有一些连续的带引号字符串，所以使用 `_` 来连接名称。
+        // 有一些连续的带引号的字符串，所以使用`_`来连接名字。
         NSString *const fieldNamesString = [encodingString substringWithRange:NSMakeRange(0, fieldNameOffset)];
         NSArray<NSString *> *const fieldNames = [fieldNamesString
             componentsSeparatedByString:[NSString stringWithFormat:@"%c", FLEXTypeEncodingQuote]
@@ -744,15 +743,15 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
     }
 
     // 限定符前缀
-    // 首先处理这个，因为一些直接翻译（例如 Method）包含前缀。
+    // 先做这个，因为一些直接翻译（如Method）包含前缀。
 #define RECURSIVE_TRANSLATE(prefix, formatString) \
     if (encodingCString[0] == prefix) { \
         NSString *recursiveType = [self readableTypeForEncoding:[encodingString substringFromIndex:1]]; \
         return [NSString stringWithFormat:formatString, recursiveType]; \
     }
 
-    // 如果编码上有限定符前缀，则翻译它，然后
-    // 用编码字符串的其余部分递归调用此方法。
+    // 如果编码上有限定符前缀，翻译它然后
+    // 递归调用此方法处理编码字符串的其余部分。
     RECURSIVE_TRANSLATE('^', @"%@ *");
     RECURSIVE_TRANSLATE('r', @"const %@");
     RECURSIVE_TRANSLATE('n', @"in %@");
@@ -765,14 +764,14 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 
 #undef RECURSIVE_TRANSLATE
 
-  // C 类型
+  // C类型
 #define TRANSLATE(ctype) \
     if (strcmp(encodingCString, @encode(ctype)) == 0) { \
         return (NSString *)CFSTR(#ctype); \
     }
 
-    // 这里的顺序很重要，因为一些 cocoa 类型是 c 类型的 typedef。
-    // 我们无法恢复确切的映射，但我们选择优先使用 cocoa 类型。
+    // 这里顺序很重要，因为一些cocoa类型是从c类型typedefed而来的。
+    // 我们无法恢复确切的映射，但我们选择更喜欢cocoa类型。
     // 这不是一个详尽的列表，但它涵盖了最常见的类型
     TRANSLATE(CGRect);
     TRANSLATE(CGPoint);
@@ -839,7 +838,7 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
         }
     }
 
-    // 如果无法翻译，则直接返回原始编码字符串
+    // 如果我们无法翻译，就返回原始编码字符串
     return encodingString;
 }
 
@@ -847,13 +846,13 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
 #pragma mark - 内部辅助方法
 
 + (NSValue *)valueForPrimitivePointer:(void *)pointer objCType:(const char *)type {
-    // 如果有字段名，则移除它 (例如 \"width\"d -> d)
+    // 如果有字段名，移除它（例如 \"width\"d -> d）
     const NSUInteger fieldNameOffset = [FLEXRuntimeUtility fieldNameOffsetForTypeEncoding:type];
     if (fieldNameOffset > 0) {
         return [self valueForPrimitivePointer:pointer objCType:type + fieldNameOffset];
     }
 
-    // CASE 宏的灵感来自 https://www.mikeash.com/pyblog/friday-qa-2013-02-08-lets-build-key-value-coding.html
+    // CASE宏的灵感来自 https://www.mikeash.com/pyblog/friday-qa-2013-02-08-lets-build-key-value-coding.html
 #define CASE(ctype, selectorpart) \
     if (strcmp(type, @encode(ctype)) == 0) { \
         return [NSNumber numberWith ## selectorpart: *(ctype *)pointer]; \
@@ -880,8 +879,8 @@ NSString * const FLEXRuntimeUtilityErrorDomain = @"FLEXRuntimeUtilityErrorDomain
         @try {
             value = [NSValue valueWithBytes:pointer objCType:type];
         } @catch (NSException *exception) {
-            // 某些类型编码不受 valueWithBytes:objCType: 支持。
-            // 如果抛出异常，则静默失败。
+            // 某些类型编码不被valueWithBytes:objCType:支持。
+            // 如果抛出异常，就静默失败。
         }
     }
 

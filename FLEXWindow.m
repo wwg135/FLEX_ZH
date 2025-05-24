@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXWindow.m
 //  Flipboard
 //
 //  由 Ryan Olson 创建于 4/13/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
 //
 
 #import "FLEXWindow.h"
@@ -16,9 +15,9 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        // 有些应用程序的窗口位于 UIWindowLevelStatusBar + n。
-        // 如果我们将窗口级别设置得太高，就会挡住 UIAlertView。
-        // 需要在保持在应用程序窗口之上和保持在警报之下之间取得平衡。
+        // 一些应用程序的窗口级别为 UIWindowLevelStatusBar + n。
+        // 如果我们将窗口级别设置得太高，会遮挡 UIAlertViews。
+        // 在保持在应用程序窗口之上和保持在提醒之下之间需要平衡。
         self.windowLevel = UIWindowLevelAlert - 1;
     }
     return self;
@@ -47,17 +46,17 @@
 }
 
 + (void)initialize {
-    // 这会在运行时添加一个方法（超类覆盖），从而为我们提供所需的状态栏行为。
-    // FLEX 窗口旨在成为一个通常不影响其下方应用程序的覆盖层。
+    // 这在运行时添加了一个方法（覆盖父类），使我们获得了想要的状态栏行为。
+    // FLEX 窗口旨在作为叠加层，通常不影响下方的应用程序。
     // 大多数情况下，我们希望应用程序的主窗口控制状态栏行为。
-    // 由于它是私有 API，因此在运行时使用混淆的选择器完成。但是无论如何您都不应该将其发布到 App Store...
+    // 在运行时使用混淆的选择器完成，因为这是私有 API。但是无论如何你不应该将此提交到 App Store...
     NSString *canAffectSelectorString = [@[@"_can", @"Affect", @"Status", @"Bar", @"Appearance"] componentsJoinedByString:@""];
     SEL canAffectSelector = NSSelectorFromString(canAffectSelectorString);
     Method shouldAffectMethod = class_getInstanceMethod(self, @selector(shouldAffectStatusBarAppearance));
     IMP canAffectImplementation = method_getImplementation(shouldAffectMethod);
     class_addMethod(self, canAffectSelector, canAffectImplementation, method_getTypeEncoding(shouldAffectMethod));
 
-    // 还有一个...
+    // 再来一个...
     NSString *canBecomeKeySelectorString = [NSString stringWithFormat:@"_%@", NSStringFromSelector(@selector(canBecomeKeyWindow))];
     SEL canBecomeKeySelector = NSSelectorFromString(canBecomeKeySelectorString);
     Method canBecomeKeyMethod = class_getInstanceMethod(self, @selector(canBecomeKeyWindow));

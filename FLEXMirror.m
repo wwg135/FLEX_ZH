@@ -1,11 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMirror.m
 //  FLEX
 //
-//  派生自 MirrorKit。
-//  由 Tanner 创建于 6/29/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  源自 MirrorKit。
+//  Created by Tanner on 6/29/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXMirror.h"
@@ -23,7 +22,7 @@
 - (id)init {
     [NSException
         raise:NSInternalInconsistencyException
-        format:@"不应使用 -init 方法创建类实例"
+        format:@"类实例不应该通过 -init 创建"
     ];
     return nil;
 }
@@ -48,7 +47,7 @@
 - (NSString *)description {
     return [NSString stringWithFormat:@"<%@ %@=%@>",
         NSStringFromClass(self.class),
-        self.isClass ? @"元类" : @"类",
+        self.isClass ? @"metaclass" : @"class",
         self.className
     ];
 }

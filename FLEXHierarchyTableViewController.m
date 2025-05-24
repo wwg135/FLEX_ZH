@@ -6,8 +6,6 @@
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXColor.h"
 #import "FLEXHierarchyTableViewController.h"
 #import "NSMapTable+FLEX_Subscripting.h"
@@ -27,7 +25,7 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyScope) {
 
 @property (nonatomic) NSArray<UIView *> *allViews;
 /// 视图地址到其深度的映射
-/// @((uintptr_t)(__bridge void *)view) -> 深度
+/// @((uintptr_t)(__bridge void *)view) -> depth
 @property (nonatomic) NSMapTable<NSNumber *, NSNumber *> *depthsForViews;
 @property (nonatomic) NSArray<UIView *> *viewsAtTap;
 @property (nonatomic) NSArray<UIView *> *displayedViews;
@@ -70,19 +68,19 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyScope) {
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    // 在多次展示之间保留选择状态
+    // 在不同场景之间保持选中状态
     self.clearsSelectionOnViewWillAppear = NO;
     
-    // 稍微增加一些空间
+    // 为单元格提供更多空间
     self.tableView.rowHeight = 50.0;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    // 分隔线缩进与持久性单元格选择冲突
+    // 分割线缩进会与持久单元格选择冲突
     [self.tableView setSeparatorInset:UIEdgeInsetsZero];
     
     self.showsSearchBar = YES;
     self.showSearchBarInitially = YES;
     // 在此屏幕上使用固定搜索栏会导致
-    // 下一个推入的视图控制器出现奇怪的视觉问题
+    // 下一个推入的视图控制器出现奇怪的视觉效果。
     //
     // self.pinSearchBar = YES;
     self.searchBarDebounceInterval = kFLEXDebounceInstant;
@@ -109,7 +107,7 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyScope) {
 }
 
 
-#pragma mark - Hierarchy helpers
+#pragma mark - 层次结构辅助方法
 
 + (NSArray<UIView *> *)allViewsInHierarchy:(NSArray<UIWindow *> *)windows {
     return [windows flex_flatmapped:^id(UIWindow *window, NSUInteger idx) {
@@ -146,7 +144,7 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyScope) {
 }
 
 
-#pragma mark Selection and Filtering Helpers
+#pragma mark 选择和过滤辅助方法
 
 - (void)trySelectCellForSelectedView {
     NSUInteger selectedViewIndex = [self.displayedViews indexOfObject:self.selectedView];
@@ -192,7 +190,7 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyScope) {
 }
 
 
-#pragma mark - Search Bar / Scope Bar
+#pragma mark - 搜索栏 / 范围栏
 
 - (BOOL)showScopeBar {
     return self.viewsAtTap.count > 0;
@@ -201,13 +199,15 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyScope) {
 - (void)updateSearchResults:(NSString *)newText {
     [self updateDisplayedViews];
     
+    // 如果搜索栏文本字段处于活动状态，请不要滚动到选中项，因为我们可能
+    // 想继续输入。否则，滚动让选中的单元格可见。
     if (!self.searchController.searchBar.isFirstResponder) {
         [self trySelectCellForSelectedView];
     }
 }
 
 
-#pragma mark - Table View Data Source
+#pragma mark - 表视图数据源
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.displayedViews.count;
@@ -240,7 +240,7 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyScope) {
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    _selectedView = self.displayedViews[indexPath.row];
+    _selectedView = self.displayedViews[indexPath.row]; // Don't scroll, avoid setter
     if (self.didSelectRowAction) {
         self.didSelectRowAction(_selectedView);
     }

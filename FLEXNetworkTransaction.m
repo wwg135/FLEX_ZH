@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXNetworkTransaction.m
 //  Flipboard
@@ -15,18 +14,29 @@
 @implementation FLEXNetworkTransaction
 
 + (NSString *)readableStringFromTransactionState:(FLEXNetworkTransactionState)state {
+    NSString *readableString = nil;
     switch (state) {
         case FLEXNetworkTransactionStateUnstarted:
-            return @"未开始";
+            readableString = @"未开始";
+            break;
+            
         case FLEXNetworkTransactionStateAwaitingResponse:
-            return @"等待响应";
+            readableString = @"等待响应";
+            break;
+            
         case FLEXNetworkTransactionStateReceivingData:
-            return @"接收数据中";
+            readableString = @"接收数据中";
+            break;
+            
         case FLEXNetworkTransactionStateFinished:
-            return @"已完成";
+            readableString = @"已完成";
+            break;
+            
         case FLEXNetworkTransactionStateFailed:
-            return @"已失败";
+            readableString = @"失败";
+            break;
     }
+    return readableString;
 }
 
 + (instancetype)withStartTime:(NSDate *)startTime {
@@ -116,7 +126,7 @@
             [detailComponents addObject:timestamp];
         }
         
-        // 省略 GET 方法（假定为默认值）
+        // 省略GET方法（默认）
         NSString *httpMethod = self.request.HTTPMethod;
         if (httpMethod.length > 0) {
             [detailComponents addObject:httpMethod];
@@ -125,7 +135,7 @@
         if (self.state == FLEXNetworkTransactionStateFinished || self.state == FLEXNetworkTransactionStateFailed) {
             [detailComponents addObjectsFromArray:self.details];
         } else {
-            // 未开始、等待响应、接收数据等。
+            // 未开始、等待响应、接收数据等
             NSString *state = [self.class readableStringFromTransactionState:self.state];
             [detailComponents addObject:state];
         }
@@ -232,7 +242,7 @@
     wst->_message = message;
     wst->_direction = direction;
     
-    // 填充 receivedDataLength
+    // 填充接收数据长度
     if (direction == FLEXWebsocketIncoming) {
         wst.receivedDataLength = wst.dataLength;
         wst.state = FLEXNetworkTransactionStateFinished;

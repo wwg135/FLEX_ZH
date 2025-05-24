@@ -3,9 +3,8 @@
 //  PTDatabaseReader
 //
 //  由 Peng Tao 创建于 15/11/23.
-//  版权所有 © 2015年 Peng Tao。保留所有权利。
+//  版权所有 © 2015年 Peng Tao. 保留所有权利。
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXTableContentViewController.h"
 #import "FLEXTableRowDataViewController.h"
@@ -54,7 +53,7 @@
                          rowIDs:(nullable NSArray<NSString *> *)rowIDs
                       tableName:(nullable NSString *)tableName
                        database:(nullable id<FLEXDatabaseManager>)databaseManager {
-    // 必须将所有可选参数作为一个整体提供，或者一个都不提供
+    // 必须提供所有可选参数，或者一个都不提供
     BOOL all = rowIDs && tableName && databaseManager;
     BOOL none = !rowIDs && !tableName && !databaseManager;
     NSParameterAssert(all || none);
@@ -82,7 +81,6 @@
     self.title = self.tableName;
     [self.multiColumnView reloadData];
     [self setupToolbarItems];
-    [self configureActionButtons];
 }
 
 - (FLEXMultiColumnTableView *)multiColumnView {
@@ -102,7 +100,7 @@
     return self.databaseManager && self.tableName;
 }
 
-#pragma mark 多列TableView数据源
+#pragma mark MultiColumnTableView DataSource
 
 - (NSInteger)numberOfColumnsInTableView:(FLEXMultiColumnTableView *)tableView {
     return self.columns.count;
@@ -150,7 +148,7 @@
 }
 
 
-#pragma mark 多列TableView委托
+#pragma mark MultiColumnTableView Delegate
 
 - (void)multiColumnTableView:(FLEXMultiColumnTableView *)tableView didSelectRow:(NSInteger)row {
     NSArray<NSString *> *fields = [self.rows[row] flex_mapped:^id(NSString *field, NSUInteger idx) {
@@ -168,7 +166,7 @@
         make.button(@"复制").handler(^(NSArray<NSString *> *strings) {
             UIPasteboard.generalPasteboard.string = message;
         });
-        make.button(@"复制为 CSV").handler(^(NSArray<NSString *> *strings) {
+        make.button(@"复制为CSV").handler(^(NSArray<NSString *> *strings) {
             UIPasteboard.generalPasteboard.string = [values componentsJoinedByString:@", "];
         });
         make.button(@"专注于行").handler(^(NSArray<NSString *> *strings) {
@@ -188,7 +186,7 @@
                 ];
                 
                 [self executeStatementAndShowResult:deleteRow completion:^(BOOL success) {
-                    // 删除已删除的行并重新加载视图
+                    // 移除已删除的行并重新加载视图
                     if (success) {
                         [self reloadTableDataFromDB];
                     }
@@ -236,7 +234,7 @@
     [self.multiColumnView reloadData];
 }
 
-#pragma mark - 关于转场
+#pragma mark - About Transition
 
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection
               withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator {
@@ -254,7 +252,7 @@
     } completion:nil];
 }
 
-#pragma mark - 工具栏
+#pragma mark - Toolbar
 
 - (void)setupToolbarItems {
     // 我们不支持修改 realm 数据库
@@ -265,7 +263,7 @@
     UIBarButtonItem *trashButton = FLEXBarButtonItemSystem(Trash, self, @selector(trashPressed));
     UIBarButtonItem *addButton = FLEXBarButtonItemSystem(Add, self, @selector(addPressed));
 
-    // 仅当有表名时才允许添加或删除行
+    // 只有当我们有表名时才允许添加或删除行
     trashButton.enabled = self.canRefresh;
     addButton.enabled = self.canRefresh;
     
@@ -287,7 +285,7 @@
         make.button(@"是的，我确定").destructiveStyle().handler(^(NSArray<NSString *> *strings) {
             NSString *deleteAll = [NSString stringWithFormat:@"DELETE FROM %@", self.tableName];
             [self executeStatementAndShowResult:deleteAll completion:^(BOOL success) {
-                // 仅在成功时关闭
+                // 只在成功时关闭
                 if (success) {
                     [self.navigationController popViewControllerAnimated:YES];
                 }
@@ -302,9 +300,9 @@
 
     [FLEXAlert makeAlert:^(FLEXAlert *make) {
         make.title(@"添加一个新行");
-        make.message(@"在INSERT语句中使用的逗号分隔值。\n\n");
-        make.message(@"INSERT INTO [表名] VALUES (您的输入)");
-        make.textField(@"5, '张三', 14,...");
+        make.message(@"在INSERT语句中使用的逗名分隔值。\n\n");
+        make.message(@"插入[表]值（your_input）");
+        make.textField(@"5, 'John Smith', 14,...");
         make.button(@"插入").handler(^(NSArray<NSString *> *strings) {
             NSString *statement = [NSString stringWithFormat:
                 @"INSERT INTO %@ VALUES (%@)", self.tableName, strings[0]
@@ -320,30 +318,7 @@
     } showFrom:self];
 }
 
-- (void)configureActionButtons {
-    self.navigationItem.rightBarButtonItems = @[
-        [[UIBarButtonItem alloc]
-            initWithTitle:@"新增"
-            style:UIBarButtonItemStylePlain
-            target:self
-            action:@selector(addPressed)
-        ],
-        [[UIBarButtonItem alloc]  
-            initWithTitle:@"导出" 
-            style:UIBarButtonItemStylePlain
-            target:self
-            action:@selector(exportPressed)
-        ],
-        [[UIBarButtonItem alloc]
-            initWithTitle:@"删除"
-            style:UIBarButtonItemStylePlain 
-            target:self
-            action:@selector(deletePressed)
-        ]
-    ];
-}
-
-#pragma mark - 辅助方法
+#pragma mark - Helpers
 
 - (void)executeStatementAndShowResult:(NSString *)statement
                            completion:(void (^_Nullable)(BOOL success))completion {

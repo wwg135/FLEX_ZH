@@ -1,9 +1,8 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntimeSafety.m
 //  FLEX
 //
-//  由 Tanner 创建于 3/25/17.
+//  Created by Tanner on 3/25/17.
 //
 
 #import "FLEXRuntimeSafety.h"
@@ -61,8 +60,8 @@ const Class * FLEXKnownUnsafeClassList(void) {
             FLEXClassPointerOrCFNull(@"__NSMessage"),
             FLEXClassPointerOrCFNull(@"__NSMessageBuilder"),
             FLEXClassPointerOrCFNull(@"FigIrisAutoTrimmerMotionSampleExport"),
-            // 临时措施，直到我们有了自己的类型编码解析器；
-            // setVectors: 的类型编码无效，会导致 NSMethodSignature 崩溃
+            // Temporary until we have our own type encoding parser;
+            // setVectors: has an invalid type encoding and crashes NSMethodSignature
             FLEXClassPointerOrCFNull(@"_UIPointVector"),
         };
         

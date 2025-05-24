@@ -6,7 +6,6 @@
 //  Created by Caleb Davenport on 3/19/13.
 //  Copyright (c) 2010-2014 Sam Soffes. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>

@@ -1,9 +1,8 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMetadataExtras.m
 //  FLEX
 //
-//  由 Tanner Bennett 创建于 4/26/22.
+//  Created by Tanner Bennett on 4/26/22.
 //
 
 #import "FLEXMetadataExtras.h"

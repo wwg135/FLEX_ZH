@@ -3,10 +3,8 @@
 //  FLEX
 //
 //  Created by Tanner on 3/9/20.
-//  Copyright © 2020 FLEX Team. All rights reserved.
+//  版权所有 © 2020 FLEX Team. 保留所有权利.
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXFilteringTableViewController.h"
 #import "FLEXTableViewSection.h"
@@ -57,7 +55,7 @@
 }
 
 - (void)reloadData:(NSArray *)nonemptySections {
-    // 重新计算显示的分区
+    // 重新计算显示的部分
     self.filterDelegate.sections = nonemptySections;
 
     // 刷新表视图
@@ -79,7 +77,7 @@
     NSArray *(^filter)(void) = ^NSArray *{
         self.filterText = newText;
 
-        // 分区将根据此属性调整数据
+        // 部分将根据此属性调整数据
         for (FLEXTableViewSection *section in self.filterDelegate.allSections) {
             section.filterText = newText;
         }
@@ -114,12 +112,12 @@
 
 - (void)setAllSections:(NSArray<FLEXTableViewSection *> *)allSections {
     _allSections = allSections.copy;
-    // 只显示非空分区
+    // 只显示非空部分
     self.sections = self.nonemptySections;
 }
 
 - (void)setSections:(NSArray<FLEXTableViewSection *> *)sections {
-    // 允许分区随时重新加载表视图的一部分
+    // 允许部分随时重新加载表视图的一部分
     [sections enumerateObjectsUsingBlock:^(FLEXTableViewSection *s, NSUInteger idx, BOOL *stop) {
         [s setTable:self.tableView section:idx];
     }];
@@ -182,7 +180,7 @@
         [self.navigationController pushViewController:details animated:YES];
     } else {
         [NSException raise:NSInternalInconsistencyException
-                    format:@"行可选但没有操作或视图控制器"];
+                    format:@"行可选择但没有操作或视图控制器"];
     }
 }
 

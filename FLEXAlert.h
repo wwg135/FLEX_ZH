@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXAlert.h
 //  FLEX
@@ -13,80 +12,78 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FLEXAlert, FLEXAlertAction;
 
-typedef void (^FLEXAlertReveal)(void); // 警报显示回调类型 (未使用)
-typedef void (^FLEXAlertBuilder)(FLEXAlert *make); // 警报构建器块类型
-typedef FLEXAlert * _Nonnull (^FLEXAlertStringProperty)(NSString * _Nullable); // 设置字符串属性的块类型
-typedef FLEXAlert * _Nonnull (^FLEXAlertStringArg)(NSString * _Nullable); // 带字符串参数的块类型
-typedef FLEXAlert * _Nonnull (^FLEXAlertTextField)(void(^configurationHandler)(UITextField *textField)); // 配置文本框的块类型
-typedef FLEXAlertAction * _Nonnull (^FLEXAlertAddAction)(NSString *title); // 添加操作的块类型
-typedef FLEXAlertAction * _Nonnull (^FLEXAlertActionStringProperty)(NSString * _Nullable); // 设置操作字符串属性的块类型
-typedef FLEXAlertAction * _Nonnull (^FLEXAlertActionProperty)(void); // 设置操作属性的块类型
-typedef FLEXAlertAction * _Nonnull (^FLEXAlertActionBOOLProperty)(BOOL); // 设置操作布尔属性的块类型
-typedef FLEXAlertAction * _Nonnull (^FLEXAlertActionHandler)(void(^handler)(NSArray<NSString *> *strings)); // 设置操作处理程序的块类型
+typedef void (^FLEXAlertReveal)(void);
+typedef void (^FLEXAlertBuilder)(FLEXAlert *make);
+typedef FLEXAlert * _Nonnull (^FLEXAlertStringProperty)(NSString * _Nullable);
+typedef FLEXAlert * _Nonnull (^FLEXAlertStringArg)(NSString * _Nullable);
+typedef FLEXAlert * _Nonnull (^FLEXAlertTextField)(void(^configurationHandler)(UITextField *textField));
+typedef FLEXAlertAction * _Nonnull (^FLEXAlertAddAction)(NSString *title);
+typedef FLEXAlertAction * _Nonnull (^FLEXAlertActionStringProperty)(NSString * _Nullable);
+typedef FLEXAlertAction * _Nonnull (^FLEXAlertActionProperty)(void);
+typedef FLEXAlertAction * _Nonnull (^FLEXAlertActionBOOLProperty)(BOOL);
+typedef FLEXAlertAction * _Nonnull (^FLEXAlertActionHandler)(void(^handler)(NSArray<NSString *> *strings));
 
-// 用于构建和显示 UIAlertController 的便捷类
 @interface FLEXAlert : NSObject
 
-/// 显示一个带有一个“确定”按钮的简单警报
+/// Shows a simple alert with one button which says "Dismiss"
 + (void)showAlert:(NSString * _Nullable)title message:(NSString * _Nullable)message from:(UIViewController *)viewController;
 
-/// 显示一个仅包含标题、无按钮、持续半秒的简单警报
+/// Shows a simple alert with no buttons and only a title, for half a second
 + (void)showQuickAlert:(NSString *)title from:(UIViewController *)viewController;
 
-/// 构建并显示一个警报
+/// Construct and display an alert
 + (void)makeAlert:(FLEXAlertBuilder)block showFrom:(UIViewController *)viewController;
-/// 构建并显示一个动作表样式的警报
+/// Construct and display an action sheet-style alert
 + (void)makeSheet:(FLEXAlertBuilder)block
          showFrom:(UIViewController *)viewController
-           source:(id)viewOrBarItem; // source 可以是 UIView 或 UIBarButtonItem
+           source:(id)viewOrBarItem;
 
-/// 构建一个警报
+/// Construct an alert
 + (UIAlertController *)makeAlert:(FLEXAlertBuilder)block;
-/// 构建一个动作表样式的警报
+/// Construct an action sheet-style alert
 + (UIAlertController *)makeSheet:(FLEXAlertBuilder)block;
 
-/// 设置警报的标题。
+/// Set the alert's title.
 ///
-/// 连续调用以将字符串附加到标题。
+/// Call in succession to append strings to the title.
 @property (nonatomic, readonly) FLEXAlertStringProperty title;
-/// 设置警报的消息。
+/// Set the alert's message.
 ///
-/// 连续调用以将字符串附加到消息。
+/// Call in succession to append strings to the message.
 @property (nonatomic, readonly) FLEXAlertStringProperty message;
-/// 添加一个具有给定标题、默认样式且无操作的按钮。
+/// Add a button with a given title with the default style and no action.
 @property (nonatomic, readonly) FLEXAlertAddAction button;
-/// 添加一个具有给定（可选）占位符文本的文本字段。
+/// Add a text field with the given (optional) placeholder text.
 @property (nonatomic, readonly) FLEXAlertStringArg textField;
-/// 添加并配置给定的文本字段。
+/// Add and configure the given text field.
 ///
-/// 如果您需要做的不仅仅是设置占位符，例如
-/// 提供委托、使其成为安全输入或更改其他属性，请使用此方法。
+/// Use this if you need to more than set the placeholder, such as
+/// supply a delegate, make it secure entry, or change other attributes.
 @property (nonatomic, readonly) FLEXAlertTextField configuredTextField;
 
 @end
 
-// 用于构建 UIAlertAction 的便捷类
 @interface FLEXAlertAction : NSObject
 
-/// 设置操作的标题。
+/// Set the action's title.
 ///
-/// 连续调用以将字符串附加到标题。
+/// Call in succession to append strings to the title.
 @property (nonatomic, readonly) FLEXAlertActionStringProperty title;
-/// 使操作具有破坏性。它以红色文本显示。
+/// Make the action destructive. It appears with red text.
 @property (nonatomic, readonly) FLEXAlertActionProperty destructiveStyle;
-/// 使操作具有取消样式。它有时以较粗的字体显示。
+/// Make the action cancel-style. It sometimes appears with a bolder font.
 @property (nonatomic, readonly) FLEXAlertActionProperty cancelStyle;
-/// 使操作成为首选操作。它以较粗的字体显示。
-/// 第一个被设置为首选的操作将用作首选操作。
+/// Make the action the preferred action. It appears with a bolder font.
+/// The first action that is set as preferred will be used as the preferred action.
 @property (nonatomic, readonly) FLEXAlertActionProperty preferred;
-/// 启用或禁用操作。默认启用。
+/// Enable or disable the action. Enabled by default.
 @property (nonatomic, readonly) FLEXAlertActionBOOLProperty enabled;
-/// 为按钮提供一个操作。该操作接受一个文本字段字符串数组。
+/// Give the button an action. The action takes an array of text field strings.
 @property (nonatomic, readonly) FLEXAlertActionHandler handler;
-/// 访问底层的 UIAlertAction，如果您需要在
-/// 包含的警报显示时更改它。例如，您可能希望根据
-/// 警报中某些文本字段的输入来启用或禁用按钮。
-/// 每个实例不要调用此方法超过一次。
+/// Access the underlying UIAlertAction, should you need to change it while
+/// the encompassing alert is being displayed. For example, you may want to
+/// enable or disable a button based on the input of some text fields in the alert.
+/// Do not call this more than once per instance.
 @property (nonatomic, readonly) UIAlertAction *action;
 
 @end

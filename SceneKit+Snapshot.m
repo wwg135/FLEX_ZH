@@ -1,17 +1,15 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  SceneKit+Snapshot.m
 //  FLEX
 //
-//  由 Tanner Bennett 创建于 1/8/20.
+//  Created by Tanner Bennett on 1/8/20.
 //
 
 #import "SceneKit+Snapshot.h"
 #import "FHSSnapshotNodes.h"
 
-/// 选择此值是为了应用此偏移量以避免
-/// 相同 z 位置节点之间的 z-fighting（闪烁），但该值又足够小
-/// 使得它们在视觉上看起来在同一平面上。
+/// 选择这个值是为了避免在相同z位置的节点之间发生z轴冲突，
+/// 但又足够小以至于它们在视觉上看起来处于同一平面。
 CGFloat const kFHSSmallZOffset = 0.05;
 CGFloat const kHeaderVerticalInset = 8.0;
 
@@ -146,7 +144,7 @@ CGFloat const kHeaderVerticalInset = 8.0;
     NSInteger const depth = *depthOut;
 
     // 忽略不可见的元素。
-    // 这些元素应出现在列表中，但不应出现在 3D 视图中。
+    // 这些应该出现在列表中，但不在3D视图中。
     if (view.hidden || CGSizeEqualToSize(view.frame.size, CGSizeZero)) {
         return nil;
     }
@@ -159,25 +157,25 @@ CGFloat const kHeaderVerticalInset = 8.0;
     FHSSnapshotNodes *nodes = [FHSSnapshotNodes snapshot:view depth:depth];
     nodes.snapshot = node;
 
-    // 节点必须添加到根节点
-    // 以便下面的坐标空间计算能够正常工作
+    // 必须将节点添加到根节点
+    // 以便下面的坐标空间计算正常工作
     [rootNode addChildNode:node];
     node.position = ({
-        // 翻转 y 坐标，因为 SceneKit 的坐标系
-        // 与 UIKit 的坐标系 y 轴相反
+        // 翻转y坐标，因为SceneKit使用的是
+        // UIKit坐标系统的翻转版本
         CGRect pframe = parent ? parent.frame : CGRectZero;
         CGFloat y = parent ? pframe.size.height - CGRectGetMaxY(view.frame) : 0;
 
-        // 为了简化计算层之间的 z 轴间距，我们将
-        // 每个快照节点都作为根节点的直接子节点，而不是将
-        // 节点嵌入其父节点中（与 UI 元素本身的结构相同）。
-        // 通过这种扁平化层次结构，只需将间距乘以深度，
-        // 即可计算每个节点的 z 位置。
+        // 为了简化层之间z轴间距的计算，我们使
+        // 每个快照节点成为根的直接子节点，而不是将节点
+        // 嵌入到它们的父节点中，与UI元素结构相同。
+        // 有了这种扁平的层次结构，z位置可以
+        // 通过简单地将间距乘以深度来计算每个节点。
         //
-        // 此处引用的 `parentSnapshotNode` 不是 `node` 的实际父节点，
-        // 它是对应于 UI 元素父节点的节点。
-        // 它用于将相对于父节点边界的帧坐标转换
-        // 为相对于根节点的坐标。
+        // 这里引用的`parentSnapshotNode`实际上不是`node`的实际父节点，
+        // 它是对应于UI元素父级的节点。
+        // 它用于将帧坐标从相对于父级的边界
+        // 转换为相对于根节点的坐标。
         SCNVector3 positionRelativeToParent = SCNVector3Make(view.frame.origin.x, y, 0);
         SCNVector3 positionRelativeToRoot;
         if (parent) {
@@ -209,8 +207,8 @@ CGFloat const kHeaderVerticalInset = 8.0;
     for (FHSViewSnapshot *child in view.children) {
         NSInteger childDepth = depth + 1;
 
-        // 与同级节点相交的子节点将渲染在
-        // 先前同级节点之上的单独图层中
+        // 与兄弟节点相交的子节点在
+        // 前面兄弟节点的上层单独渲染
         for (FHSViewSnapshot *sibling in checkForIntersect) {
             if (CGRectIntersectsRect(sibling.frame, child.frame)) {
                 childDepth = maxChildDepth + 1;

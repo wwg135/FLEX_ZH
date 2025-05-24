@@ -3,9 +3,8 @@
 //  FLEX
 //
 //  由 Tanner 创建于 3/22/17.
-//  版权所有 © 2017 Tanner Bennett。保留所有权利。
+//  版权所有 © 2017 Tanner Bennett. 保留所有权利。
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXRuntimeClient.h"
 #import "NSObject+FLEX_Reflection.h"
@@ -31,31 +30,31 @@
 
 @end
 
-/// @return 如果映射通过，则返回 success。
+/// @return 如果映射通过则返回 success。
 static inline NSString * TBWildcardMap_(NSString *token, NSString *candidate, NSString *success, TBWildcardOptions options) {
     switch (options) {
         case TBWildcardOptionsNone:
-            // 仅当“相等时”
+            // 仅当"相等"时
             if (Equals(candidate, token)) {
                 return success;
             }
         default: {
-            // 仅当“包含时”
+            // 仅当"包含"时
             if (options & TBWildcardOptionsPrefix &&
                 options & TBWildcardOptionsSuffix) {
                 if (Contains(candidate, token)) {
                     return success;
                 }
             }
-            // 仅当“候选者以标记结尾时”
+            // 仅当"候选者以 token 结尾"时
             else if (options & TBWildcardOptionsPrefix) {
                 if (HasSuffix(candidate, token)) {
                     return success;
                 }
             }
-            // 仅当“候选者以标记开头时”
+            // 仅当"候选者以 token 开头"时
             else if (options & TBWildcardOptionsSuffix) {
-                // 类似于 "Bundle." 的情况，我们希望 "" 匹配任何内容
+                // 类似 "Bundle." 的情况，我们希望 "" 匹配任何内容
                 if (!token.length) {
                     return success;
                 }
@@ -69,7 +68,7 @@ static inline NSString * TBWildcardMap_(NSString *token, NSString *candidate, NS
     return nil;
 }
 
-/// @return 如果映射通过，则返回 candidate。
+/// @return 如果映射通过则返回候选者。
 static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBWildcardOptions options) {
     return TBWildcardMap_(token, candidate, candidate, options);
 }
@@ -122,7 +121,7 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
             return [shortName1 caseInsensitiveCompare:shortName2];
         }];
 
-        // 缓存镜像显示名称
+        // 缓存图像显示名称
         _imageDisplayNames = [imageNameStrings flex_mapped:^id(NSString *path, NSUInteger idx) {
             return [self shortNameForImageName:path];
         }];
@@ -187,7 +186,7 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
     return [NSMutableArray new];
 }
 
-#pragma mark - 公开方法
+#pragma mark - 公共方法
 
 + (void)initializeWebKitLegacy {
     static dispatch_once_t onceToken;
@@ -231,7 +230,7 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
             return _imageDisplayNames;
         }
 
-        // 没有点语法，因为 imageDisplayNames 仅在内部可变
+        // 不使用点语法，因为 imageDisplayNames 只在内部可变
         return [_imageDisplayNames flex_mapped:^id(NSString *binary, NSUInteger idx) {
 //            NSString *UIName = [self shortNameForImageName:binary];
             return TBWildcardMap(query, binary, options);
@@ -253,7 +252,7 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
 
         return [self.imagePaths flex_mapped:^id(NSString *binary, NSUInteger idx) {
             NSString *UIName = [self shortNameForImageName:binary];
-            // 如果 query == UIName，则 -> binary
+            // 如果 query == UIName，-> binary
             return TBWildcardMap_(query, UIName, binary, options);
         }];
     }
@@ -262,7 +261,7 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
 }
 
 - (NSMutableArray<NSString *> *)classesForToken:(FLEXSearchToken *)token inBundles:(NSMutableArray<NSString *> *)bundles {
-    // 边缘情况，标记已经是我们想要的类；返回超类
+    // 边缘情况，token 已经是我们想要的类；返回父类
     if (token.isAbsolute) {
         if (FLEXClassIsSafe(NSClassFromString(token.string))) {
             return [NSMutableArray arrayWithObject:token.string];
@@ -324,13 +323,13 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
         NSString *selector = token.string;
 
         switch (options) {
-            // 实际上，我认为这种情况从不用于方法，
-            // 因为它们末尾总会有一个后缀通配符
+            // 实际上，我认为这种情况在方法中从未使用过，
+            // 因为它们总是在末尾有一个后缀通配符
             case TBWildcardOptionsNone: {
                 SEL sel = (SEL)selector.UTF8String;
                 return @[[classes flex_mapped:^id(NSString *name, NSUInteger idx) {
                     Class cls = NSClassFromString(name);
-                    // 如果不是实例，则使用元类
+                    // 如果不是实例方法则使用元类
                     if (!instance) {
                         cls = object_getClass(cls);
                     }
@@ -347,7 +346,7 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
                 }];
             }
             default: {
-                // 仅当“包含时”
+                // 仅当"包含"时
                 if (options & TBWildcardOptionsPrefix &&
                     options & TBWildcardOptionsSuffix) {
                     return [classes flex_mapped:^NSArray *(NSString *name, NSUInteger idx) {
@@ -362,7 +361,7 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
                         }];
                     }];
                 }
-                // 仅当“方法以选择器结尾时”
+                // 仅当"方法以选择器结尾"时
                 else if (options & TBWildcardOptionsPrefix) {
                     return [classes flex_mapped:^NSArray *(NSString *name, NSUInteger idx) {
                         Class cls = NSClassFromString(name);
@@ -376,14 +375,14 @@ static inline NSString * TBWildcardMap(NSString *token, NSString *candidate, TBW
                         }];
                     }];
                 }
-                // 仅当“方法以选择器开头时”
+                // 仅当"方法以选择器开头"时
                 else if (options & TBWildcardOptionsSuffix) {
                     assert(checkInstance);
 
                     return [classes flex_mapped:^NSArray *(NSString *name, NSUInteger idx) {
                         Class cls = NSClassFromString(name);
 
-                        // 类似于 "Bundle.class.-" 的情况，我们希望 "-" 匹配任何内容
+                        // 类似 "Bundle.class.-" 的情况，我们希望 "-" 匹配任何内容
                         if (!selector.length) {
                             if (instance) {
                                 return [cls flex_allInstanceMethods];

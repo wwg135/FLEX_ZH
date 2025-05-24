@@ -4,7 +4,6 @@
 //
 //  Created by AnthoPak on 26/09/2022.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXWindowShortcuts.h"
 #import "FLEXShortcut.h"
@@ -13,18 +12,18 @@
 
 @implementation FLEXWindowShortcuts
 
-#pragma mark - Overrides
+#pragma mark - 重写
 
 + (instancetype)forObject:(UIView *)view {
     return [self forObject:view additionalRows:@[
         [FLEXActionShortcut title:@"动画速度" subtitle:^NSString *(UIWindow *window) {
-            return [NSString stringWithFormat:@"当前速度：%.2f", window.layer.speed];
+            return [NSString stringWithFormat:@"当前速度: %.2f", window.layer.speed];
         } selectionHandler:^(UIViewController *host, UIWindow *window) {
             [FLEXAlert makeAlert:^(FLEXAlert *make) {
-                make.title(@"修改动画速度");
-                make.message([NSString stringWithFormat:@"当前速度：%.2f", window.layer.speed]);
+                make.title(@"更改动画速度");
+                make.message([NSString stringWithFormat:@"当前速度: %.2f", window.layer.speed]);
                 make.configuredTextField(^(UITextField * _Nonnull textField) {
-                    textField.placeholder = @"默认值：1.0";
+                    textField.placeholder = @"默认值: 1.0";
                     textField.keyboardType = UIKeyboardTypeDecimalPad;
                 });
                 
@@ -34,6 +33,8 @@
                     CGFloat speedValue = [formatter numberFromString:strings.firstObject].floatValue;
                     window.layer.speed = speedValue;
 
+                    // 刷新宿主视图控制器以更新快捷方式副标题，反映当前速度
+                    // TODO: 这不应该是必要的
                     [(FLEXObjectExplorerViewController *)host reloadData];
                 });
                 make.button(@"取消").cancelStyle();

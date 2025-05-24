@@ -1,9 +1,8 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 // FLEXCurlLogger.m
 //
 //
-// 由 Ji Pei 创建于 07/27/16
+// Created by Ji Pei on 07/27/16
 //
 
 #import "FLEXNetworkCurlLogger.h"
@@ -39,7 +38,7 @@
         if (body != nil) {
             [curlCommandString appendFormat:@"-d \'%@\'", body];
         } else {
-            // 回退到使用 base64 编码
+            // Fallback to using base64 encoding
             [curlCommandString appendString:@"--data-binary @-"];
 
             NSString *base64 = [request.HTTPBody base64EncodedStringWithOptions:0];

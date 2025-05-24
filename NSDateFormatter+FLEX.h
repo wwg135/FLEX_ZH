@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  NSDateFormatter+FLEX.h
 //  libflex:FLEX
 //
 //  由 Tanner Bennett 创建于 7/24/22.
-//  版权所有 © 2022 Flipboard。保留所有权利。
+//  版权所有 © 2022 Flipboard. 保留所有权利。
 //
 
 #import <Foundation/Foundation.h>

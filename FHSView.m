@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FHSView.m
 //  FLEX
@@ -11,7 +10,6 @@
 #import "NSArray+FLEX.h"
 
 @interface FHSView (Snapshotting)
-// 快照视图
 + (UIImage *)_snapshotView:(UIView *)view;
 @end
 
@@ -97,7 +95,7 @@
     CGSize size = view.bounds.size;
     CGFloat minUnit = 1.f / UIScreen.mainScreen.scale;
 
-    // 每个绘制的视图宽度或高度都不能为 0
+    // Every drawn view must not have 0 width or height
     CGSize minsize = CGSizeMake(MAX(size.width, minUnit), MAX(size.height, minUnit));
     CGRect minBounds = CGRectMake(0, 0, minsize.width, minsize.height);
 
@@ -108,12 +106,12 @@
     return image;
 }
 
-/// 递归隐藏所有可能遮挡给定视图的视图，并将它们收集到给定的数组中。
-/// 完成后应取消隐藏所有这些视图。
+/// Recursively hides all views that may be obscuring the given view and collects them
+/// in the given array. You should unhide them all when you are done.
 + (BOOL)_hideViewsCoveringView:(UIView *)view
                           root:(UIView *)rootView
                    hiddenViews:(NSMutableArray<UIView *> *)hiddenViews {
-    // 当我们到达此视图时停止
+    // Stop when we reach this view
     if (view == rootView) {
         return YES;
     }
@@ -132,8 +130,9 @@
     return NO;
 }
 
-/// 递归隐藏所有可能遮挡给定视图的视图，并将它们收集到给定的数组中。
-/// 完成后应取消隐藏所有这些视图。
+
+/// Recursively hides all views that may be obscuring the given view and collects them
+/// in the given array. You should unhide them all when you are done.
 + (void)hideViewsCoveringView:(UIView *)view doWhileHidden:(void(^)(void))block {
     NSMutableArray *viewsToUnhide = [NSMutableArray new];
     if ([self _hideViewsCoveringView:view root:view.window hiddenViews:viewsToUnhide]) {
@@ -148,50 +147,44 @@
 + (UIImage *)_snapshotVisualEffectBackdropView:(UIView *)view {
     NSParameterAssert(view.window);
 
-    // UIVisualEffectView 是一个特殊情况，不能像其他视图一样进行快照。
-    // 来自 Apple 文档：
+    // UIVisualEffectView is a special case that cannot be snapshotted
+    // the same way as any other view. From Apple docs:
     //
-    //   许多效果需要托管 UIVisualEffectView 的窗口的支持。
-    //   尝试仅对 UIVisualEffectView 进行快照将导致快照不包含效果。
-    //   要对包含 UIVisualEffectView 的视图层次结构进行快照，
-    //   您必须对包含它的整个 UIWindow 或 UIScreen 进行快照。
+    //   Many effects require support from the window that hosts the
+    //   UIVisualEffectView. Attempting to take a snapshot of only the
+    //   UIVisualEffectView will result in a snapshot that does not
+    //   contain the effect. To take a snapshot of a view hierarchy
+    //   that contains a UIVisualEffectView, you must take a snapshot
+    //   of the entire UIWindow or UIScreen that contains it.
     //
-    // 为了对此视图进行快照，我们从窗口开始遍历视图层次结构，
-    // 并隐藏位于 _UIVisualEffectBackdropView 之上的任何视图，
-    // 以便它在窗口的快照中可见。然后我们对窗口进行快照，
-    // 并将其裁剪到包含背景视图的部分。这似乎与 Xcode 自己的
-    // 视图调试器用于快照视觉效果视图的技术相同。
+    // To snapshot this view, we traverse the view hierarchy starting
+    // from the window and hide any views that are on top of the
+    // _UIVisualEffectBackdropView so that it is visible in a snapshot
+    // of the window. We then take a snapshot of the window and crop
+    // it to the part that contains the backdrop view. This appears to
+    // be the same technique that Xcode's own view debugger uses to
+    // snapshot visual effect views.
     __block UIImage *image = nil;
     [self hideViewsCoveringView:view doWhileHidden:^{
-        // 对窗口进行快照，因为直接快照 UIVisualEffectView 可能无法正确渲染效果
-        UIImage *windowSnapshot = [self drawView:view.window];
-        // 计算视图在窗口中的位置和大小
+        image = [self drawView:view];
         CGRect cropRect = [view.window convertRect:view.bounds fromView:view];
-        // 裁剪窗口快照以获取目标视图的图像
-        CGImageRef imageRef = CGImageCreateWithImageInRect(windowSnapshot.CGImage, cropRect);
-        if (imageRef) {
-            image = [UIImage imageWithCGImage:imageRef];
-            CGImageRelease(imageRef);
-        } else {
-            // 如果裁剪失败，尝试直接绘制视图作为后备方案
-            image = [self drawView:view];
-        }
+        image = [UIImage imageWithCGImage:CGImageCreateWithImageInRect(image.CGImage, cropRect)];
     }];
 
-    return image ?: [UIImage new]; //确保返回非nil
+    return image;
 }
 
 + (UIImage *)_snapshotView:(UIView *)view {
     UIView *superview = view.superview;
-    // 此视图是否在 UIVisualEffectView 内部？
+    // Is this view inside a UIVisualEffectView?
     if ([superview isKindOfClass:[UIVisualEffectView class]]) {
-        // 它（可能）是此 UIVisualEffectView 的“背景”视图吗？
+        // Is it (probably) the "backdrop" view of this UIVisualEffectView?
         if (superview.subviews.firstObject == view) {
             return [self _snapshotVisualEffectBackdropView:view];
         }
     }
 
-    // 在快照之前隐藏视图的子视图
+    // Hide the view's subviews before we snapshot it
     NSMutableIndexSet *toUnhide = [NSMutableIndexSet new];
     [view.subviews flex_forEach:^(UIView *v, NSUInteger idx) {
         if (!v.isHidden) {
@@ -200,7 +193,7 @@
         }
     }];
 
-    // 快照视图，然后取消隐藏先前未隐藏的视图
+    // Snapshot the view, then unhide the previously-unhidden views
     UIImage *snapshot = [self drawView:view];
     for (UIView *v in [view.subviews objectsAtIndexes:toUnhide]) {
         v.hidden = NO;

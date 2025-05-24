@@ -2,10 +2,9 @@
 //  FLEXSystemLogCell.m
 //  FLEX
 //
-//  Created by Tanner on 7/1/20.
-//  Copyright © 2020 FLEX Team. All rights reserved.
+//  Created by Ryan Olson on 1/25/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-//  遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXSystemLogCell.h"
 #import "FLEXSystemLogMessage.h"
@@ -66,7 +65,7 @@ static const UIEdgeInsets kFLEXLogMessageCellInsets = {10.0, 10.0, 10.0, 10.0};
 }
 
 
-#pragma mark - 无状态辅助方法
+#pragma mark - Stateless helpers
 
 + (NSAttributedString *)attributedTextForLogMessage:(FLEXSystemLogMessage *)logMessage highlightedText:(NSString *)highlightedText {
     NSString *text = [self displayedTextForLogMessage:logMessage];

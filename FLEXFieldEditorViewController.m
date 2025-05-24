@@ -5,7 +5,6 @@
 //  Created by Tanner on 11/22/18.
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXFieldEditorViewController.h"
 #import "FLEXFieldEditorView.h"
@@ -31,7 +30,7 @@
 
 @implementation FLEXFieldEditorViewController
 
-#pragma mark - Initialization
+#pragma mark - 初始化
 
 + (instancetype)target:(id)target property:(nonnull FLEXProperty *)property commitHandler:(void(^)(void))onCommit {
     FLEXFieldEditorViewController *editor = [self target:target data:property commitHandler:onCommit];
@@ -47,17 +46,17 @@
     return editor;
 }
 
-#pragma mark - Overrides
+#pragma mark - 重写
 
 - (void)viewDidLoad {
     [super viewDidLoad];
 
     self.view.backgroundColor = FLEXColor.groupedBackgroundColor;
 
-    // 创建获取按钮
+    // 创建获取器按钮
     _getterButton = [[UIBarButtonItem alloc]
-        initWithTitle:@"获取"
-        style:UIBarButtonItemStylePlain
+        initWithTitle:@"进入"
+        style:UIBarButtonItemStyleDone
         target:self
         action:@selector(getterButtonPressed:)
     ];
@@ -74,16 +73,14 @@
     inputView.delegate = self;
     self.fieldEditorView.argumentInputViews = @[inputView];
 
-    // 对于开关不显示"设置"按钮；我们在开关翻转时进行修改
+    // 不为开关显示"设置"按钮；当开关翻转时我们进行变更
     if ([inputView isKindOfClass:[FLEXArgumentInputSwitchView class]]) {
         self.actionButton.enabled = NO;
-        self.actionButton.title = @"切换开关以调用setter方法";
-        // 将获取按钮放在设置按钮之前
+        self.actionButton.title = @"翻转开关以调用设置器";
+        // 将获取器按钮放在设置器按钮之前
         self.toolbarItems = @[
             UIBarButtonItem.flex_flexibleSpace, self.actionButton, self.getterButton
         ];
-    } else {
-        self.actionButton.title = @"设置";
     }
 }
 
@@ -107,7 +104,7 @@
     // 关闭键盘并处理已提交的更改
     [super actionButtonPressed:sender];
 
-    // 设置后返回，但开关类型除外
+    // 设置后返回，但不适用于开关
     if (sender) {
         [self.navigationController popViewControllerAnimated:YES];
     } else {
@@ -127,10 +124,10 @@
     }
 }
 
-#pragma mark - Private
+#pragma mark - 私有方法
 
 - (void)registerAuxiliaryInfo {
-    // 这是Reflex在运行时将Swift结构体字段名称导入编辑器的方式
+    // 这是Reflex在运行时将Swift结构体字段名称引入编辑器的方式
     NSDictionary<NSString *, NSArray *> *labels = [self.auxiliaryInfoProvider
         auxiliaryInfoForKey:FLEXAuxiliarynfoKeyFieldLabels
     ];

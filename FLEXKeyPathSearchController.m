@@ -2,11 +2,9 @@
 //  FLEXKeyPathSearchController.m
 //  FLEX
 //
-//  创建者: Tanner on 3/23/17.
-//  版权所有 © 2017 Tanner Bennett. 保留所有权利。
+//  Created by Tanner on 3/23/17.
+//  Copyright © 2017 Tanner Bennett. All rights reserved.
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXKeyPathSearchController.h"
 #import "FLEXRuntimeKeyPathTokenizer.h"
@@ -22,25 +20,25 @@
 @interface FLEXKeyPathSearchController ()
 @property (nonatomic, readonly, weak) id<FLEXKeyPathSearchControllerDelegate> delegate;
 @property (nonatomic) NSTimer *timer;
-/// 如果 \c keyPath 是 \c nil 或者它只有 \c bundleKey，这是
-/// 一个像 \c UICatalog 或 \c UIKit\.framework 这样的包键路径组件列表
-/// 如果 \c keyPath 有多于 \c bundleKey 的内容，那么它是一个类名列表。
+/// 如果 \c keyPath 是 \c nil 或者只有 \c bundleKey，这是
+/// 一个包含像 \c UICatalog 或 \c UIKit\.framework 这样的包键路径组件列表
+/// 如果 \c keyPath 的内容超过 \c bundleKey，那么它是一个类名列表。
 @property (nonatomic) NSArray<NSString *> *bundlesOrClasses;
 /// 当搜索栏为空时为nil
 @property (nonatomic) FLEXRuntimeKeyPath *keyPath;
 
 @property (nonatomic, readonly) NSString *emptySuggestion;
 
-/// 用于跟踪哪些方法与哪些类相关联。这在两种情况下使用：
-/// (1) 当目标类是绝对的并且有类时，
-/// (这个列表将包括"叶"类以及父类)
-/// 或 (2) 当类键是通配符并且我们同时在多个类中搜索方法时。
-/// \c classesToMethods 中的每个列表都对应于这里的一个类。
+/// 用于跟踪哪些方法属于哪些类。这在两种场景中使用：
+/// (1) 当目标类是绝对类并且有类时，
+/// (这个列表将在这种情况下包括"叶"类和父类)
+/// 或者 (2) 当类键是通配符，我们同时在多个类中搜索方法时。
+/// \c classesToMethods 中的每个列表对应这里的一个类。
 @property (nonatomic) NSArray<NSString *> *classes;
 /// 搜索特定属性时使用的 \c classes 的过滤版本。
 /// 没有匹配的实例变量/属性/方法的类不会显示。
 @property (nonatomic) NSArray<NSString *> *filteredClasses;
-// 无论目标类是否是绝对的，我们都使用这个，就像上面一样
+// 无论目标类是否是绝对类，我们都会使用这个，就像上面一样
 @property (nonatomic) NSArray<NSArray<FLEXMethod *> *> *classesToMethods;
 @end
 
@@ -100,7 +98,7 @@
 #pragma mark 键路径相关
 
 - (void)didSelectKeyPathOption:(NSString *)text {
-    [_timer invalidate]; // 方法被选中时可能仍在等待刷新
+    [_timer invalidate]; // 在选择方法时可能仍在等待刷新
 
     // 将 "Bundle.fooba" 更改为 "Bundle.foobar."
     NSString *orig = self.delegate.searchController.searchBar.text;
@@ -109,7 +107,7 @@
 
     self.keyPath = [FLEXRuntimeKeyPathTokenizer tokenizeString:keyPath];
 
-    // 如果类被选中，获取类
+    // 如果选择了类，则获取类
     if (self.keyPath.classKey.isAbsolute && self.keyPath.methodKey.isAny) {
         [self didSelectAbsoluteClass:text];
     } else {
@@ -130,7 +128,7 @@
 - (void)didPressButton:(NSString *)text insertInto:(UISearchBar *)searchBar {
     [self.toolbar setKeyPath:self.keyPath suggestions:nil];
     
-    // 自iOS 9起可用，在iOS 13中仍然存在
+    // 自 iOS 9 起可用，在 iOS 13 中仍然存在
     UITextField *field = [searchBar valueForKey:@"_searchBarTextField"];
 
     if ([self searchBar:searchBar shouldChangeTextInRange:field.flex_selectedRange replacementText:text]) {
@@ -159,7 +157,7 @@
         return [self.bundlesOrClasses flex_subArrayUpto:10];
     }
     
-    // 我们完全没有东西可搜索
+    // 我们完全没有可搜索的内容
     return nil;
 }
 
@@ -169,8 +167,8 @@
     // 在后台线程上计算方法、类或包列表
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         if (self.classes) {
-            // 这里，我们的类键是"绝对的"；.classes是一个超类列表
-            // 我们想要专门显示这些类的方法
+            // 在这里，我们的类键是"绝对的"；.classes 是超类列表
+            // 我们想要显示这些类的特定方法
             // TODO: 以某种方式添加缓存
             NSMutableArray *methods = [FLEXRuntimeController
                 methodsForToken:self.keyPath.methodKey
@@ -178,9 +176,9 @@
                 inClasses:self.classes
             ].mutableCopy;
             
-            // 如果我们正在搜索方法，则删除没有结果的类
+            // 如果我们正在搜索一个方法，则删除没有结果的类
             //
-            // 注意：即使查询没有指定方法，例如 `*.*.`，
+            // 注意：即使查询没有指定方法，如 `*.*.`，
             // 这也会删除没有任何方法或重写的类
             if (self.keyPath.methodKey) {
                 [self setNonEmptyMethodLists:methods withClasses:self.classes.mutableCopy];
@@ -219,7 +217,7 @@
     [self.toolbar setKeyPath:self.keyPath suggestions:self.suggestions];
 }
 
-/// 移除空部分后分配 .filteredClasses 和 .classesToMethods
+/// 在移除空部分后分配 .filteredClasses 和 .classesToMethods
 - (void)setNonEmptyMethodLists:(NSMutableArray<NSArray<FLEXMethod *> *> *)methods
                    withClasses:(NSMutableArray<NSString *> *)classes {
     // 删除没有方法的部分
@@ -273,7 +271,7 @@
             [self updateTable];
         }];
     }
-    // ... 或删除所有行
+    // ... 或者移除所有行
     else {
         _bundlesOrClasses = [FLEXRuntimeController allBundleNames];
         _classesToMethods = nil;
@@ -289,7 +287,7 @@
     [self updateTable];
 }
 
-/// 在"返回"并再次激活搜索栏时恢复键路径
+/// 当返回并再次激活搜索栏时恢复键路径
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
     searchBar.text = self.keyPath.description;
 }
@@ -359,9 +357,9 @@
     } else if (self.bundlesOrClasses) {
         NSInteger count = self.bundlesOrClasses.count;
         if (self.keyPath.classKey) {
-            return FLEXPluralString(count, @"个类", @"个类");
+            return FLEXPluralString(count, @"类", @"类");
         } else {
-            return FLEXPluralString(count, @"个包", @"个包");
+            return FLEXPluralString(count, @"包", @"包");
         }
     }
 
@@ -398,9 +396,7 @@
             NSParameterAssert(cls);
             [self.delegate didSelectClass:cls];
         } else {
-            @throw [NSException exceptionWithName:NSInternalInconsistencyException 
-                                           reason:@"内部一致性异常：没有可用的类" 
-                                         userInfo:nil];
+            @throw NSInternalInconsistencyException;
         }
     }
 }

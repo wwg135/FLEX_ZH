@@ -6,8 +6,6 @@
 //  Copyright © 2017 Tanner Bennett. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXKeyboardToolbar.h"
 #import "FLEXUtility.h"
 
@@ -17,14 +15,14 @@
 
 @interface FLEXKeyboardToolbar ()
 
-/// 仿制工具栏的假顶部边框
+/// The fake top border to replicate the toolbar.
 @property (nonatomic) CALayer      *topBorder;
 @property (nonatomic) UIView       *toolbarView;
 @property (nonatomic) UIScrollView *scrollView;
 @property (nonatomic) UIVisualEffectView *blurView;
-/// 当外观设置为`default`时为YES
+/// YES if appearance is set to `default`
 @property (nonatomic, readonly) BOOL useSystemAppearance;
-/// 当当前特性集合设置为暗黑模式且\c useSystemAppearance为YES时为YES
+/// YES if the current trait collection is set to dark mode and \c useSystemAppearance is YES
 @property (nonatomic, readonly) BOOL usingDarkMode;
 @end
 
@@ -54,7 +52,7 @@
 - (void)setAppearance:(UIKeyboardAppearance)appearance {
     _appearance = appearance;
     
-    // 如果工具栏存在则移除，因为它将在下面重新创建
+    // Remove toolbar if it exits because it will be recreated below
     if (self.toolbarView) {
         [self.toolbarView removeFromSuperview];
     }
@@ -65,30 +63,30 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    // 布局顶部边框
+    // Layout top border
     CGRect frame = _toolbarView.bounds;
     frame.size.height = 0.5;
     _topBorder.frame = frame;
     
-    // 滚动视图 //
+    // Scroll view //
     
     frame = CGRectMake(0, 0, self.bounds.size.width, kToolbarHeight);
     CGSize contentSize = self.scrollView.contentSize;
     CGFloat scrollViewWidth = frame.size.width;
     
-    // 如果我们的内容尺寸小于滚动视图，
-    // 我们希望右对齐所有内容
+    // If our content size is smaller than the scroll view,
+    // we want to right-align all the content
     if (contentSize.width < scrollViewWidth) {
-        // 计算内容尺寸与滚动视图尺寸的差异
+        // Compute the content size to scroll view size difference
         UIEdgeInsets insets = self.scrollView.contentInset;
         CGFloat margin = insets.left + insets.right;
         CGFloat difference = scrollViewWidth - contentSize.width - margin;
-        // 更新内容尺寸为滚动视图的完整宽度
+        // Update the content size to be the full width of the scroll view
         contentSize.width += difference;
         self.scrollView.contentSize = contentSize;
         
-        // 按上述差异偏移每个按钮
-        // 使每个按钮右对齐显示
+        // Offset every button by the difference above
+        // so that every button appears right-aligned
         for (UIView *button in self.scrollView.subviews) {
             CGRect f = button.frame;
             f.origin.x += difference;
@@ -177,19 +175,19 @@
         
         [self.scrollView addSubview:button];
         
-        // originX跟踪下一个要添加的按钮的原点，
-        // 所以在这个循环的每次迭代结束时，我们将其增加
-        // 上一个按钮的大小加上一些间距
+        // originX tracks the origin of the next button to be added,
+        // so at the end of each iteration of this loop we increment
+        // it by the size of the last button with some padding
         originX += button.bounds.size.width + kButtonSpacing;
     }
     
-    // 更新contentSize，
-    // 设置为最后添加的按钮的最大x值
+    // Update contentSize,
+    // set to the max x value of the last button added
     CGSize contentSize = self.scrollView.contentSize;
     contentSize.width  = originX - kButtonSpacing;
     self.scrollView.contentSize = contentSize;
     
-    // 需要可能的右对齐按钮
+    // Needed to potentially right-align buttons
     [self setNeedsLayout];
 }
 
@@ -214,10 +212,10 @@
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previous {
     if (@available(iOS 12, *)) {
-        // 暗黑模式是否被切换？
+        // Was darkmode toggled?
         if (previous.userInterfaceStyle != self.traitCollection.userInterfaceStyle) {
             if (self.useSystemAppearance) {
-                // 使用正确的颜色重新创建背景视图
+                // Recreate the background view with the proper colors
                 self.appearance = self.appearance;
             }
         }

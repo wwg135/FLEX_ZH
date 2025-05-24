@@ -5,7 +5,6 @@
 //  Created by Ryan Olson on 2014-05-02.
 //  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXHierarchyTableViewCell.h"
 #import "FLEXUtility.h"
@@ -14,13 +13,13 @@
 
 @interface FLEXHierarchyTableViewCell ()
 
-/// 指示视图在层级中的深度
+/// 指示视图在层次结构中的深度
 @property (nonatomic) UIView *depthIndicatorView;
-/// 持有用于视觉上区分不同视图的颜色
+/// 持有视觉上区分不同视图的颜色
 @property (nonatomic) UIImageView *colorCircleImageView;
-/// 一个棋盘格图案视图，用于帮助显示视图的颜色，类似Photoshop的画布
+/// 一个棋盘格模式的视图，用于帮助显示视图的颜色，类似于Photoshop画布
 @property (nonatomic) UIView *backgroundColorCheckerPatternView;
-/// 棋盘格图案视图的子视图，用于显示视图的实际颜色
+/// 棋盘格模式视图的子视图，持有视图的实际颜色
 @property (nonatomic) UIView *viewBackgroundColorView;
 
 @end
@@ -46,7 +45,7 @@
         self.detailTextLabel.font = UIFont.flex_defaultTableCellFont;
         self.accessoryType = UITableViewCellAccessoryDetailButton;
         
-        // 使用基于图案的颜色来简化棋盘格图案的应用
+        // 使用基于模式的颜色以简化棋盘格模式的应用
         static UIColor *checkerPatternColor = nil;
         static dispatch_once_t once;
         dispatch_once(&once, ^{
@@ -69,8 +68,8 @@
     UIColor *originalColour = self.viewBackgroundColorView.backgroundColor;
     [super setHighlighted:highlighted animated:animated];
     
-    // UITableViewCell会将contentView中的所有子视图的backgroundColor设置为clearColor。
-    // 我们希望在高亮显示时保留层级背景颜色。
+    // UITableViewCell 会将 contentView 中的所有子视图的背景色更改为 clearColor。
+    // 我们希望在高亮显示时保留层次结构背景色。
     self.depthIndicatorView.backgroundColor = FLEXUtility.hierarchyIndentPatternColor;
     
     self.viewBackgroundColorView.backgroundColor = originalColour;
@@ -80,7 +79,7 @@
     UIColor *originalColour = self.viewBackgroundColorView.backgroundColor;
     [super setSelected:selected animated:animated];
     
-    // 参见上面的setHighlighted方法。
+    // 参见上面的 setHighlighted。
     self.depthIndicatorView.backgroundColor = FLEXUtility.hierarchyIndentPatternColor;
     
     self.viewBackgroundColorView.backgroundColor = originalColour;
@@ -105,29 +104,29 @@
         kContentPadding, 0, self.viewDepth * kDepthIndicatorWidthMultiplier, CGRectGetHeight(bounds)
     );
     
-    // 圆圈位于深度指示器之后，其中心Y等于textLabel的中心Y
+    // 圆圈在深度指示器后面，其中心Y = textLabel的中心Y
     CGRect circleFrame = self.colorCircleImageView.frame;
     circleFrame.origin.x = CGRectGetMaxX(depthIndicatorFrame) + kContentPadding;
     circleFrame.origin.y = FLEXFloor(textLabelCenterY - CGRectGetHeight(circleFrame) / 2.f);
     self.colorCircleImageView.frame = circleFrame;
     
-    // 文本标签位于随机颜色圆圈之后，宽度延伸到contentView的边缘
-    // 或延伸到颜色指示器视图前的内边距
+    // 文本标签位于随机颜色圆圈之后，宽度延伸到
+    // contentView的边缘或颜色指示器视图前的内边距
     CGRect textLabelFrame = self.textLabel.frame;
     CGFloat textOriginX = CGRectGetMaxX(circleFrame) + kContentPadding;
     textLabelFrame.origin.x = textOriginX;
     textLabelFrame.size.width = maxWidth - textOriginX;
     self.textLabel.frame = textLabelFrame;
     
-    // detailTextLabel的前缘与圆圈对齐，宽度延伸到
-    // 与textLabel相同的最大X位置
+    // detailTextLabel的前缘与圆圈对齐，
+    // 宽度延伸到与textLabel相同的最大X
     CGRect detailTextLabelFrame = self.detailTextLabel.frame;
     CGFloat detailOriginX = circleFrame.origin.x;
     detailTextLabelFrame.origin.x = detailOriginX;
     detailTextLabelFrame.size.width = maxWidth - detailOriginX;
     self.detailTextLabel.frame = detailTextLabelFrame;
     
-    // 棋盘格图案视图从textLabel的最大X之后的内边距开始，
+    // 棋盘格模式视图从textLabel的最大X之后的内边距开始，
     // 并在整个contentView内垂直居中
     self.backgroundColorCheckerPatternView.frame = CGRectMake(
         CGRectGetMaxX(self.textLabel.frame) + kContentPadding,
@@ -136,7 +135,7 @@
         kViewColorIndicatorSize
     );
     
-    // 背景颜色视图填充其父视图
+    // 背景色视图填充其父视图
     self.viewBackgroundColorView.frame = self.backgroundColorCheckerPatternView.bounds;
     self.backgroundColorCheckerPatternView.layer.cornerRadius = kViewColorIndicatorSize / 2.f;
 }
@@ -162,7 +161,7 @@
 - (void)setIndicatedViewColor:(UIColor *)color {
     self.viewBackgroundColorView.backgroundColor = color;
     
-    // 如果没有背景颜色则隐藏棋盘格图案视图
+    // 如果没有背景色，则隐藏棋盘格模式视图
     self.backgroundColorCheckerPatternView.hidden = color == nil;
     [self setNeedsLayout];
 }

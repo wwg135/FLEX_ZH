@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXObjectExplorerViewController.h
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 2014-05-03.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 2014-05-03.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #ifndef _FLEXObjectExplorerViewController_h
@@ -19,37 +18,37 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 一个显示对象或类信息的类。
 ///
-/// 浏览器视图控制器使用 \c FLEXObjectExplorer 来提供对象的描述，
-/// 并列出其属性、实例变量、方法及其超类。
-/// 在描述下方和属性之前，会显示某些类（如 UIView）的一些快捷方式。
-/// 在最底部，有一个选项可以查看发现引用正在浏览的对象的其他对象的列表。
+/// 探索器视图控制器使用 \c FLEXObjectExplorer 提供对象的描述，
+/// 并列出它的属性、实例变量、方法及其父类。
+/// 在描述下方和属性之前，某些类（如UIViews）会显示一些快捷方式。
+/// 在最底部，有一个选项可以查看其他引用正在探索的对象的对象列表。
 @interface FLEXObjectExplorerViewController : FLEXFilteringTableViewController
 
-/// 使用此对象的默认 \c FLEXShortcutsSection 作为自定义部分。
+/// 为此对象使用默认的 \c FLEXShortcutsSection 作为自定义部分。
 + (instancetype)exploringObject:(id)objectOrClass;
-/// 除非您提供一个，否则没有自定义部分。
+/// 除非您提供自定义部分，否则没有自定义部分。
 + (instancetype)exploringObject:(id)objectOrClass customSection:(nullable FLEXTableViewSection *)customSection;
-/// 除非您提供一些，否则没有自定义部分。
+/// 除非您提供一些自定义部分，否则没有自定义部分。
 + (instancetype)exploringObject:(id)objectOrClass
                  customSections:(nullable NSArray<FLEXTableViewSection *> *)customSections;
 
-/// 正在浏览的对象，可能是一个类的实例或类本身。
+/// 正在探索的对象，可能是类的实例或类本身。
 @property (nonatomic, readonly) id object;
-/// 此对象为浏览器视图控制器提供对象的元数据。
+/// 该对象为探索器视图控制器提供对象的元数据。
 @property (nonatomic, readonly) FLEXObjectExplorer *explorer;
 
-/// 调用一次以初始化部分对象列表。
+/// 初始化部分对象列表时调用一次。
 ///
-/// 子类可以重写此方法以添加、删除或重新排列浏览器的各个部分。
+/// 子类可以重写此方法来添加、删除或重新排列探索器的部分。
 - (NSArray<FLEXTableViewSection *> *)makeSections;
 
-/// 是否允许显示/深入查看实例变量和属性的当前值。默认为 YES。
+/// 是否允许显示/深入查看实例变量和属性的当前值。默认为YES。
 @property (nonatomic, readonly) BOOL canHaveInstanceState;
 
-/// 是否允许深入查看实例方法的方法调用界面。默认为 YES。
+/// 是否允许深入查看实例方法的方法调用接口。默认为YES。
 @property (nonatomic, readonly) BOOL canCallInstanceMethods;
 
-/// 如果自定义部分数据使描述变得多余，子类可以选择隐藏它。默认为 YES。
+/// 如果自定义部分数据使描述变得多余，子类可以选择隐藏它。默认为YES。
 @property (nonatomic, readonly) BOOL shouldShowDescription;
 
 @end

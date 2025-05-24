@@ -2,10 +2,9 @@
 //  FLEXDBQueryRowCell.m
 //  FLEX
 //
-//  创建者：Peng Tao，日期：15/11/24.
-//  版权所有 © 2015年 f。保留所有权利。
+//  Created by Peng Tao on 15/11/24.
+//  Copyright © 2015年 f. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXDBQueryRowCell.h"
 #import "FLEXMultiColumnTableView.h"
@@ -32,7 +31,7 @@ NSString * const kFLEXDBQueryRowCellReuse = @"kFLEXDBQueryRowCellReuse";
         if ([content isKindOfClass:[NSString class]]) {
             label.text = content;
         } else if (content == NSNull.null) {
-            label.text = @"<null>"; // <null> 是特殊标记，保持不变
+            label.text = @"<null>";
             label.textColor = FLEXColor.deemphasizedTextColor;
         } else {
             label.text = [content description];
@@ -44,12 +43,12 @@ NSString * const kFLEXDBQueryRowCellReuse = @"kFLEXDBQueryRowCellReuse";
     if (columnCount != _columnCount) {
         _columnCount = columnCount;
         
-        // 移除现有的标签
+        // Remove existing labels
         for (UILabel *l in self.labels) {
             [l removeFromSuperview];
         }
         
-        // 创建新的标签
+        // Create new labels
         self.labels = [NSArray flex_forEachUpTo:columnCount map:^id(NSUInteger i) {
             UILabel *label = [UILabel new];
             label.font = UIFont.flex_defaultTableCellFont;

@@ -2,10 +2,9 @@
 //  FLEXExplorerToolbar.m
 //  Flipboard
 //
-//  创建者：Ryan Olson，日期：4/4/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 4/4/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXColor.h"
 #import "FLEXExplorerToolbar.h"
@@ -39,12 +38,12 @@
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        // 背景
+        // Background
         self.backgroundView = [UIView new];
         self.backgroundView.backgroundColor = [FLEXColor secondaryBackgroundColorWithAlpha:0.95];
         [self addSubview:self.backgroundView];
 
-        // 拖动句柄
+        // Drag handle
         self.dragHandle = [UIView new];
         self.dragHandle.backgroundColor = UIColor.clearColor;
         self.dragHandleImageView = [[UIImageView alloc] initWithImage:FLEXResources.dragHandle];
@@ -52,15 +51,16 @@
         [self.dragHandle addSubview:self.dragHandleImageView];
         [self addSubview:self.dragHandle];
         
-        // 按钮
+        // Buttons
         self.globalsItem   = [FLEXExplorerToolbarItem itemWithTitle:@"菜单" image:FLEXResources.globalsIcon];
-        self.hierarchyItem = [FLEXExplorerToolbarItem itemWithTitle:@"层级" image:FLEXResources.hierarchyIcon];
+        self.hierarchyItem = [FLEXExplorerToolbarItem itemWithTitle:@"视图" image:FLEXResources.hierarchyIcon];
         self.selectItem    = [FLEXExplorerToolbarItem itemWithTitle:@"选择" image:FLEXResources.selectIcon];
         self.recentItem    = [FLEXExplorerToolbarItem itemWithTitle:@"最近" image:FLEXResources.recentIcon];
-        self.moveItem      = [FLEXExplorerToolbarItem itemWithTitle:@"移动" image:FLEXResources.moveIcon];
+        self.moveItem      = [FLEXExplorerToolbarItem itemWithTitle:@"移动" image:FLEXResources.moveIcon sibling:self.recentItem];
         self.closeItem     = [FLEXExplorerToolbarItem itemWithTitle:@"关闭" image:FLEXResources.closeIcon];
 
-        // 选定视图框
+        // Selected view box //
+        
         self.selectedViewDescriptionContainer = [UIView new];
         self.selectedViewDescriptionContainer.backgroundColor = [FLEXColor tertiaryBackgroundColorWithAlpha:0.95];
         self.selectedViewDescriptionContainer.hidden = YES;
@@ -79,7 +79,7 @@
         self.selectedViewDescriptionLabel.font = [[self class] descriptionLabelFont];
         [self.selectedViewDescriptionSafeAreaContainer addSubview:self.selectedViewDescriptionLabel];
         
-        // 工具栏项目
+        // toolbarItems
         self.toolbarItems = @[_globalsItem, _hierarchyItem, _selectItem, _moveItem, _closeItem];
     }
 
@@ -89,8 +89,9 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
 
+
     CGRect safeArea = [self safeArea];
-    // 拖动句柄
+    // Drag Handle
     const CGFloat kToolbarItemHeight = [[self class] toolbarItemHeight];
     self.dragHandle.frame = CGRectMake(CGRectGetMinX(safeArea), CGRectGetMinY(safeArea), [[self class] dragHandleWidth], kToolbarItemHeight);
     CGRect dragHandleImageFrame = self.dragHandleImageView.frame;
@@ -98,7 +99,8 @@
     dragHandleImageFrame.origin.y = FLEXFloor((self.dragHandle.frame.size.height - dragHandleImageFrame.size.height) / 2.0);
     self.dragHandleImageView.frame = dragHandleImageFrame;
     
-    // 工具栏项目
+    
+    // Toolbar Items
     CGFloat originX = CGRectGetMaxX(self.dragHandle.frame);
     CGFloat originY = CGRectGetMinY(safeArea);
     CGFloat height = kToolbarItemHeight;
@@ -108,7 +110,7 @@
         originX = CGRectGetMaxX(toolbarItem.currentItem.frame);
     }
     
-    // 确保最后一个工具栏项目延伸到边缘，以弥补任何累积的舍入效应。
+    // Make sure the last toolbar item goes to the edge to account for any accumulated rounding effects.
     UIView *lastToolbarItem = self.toolbarItems.lastObject.currentItem;
     CGRect lastToolbarItemFrame = lastToolbarItem.frame;
     lastToolbarItemFrame.size.width = CGRectGetMaxX(safeArea) - lastToolbarItemFrame.origin.x;
@@ -136,7 +138,7 @@
     descriptionSafeAreaContainerFrame.origin.y = CGRectGetMinY(safeArea);
     self.selectedViewDescriptionSafeAreaContainer.frame = descriptionSafeAreaContainerFrame;
 
-    // 选定视图颜色
+    // Selected View Color
     CGRect selectedViewColorFrame = CGRectZero;
     selectedViewColorFrame.size.width = kSelectedViewColorDiameter;
     selectedViewColorFrame.size.height = kSelectedViewColorDiameter;
@@ -145,7 +147,7 @@
     self.selectedViewColorIndicator.frame = selectedViewColorFrame;
     self.selectedViewColorIndicator.layer.cornerRadius = ceil(selectedViewColorFrame.size.height / 2.0);
     
-    // 选定视图描述
+    // Selected View Description
     CGRect descriptionLabelFrame = CGRectZero;
     CGFloat descriptionOriginX = CGRectGetMaxX(selectedViewColorFrame) + kHorizontalPadding;
     descriptionLabelFrame.size.height = kDescriptionLabelHeight;
@@ -156,19 +158,19 @@
 }
 
 
-#pragma mark - Setter 重写
+#pragma mark - Setter Overrides
 
 - (void)setToolbarItems:(NSArray<FLEXExplorerToolbarItem *> *)toolbarItems {
     if (_toolbarItems == toolbarItems) {
         return;
     }
     
-    // 移除旧的工具栏项目（如果有）
+    // Remove old toolbar items, if any
     for (FLEXExplorerToolbarItem *item in _toolbarItems) {
         [item.currentItem removeFromSuperview];
     }
     
-    // 如果需要，修剪到 5 个项目
+    // Trim to 5 items if necessary
     if (toolbarItems.count > 5) {
         toolbarItems = [toolbarItems subarrayWithRange:NSMakeRange(0, 5)];
     }
@@ -179,7 +181,7 @@
 
     _toolbarItems = toolbarItems.copy;
 
-    // 布局新项目
+    // Lay out new items
     [self setNeedsLayout];
     [self layoutIfNeeded];
 }
@@ -201,7 +203,7 @@
 }
 
 
-#pragma mark - 尺寸便利方法
+#pragma mark - Sizing Convenience Methods
 
 + (UIFont *)descriptionLabelFont {
     return [UIFont systemFontOfSize:12.0];

@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXUtility.m
 //  Flipboard
 //
 //  由 Ryan Olson 创建于 4/18/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
+//
 
 #import "FLEXColor.h"
 #import "FLEXUtility.h"
@@ -35,43 +35,44 @@ BOOL FLEXConstructorsShouldRun(void) {
 @implementation FLEXUtility
 
 + (UIWindow *)appKeyWindow {
-    if (@available(iOS 13.0, *)) {
-        UIWindowScene *scene = [self activeScene];
-        return scene.windows.firstObject;
+    // 首先，检查 UIApplication.keyWindow
+    FLEXWindow *window = (id)UIApplication.sharedApplication.keyWindow;
+    if (window) {
+        if ([window isKindOfClass:[FLEXWindow class]]) {
+            return window.previousKeyWindow;
+        }
+        
+        return window;
     }
-    return [[UIApplication sharedApplication].delegate window];
+    
+    // 从 iOS 13 开始，UIApplication.keyWindow 不会返回 nil，
+    // 因此这更像是一个防止将来返回 nil 的安全保障。
+    //
+    // 此外，这些显然不全是 FLEXWindows；使用 FLEXWindow 
+    // 是为了我们可以调用 window.previousKeyWindow 而不需要丑陋的类型转换
+    for (FLEXWindow *window in UIApplication.sharedApplication.windows) {
+        if (window.isKeyWindow) {
+            if ([window isKindOfClass:[FLEXWindow class]]) {
+                return window.previousKeyWindow;
+            }
+            
+            return window;
+        }
+    }
+    
+    return nil;
 }
 
-+ (UIWindowScene *)activeScene API_AVAILABLE(ios(13.0)) {
++ (UIWindowScene *)activeScene {
     for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+        // 寻找活跃的 UIWindowScene
         if (scene.activationState == UISceneActivationStateForegroundActive &&
             [scene isKindOfClass:[UIWindowScene class]]) {
             return (UIWindowScene *)scene;
         }
     }
+    
     return nil;
-}
-
-+ (UIWindow *)currentWindow {
-    UIWindow *window = nil;
-    
-    if (@available(iOS 13.0, *)) {
-        // 遍历所有场景以找到合适的窗口
-        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
-            if ([scene isKindOfClass:[UIWindowScene class]]) {
-                UIWindowScene *windowScene = (UIWindowScene *)scene;
-                window = windowScene.windows.firstObject;
-                if (window) break;
-            }
-        }
-    }
-    
-    // 降级处理
-    if (!window) {
-        window = [[UIApplication sharedApplication].delegate window];
-    }
-    
-    return window;
 }
 
 + (UIViewController *)topViewControllerInWindow:(UIWindow *)window {
@@ -114,19 +115,11 @@ BOOL FLEXConstructorsShouldRun(void) {
 }
 
 + (UIViewController *)viewControllerForView:(UIView *)view {
-    UIResponder *responder = view;
-    while ((responder = [responder nextResponder])) {
-        if ([responder isKindOfClass:[UIViewController class]]) {
-            return (UIViewController *)responder;
-        }
+    NSString *viewDelegate = @"_viewDelegate";
+    if ([view respondsToSelector:NSSelectorFromString(viewDelegate)]) {
+        return [view valueForKey:viewDelegate];
     }
-    
-    // 如果没有通过响应链找到，尝试使用相关 API
-    // 例如 _viewControllerForAncestor 方法
-    if ([self respondsToSelector:@selector(viewControllerForAncestralView:)]) {
-        return [self viewControllerForAncestralView:view];
-    }
-    
+
     return nil;
 }
 
@@ -198,7 +191,7 @@ BOOL FLEXConstructorsShouldRun(void) {
             UIImage *darkModePatternImage = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
 
-            // 创建动态颜色提供程序
+            // 创建动态颜色提供者
             patternColor = [UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *traitCollection) {
                 return (traitCollection.userInterfaceStyle == UIUserInterfaceStyleLight
                         ? [UIColor colorWithPatternImage:indentationPatternImage]
@@ -319,7 +312,7 @@ BOOL FLEXConstructorsShouldRun(void) {
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         NSString *statusCodeDescription = nil;
         if (httpResponse.statusCode == 200) {
-            // 更倾向于使用 OK 而不是默认的 "no error"
+            // 优先使用 OK 而不是默认的 "no error"
             statusCodeDescription = @"OK";
         } else {
             statusCodeDescription = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
@@ -370,7 +363,7 @@ BOOL FLEXConstructorsShouldRun(void) {
             encoding:NSUTF8StringEncoding
         ];
         // NSJSONSerialization 会转义正斜杠。
-        // 我们想要漂亮的 JSON，所以遍历并取消转义斜杠。
+        // 我们希望得到美观的 json，所以遍历并取消转义这些斜杠。
         prettyString = [prettyString stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"];
     } else {
         prettyString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -426,25 +419,27 @@ BOOL FLEXConstructorsShouldRun(void) {
 }
 
 + (NSArray<UIWindow *> *)allWindows {
-    NSMutableArray<UIWindow *> *windows = [NSMutableArray array];
-    
-    if (@available(iOS 13.0, *)) {
-        // 从所有激活的场景中收集窗口
-        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
-            if ([scene isKindOfClass:[UIWindowScene class]]) {
-                UIWindowScene *windowScene = (UIWindowScene *)scene;
-                [windows addObjectsFromArray:windowScene.windows];
-            }
-        }
-    } else {
-        // 降级处理
-        UIWindow *window = [[UIApplication sharedApplication].delegate window];
-        if (window) {
-            [windows addObject:window];
-        }
-    }
-    
-    return [windows copy];
+    BOOL includeInternalWindows = YES;
+    BOOL onlyVisibleWindows = NO;
+
+    // 混淆选择器 allWindowsIncludingInternalWindows:onlyVisibleWindows:
+    NSArray<NSString *> *allWindowsComponents = @[
+        @"al", @"lWindo", @"wsIncl", @"udingInt", @"ernalWin", @"dows:o", @"nlyVisi", @"bleWin", @"dows:"
+    ];
+    SEL allWindowsSelector = NSSelectorFromString([allWindowsComponents componentsJoinedByString:@""]);
+
+    NSMethodSignature *methodSignature = [[UIWindow class] methodSignatureForSelector:allWindowsSelector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+
+    invocation.target = [UIWindow class];
+    invocation.selector = allWindowsSelector;
+    [invocation setArgument:&includeInternalWindows atIndex:2];
+    [invocation setArgument:&onlyVisibleWindows atIndex:3];
+    [invocation invoke];
+
+    __unsafe_unretained NSArray<UIWindow *> *windows = nil;
+    [invocation getReturnValue:&windows];
+    return windows;
 }
 
 + (UIAlertController *)alert:(NSString *)title message:(NSString *)message {
@@ -489,7 +484,7 @@ BOOL FLEXConstructorsShouldRun(void) {
                                      onClass:(Class)class
                                    withBlock:(id)block
                             swizzledSelector:(SEL)swizzledSelector {
-    // 此方法仅用于混淆类中已知存在的方法。
+    // 此方法仅用于交换已知存在于类上的方法。
     // 如果不是这种情况，则退出。
     Method originalMethod = class_getInstanceMethod(class, originalSelector);
     if (!originalMethod) {
@@ -527,28 +522,12 @@ BOOL FLEXConstructorsShouldRun(void) {
         method_exchangeImplementations(oldMethod, newMethod);
     } else {
         if (!types) {
-            // 某些协议方法描述没有填充 .types
-            // 将返回类型设置为空并忽略参数
+            // 有些协议方法描述没有填充 .types
+            // 将返回类型设置为 void 并忽略参数
             types = "v@:";
         }
         class_addMethod(cls, selector, implementation, types);
     }
-}
-
-+ (void)showError:(NSError *)error {
-    [FLEXAlert makeAlert:^(FLEXAlert *make) {
-        make.title(@"发生错误");
-        make.message(error.localizedDescription ?: @"未知错误");
-        make.button(@"知道了").cancelStyle();
-    }];
-}
-
-+ (void)showWarning:(NSString *)message {
-    [FLEXAlert makeAlert:^(FLEXAlert *make) {
-        make.title(@"警告");
-        make.message(message);
-        make.button(@"我知道了").cancelStyle(); 
-    }];
 }
 
 @end

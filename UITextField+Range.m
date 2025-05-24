@@ -4,7 +4,6 @@
 //
 //  Created by Tanner on 6/13/17.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "UITextField+Range.h"
 

@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXManager+Extensibility.m
 //  FLEX
 //
-//  由 Tanner 创建于 2/2/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 2/2/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
+//
 
 #import "FLEXManager+Extensibility.h"
 #import "FLEXManager+Private.h"
@@ -24,12 +24,12 @@
 
 @implementation FLEXManager (Extensibility)
 
-#pragma mark - Globals Screen Entries
+#pragma mark - 全局屏幕条目
 
 - (void)registerGlobalEntryWithName:(NSString *)entryName objectFutureBlock:(id (^)(void))objectFutureBlock {
     NSParameterAssert(entryName);
     NSParameterAssert(objectFutureBlock);
-    NSAssert(NSThread.isMainThread, @"This method must be called from the main thread.");
+    NSAssert(NSThread.isMainThread, @"此方法必须从主线程调用。");
 
     entryName = entryName.copy;
     FLEXGlobalsEntry *entry = [FLEXGlobalsEntry entryWithNameFuture:^NSString *{
@@ -44,14 +44,14 @@
 - (void)registerGlobalEntryWithName:(NSString *)entryName viewControllerFutureBlock:(UIViewController * (^)(void))viewControllerFutureBlock {
     NSParameterAssert(entryName);
     NSParameterAssert(viewControllerFutureBlock);
-    NSAssert(NSThread.isMainThread, @"This method must be called from the main thread.");
+    NSAssert(NSThread.isMainThread, @"此方法必须从主线程调用。");
 
     entryName = entryName.copy;
     FLEXGlobalsEntry *entry = [FLEXGlobalsEntry entryWithNameFuture:^NSString *{
         return entryName;
     } viewControllerFuture:^UIViewController *{
         UIViewController *viewController = viewControllerFutureBlock();
-        NSCAssert(viewController, @"'%@' entry returned nil viewController. viewControllerFutureBlock should never return nil.", entryName);
+        NSCAssert(viewController, @"'%@' 条目返回了空的 viewController。viewControllerFutureBlock 不应返回 nil。", entryName);
         return viewController;
     }];
 
@@ -61,7 +61,7 @@
 - (void)registerGlobalEntryWithName:(NSString *)entryName action:(FLEXGlobalsEntryRowAction)rowSelectedAction {
     NSParameterAssert(entryName);
     NSParameterAssert(rowSelectedAction);
-    NSAssert(NSThread.isMainThread, @"This method must be called from the main thread.");
+    NSAssert(NSThread.isMainThread, @"此方法必须从主线程调用。");
     
     entryName = entryName.copy;
     FLEXGlobalsEntry *entry = [FLEXGlobalsEntry entryWithNameFuture:^NSString * _Nonnull{
@@ -76,14 +76,14 @@
 }
 
 
-#pragma mark - Editing
+#pragma mark - 编辑
 
 + (void)registerFieldNames:(NSArray<NSString *> *)names forTypeEncoding:(NSString *)typeEncoding {
     [FLEXArgumentInputStructView registerFieldNames:names forTypeEncoding:typeEncoding];
 }
 
 
-#pragma mark - Simulator Shortcuts
+#pragma mark - 模拟器快捷键
 
 - (void)registerSimulatorShortcutWithKey:(NSString *)key modifiers:(UIKeyModifierFlags)modifiers action:(dispatch_block_t)action description:(NSString *)description {
 #if TARGET_OS_SIMULATOR
@@ -106,11 +106,11 @@
 }
 
 
-#pragma mark - Shortcuts Defaults
+#pragma mark - 快捷键默认设置
 
 - (void)registerDefaultSimulatorShortcutWithKey:(NSString *)key modifiers:(UIKeyModifierFlags)modifiers action:(dispatch_block_t)action description:(NSString *)description {
 #if TARGET_OS_SIMULATOR
-    // 不要允许覆盖以避免更改应用程序注册的键
+    // 不允许覆盖，以避免更改应用程序注册的键
     [FLEXKeyboardShortcutManager.sharedManager registerSimulatorShortcutWithKey:key modifiers:modifiers action:action description:description allowOverride:NO];
 #endif
 }
@@ -128,7 +128,7 @@
     [self registerDefaultSimulatorShortcutWithKey:@"v" modifiers:0 action:^{
         [self showExplorerIfNeeded];
         [self.explorerViewController toggleViewsTool];
-    } description:@"切换视图层次菜单"];
+    } description:@"切换视图层次结构菜单"];
 
     [self registerDefaultSimulatorShortcutWithKey:@"s" modifiers:0 action:^{
         [self showExplorerIfNeeded];
@@ -148,13 +148,13 @@
         if (self.isHidden || ![self.explorerViewController handleDownArrowKeyPressed]) {
             [self tryScrollDown];
         }
-    } description:@"循环视图选择\n\t\t向下移动视图\n\t\t向下滚动"];
+    } description:@"循环选择视图\n\t\t向下移动视图\n\t\t向下滚动"];
 
     [self registerDefaultSimulatorShortcutWithKey:UIKeyInputUpArrow modifiers:0 action:^{
         if (self.isHidden || ![self.explorerViewController handleUpArrowKeyPressed]) {
             [self tryScrollUp];
         }
-    } description:@"循环视图选择\n\t\t向上移动视图\n\t\t向上滚动"];
+    } description:@"循环选择视图\n\t\t向上移动视图\n\t\t向上滚动"];
 
     [self registerDefaultSimulatorShortcutWithKey:UIKeyInputRightArrow modifiers:0 action:^{
         if (!self.isHidden) {
@@ -172,7 +172,7 @@
 
     [self registerDefaultSimulatorShortcutWithKey:@"?" modifiers:0 action:^{
         [self toggleTopViewControllerOfClass:[FLEXKeyboardHelpViewController class]];
-    } description:@"切换(当前)帮助菜单"];
+    } description:@"切换（当前）帮助菜单"];
 
     [self registerDefaultSimulatorShortcutWithKey:UIKeyInputEscape modifiers:0 action:^{
         [[self.topViewController presentingViewController] dismissViewControllerAnimated:YES completion:nil];
@@ -190,7 +190,7 @@
 }
 
 
-#pragma mark - Private
+#pragma mark - 私有方法
 
 - (UIEdgeInsets)contentInsetsOfScrollView:(UIScrollView *)scrollView {
     if (@available(iOS 11, *)) {
@@ -245,11 +245,7 @@
 }
 
 - (UIViewController *)topViewController {
-    UIWindowScene *scene = FLEXUtility.activeScene;
-    if (scene && scene.windows.firstObject) {
-        return [FLEXUtility topViewControllerInWindow:scene.windows.firstObject];
-    }
-    return nil;
+    return [FLEXUtility topViewControllerInWindow:UIApplication.sharedApplication.keyWindow];
 }
 
 - (void)toggleTopViewControllerOfClass:(Class)class {
@@ -257,18 +253,18 @@
     if ([topViewController isKindOfClass:[FLEXNavigationController class]]) {
         if ([topViewController.topViewController isKindOfClass:[class class]]) {
             if (topViewController.viewControllers.count == 1) {
-                // 由于我们已经显示它，所以关闭
+                // 因为已经在显示它，所以关闭
                 [topViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
             } else {
-                // 弹出，因为我们正在查看它，但它不是堆栈上的唯一内容
+                // 弹出，因为我们正在查看它，但它不是栈上唯一的内容
                 [topViewController popViewControllerAnimated:YES];
             }
         } else {
-            // 将其推送到现有的导航堆栈上
+            // 将其推送到现有导航栈中
             [topViewController pushViewController:[class new] animated:YES];
         }
     } else {
-        // 在一个全新的导航控制器中显示它
+        // 在全新的导航控制器中呈现它
         [self.explorerViewController presentViewController:
             [FLEXNavigationController withRootViewController:[class new]]
         animated:YES completion:nil];

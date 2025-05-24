@@ -2,10 +2,9 @@
 //  FLEXArgumentInputView.m
 //  Flipboard
 //
-//  创建者：Ryan Olson，日期：5/30/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 5/30/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXArgumentInputView.h"
 #import "FLEXUtility.h"
@@ -76,7 +75,7 @@
 }
 
 
-#pragma mark - Subclasses Can Override // 子类可以覆盖
+#pragma mark - Subclasses Can Override
 
 - (BOOL)inputViewIsFirstResponder {
     return NO;
@@ -87,7 +86,7 @@
 }
 
 
-#pragma mark - Class Helpers // 类助手方法
+#pragma mark - Class Helpers
 
 + (UIFont *)titleFont {
     return [UIFont systemFontOfSize:12.0];
@@ -98,7 +97,7 @@
 }
 
 
-#pragma mark - Sizing // 尺寸调整
+#pragma mark - Sizing
 
 - (CGSize)sizeThatFits:(CGSize)size {
     CGFloat height = 0;

@@ -3,10 +3,8 @@
 //  FLEX
 //
 //  由 Tanner 创建于 7/5/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXTableViewController.h"
 #import "FLEXExplorerViewController.h"
@@ -52,7 +50,12 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
 #pragma mark - 初始化
 
 - (id)init {
-    self = [self initWithStyle:UITableViewStyleGrouped];
+    if (@available(iOS 13.0, *)) {
+        self = [self initWithStyle:UITableViewStyleInsetGrouped];
+    } else {
+        self = [self initWithStyle:UITableViewStyleGrouped];
+    }
+    
     return self;
 }
 
@@ -67,7 +70,7 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
             NSProcessInfo.processInfo.operatingSystemVersion.majorVersion < 11
         );
         
-        // 如果我们实现此方法，我们将成为自己的搜索委托
+        // 如果我们实现了这个方法，我们将成为自己的搜索委托
         if ([self respondsToSelector:@selector(updateSearchResults:)]) {
             self.searchDelegate = (id)self;
         }
@@ -77,7 +80,7 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
 }
 
 
-#pragma mark - 公开
+#pragma mark - 公共方法
 
 - (FLEXWindow *)window {
     return (id)self.view.window;
@@ -93,15 +96,24 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
         self.searchController.searchBar.placeholder = @"筛选";
         self.searchController.searchResultsUpdater = (id)self;
         self.searchController.delegate = (id)self;
-        self.searchController.obscuresBackgroundDuringPresentation = NO;
+        if (@available(iOS 9.1, *)) {
+            self.searchController.obscuresBackgroundDuringPresentation = NO;
+        } else {
+            self.searchController.dimsBackgroundDuringPresentation = NO;
+        }
         self.searchController.hidesNavigationBarDuringPresentation = NO;
+        /// iOS 13中不需要；当iOS 13成为最低部署目标时移除此项
         self.searchController.searchBar.delegate = self;
 
         self.automaticallyShowsSearchBarCancelButton = YES;
+
+        if (@available(iOS 13, *)) {
+            self.searchController.automaticallyShowsScopeBar = NO;
+        }
         
         [self addSearchController:self.searchController];
     } else {
-        // 搜索已显示且刚设置为 NO，因此将其移除
+        // 搜索已显示且刚设置为NO，所以移除它
         [self removeSearchController:self.searchController];
     }
 }
@@ -118,7 +130,7 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
                 [self.searchDelegate updateSearchResults:self.searchText];
             };
 
-            // 除非重置表头视图，否则 UITableView 不会更新表头大小
+            // UITableView除非重置表头视图，否则不会更新表头大小
             [carousel registerBlockForDynamicTypeChanges:^(FLEXScopeCarousel *_) { strongify(self);
                 [self layoutTableHeaderIfNeeded];
             }];
@@ -127,7 +139,7 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
         });
         [self addCarousel:_carousel];
     } else {
-        // 轮播已显示且刚设置为 NO，因此将其移除
+        // 轮播已显示且刚设置为NO，所以移除它
         [self removeCarousel:_carousel];
     }
 }
@@ -157,10 +169,18 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
 }
 
 - (BOOL)automaticallyShowsSearchBarCancelButton {
+    if (@available(iOS 13, *)) {
+        return self.searchController.automaticallyShowsCancelButton;
+    }
+
     return _automaticallyShowsSearchBarCancelButton;
 }
 
 - (void)setAutomaticallyShowsSearchBarCancelButton:(BOOL)value {
+    if (@available(iOS 13, *)) {
+        self.searchController.automaticallyShowsCancelButton = value;
+    }
+
     _automaticallyShowsSearchBarCancelButton = value;
 }
 
@@ -217,11 +237,29 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
     // 工具栏
     self.navigationController.toolbarHidden = self.toolbarItems.count > 0;
     self.navigationController.hidesBarsOnSwipe = YES;
+
+    // 在iOS 13上，无论如何根视图控制器都会显示其搜索栏。
+    // 关闭此选项可以避免导航栏在我们切换navigationItem.hidesSearchBarWhenScrolling
+    // 开关时产生的一些奇怪闪烁。闪烁仍会在后续视图控制器上发生，
+    // 但至少我们可以避免它出现在根视图控制器上
+    if (@available(iOS 13, *)) {
+        if (self.navigationController.viewControllers.firstObject == self) {
+            _showSearchBarInitially = NO;
+        }
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    if (@available(iOS 11.0, *)) {
+        // 回退时，使搜索栏重新出现而不是隐藏
+        if ((self.pinSearchBar || self.showSearchBarInitially) && !self.didInitiallyRevealSearchBar) {
+            self.navigationItem.hidesSearchBarWhenScrolling = NO;
+        }
+    }
+    
+    // 使键盘看起来出现得更快
     if (self.activatesSearchBarAutomatically) {
         [self makeKeyboardAppearNow];
     }
@@ -231,14 +269,28 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+
+    // 允许滚动收起搜索栏，但仅当我们不想固定它时
+    if (@available(iOS 11.0, *)) {
+        if (self.showSearchBarInitially && !self.pinSearchBar && !self.didInitiallyRevealSearchBar) {
+            // 所有这些繁琐操作都是为了解决iOS 13至13.2中的一个错误
+            // 快速切换navigationItem.hidesSearchBarWhenScrolling使搜索栏
+            // 初始出现会导致搜索栏出现错误，变成透明并随着滚动浮动在屏幕上
+            [UIView animateWithDuration:0.2 animations:^{
+                self.navigationItem.hidesSearchBarWhenScrolling = YES;
+                [self.navigationController.view setNeedsLayout];
+                [self.navigationController.view layoutIfNeeded];
+            }];
+        }
+    }
     
     if (self.activatesSearchBarAutomatically) {
-        // 键盘已出现，现在我们调用此方法，因为我们很快就会显示搜索栏
+        // 键盘已出现，现在我们调用这个因为我们即将呈现搜索栏
         [self removeDummyTextField];
         
         // 激活搜索栏
         dispatch_async(dispatch_get_main_queue(), ^{
-            // 除非将其包装在此 dispatch_async 调用中，否则此操作无效
+            // 除非包装在这个dispatch_async调用中，否则这不起作用
             [self.searchController.searchBar becomeFirstResponder];
         });
     }
@@ -257,12 +309,13 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
 
 - (void)didMoveToParentViewController:(UIViewController *)parent {
     [super didMoveToParentViewController:parent];
-    // 重置此项，因为我们正在新的父视图控制器下重新出现，需要再次显示它
+    // 重置此项，因为我们正在新的父视图控制器下重新出现，
+    // 需要再次显示它
     self.didInitiallyRevealSearchBar = NO;
 }
 
 
-#pragma mark - 工具栏，公开
+#pragma mark - 工具栏，公共方法
 
 - (void)setupToolbarItems {
     if (!self.isViewLoaded) {
@@ -283,11 +336,11 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
     
     for (UIBarButtonItem *item in self.toolbarItems) {
         [item _setWidth:60];
-        // 由于某种原因，这仅对固定间距有效
+        // 这对除固定空间外的任何项都不起作用
         // item.width = 60;
     }
     
-    // 当不由 FLEXExplorerViewController呈现时，完全禁用选项卡
+    // 当不是由FLEXExplorerViewController呈现时完全禁用标签
     UIViewController *presenter = self.navigationController.presentingViewController;
     if (![presenter isKindOfClass:[FLEXExplorerViewController class]]) {
         self.openTabsToolbarItem.enabled = NO;
@@ -324,14 +377,14 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
         _showsShareToolbarItem = showShare;
         
         if (showShare) {
-            // 推出最左边的项目
+            // 推出最左边的项
             self.leftmostToolbarItem = self.middleLeftToolbarItem;
             self.middleLeftToolbarItem = self.middleToolbarItem;
             
-            // 中间使用分享按钮
+            // 在中间使用分享
             self.middleToolbarItem = self.shareToolbarItem;
         } else {
-            // 移除分享按钮，将自定义项目向右移动
+            // 移除分享，将自定义项向右移动
             self.middleToolbarItem = self.middleLeftToolbarItem;
             self.middleLeftToolbarItem = self.leftmostToolbarItem;
             self.leftmostToolbarItem = UIBarButtonItem.flex_fixedSpace;
@@ -346,7 +399,7 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
 }
 
 
-#pragma mark - 私有
+#pragma mark - 私有方法
 
 - (void)debounce:(void(^)(void))block {
     [self.debounceTimer invalidate];
@@ -371,46 +424,77 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
 }
 
 - (void)addCarousel:(FLEXScopeCarousel *)carousel {
-    self.tableView.tableHeaderView = carousel;
+    if (@available(iOS 11.0, *)) {
+        self.tableView.tableHeaderView = carousel;
+    } else {
+        carousel.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+        
+        CGRect frame = self.tableHeaderViewContainer.frame;
+        CGRect subviewFrame = carousel.frame;
+        subviewFrame.origin.y = 0;
+        
+        // 如果搜索栏已经存在，将轮播放在搜索栏下方
+        if (self.showsSearchBar) {
+            carousel.frame = subviewFrame = FLEXRectSetY(
+                subviewFrame, self.searchController.searchBar.frame.size.height
+            );
+            frame.size.height += carousel.intrinsicContentSize.height;
+        } else {
+            frame.size.height = carousel.intrinsicContentSize.height;
+        }
+        
+        self.tableHeaderViewContainer.frame = frame;
+        [self.tableHeaderViewContainer addSubview:carousel];
+    }
+    
     [self layoutTableHeaderIfNeeded];
 }
 
 - (void)removeCarousel:(FLEXScopeCarousel *)carousel {
     [carousel removeFromSuperview];
     
-    if (self.showsSearchBar) {
-        [self removeSearchController:self.searchController];
-        [self addSearchController:self.searchController];
-    } else {
+    if (@available(iOS 11.0, *)) {
         self.tableView.tableHeaderView = nil;
-        _tableHeaderViewContainer = nil;
+    } else {
+        if (self.showsSearchBar) {
+            [self removeSearchController:self.searchController];
+            [self addSearchController:self.searchController];
+        } else {
+            self.tableView.tableHeaderView = nil;
+            _tableHeaderViewContainer = nil;
+        }
     }
 }
 
 - (void)addSearchController:(UISearchController *)controller {
-    controller.searchBar.autoresizingMask |= UIViewAutoresizingFlexibleBottomMargin;
-    [self.tableHeaderViewContainer addSubview:controller.searchBar];
-    CGRect subviewFrame = controller.searchBar.frame;
-    CGRect frame = self.tableHeaderViewContainer.frame;
-    frame.size.width = MAX(frame.size.width, subviewFrame.size.width);
-    frame.size.height = subviewFrame.size.height;
-    
-    // 如果轮播已存在，则将其下移
-    if (self.showsCarousel) {
-        self.carousel.frame = FLEXRectSetY(
-            self.carousel.frame, subviewFrame.size.height
-        );
-        frame.size.height += self.carousel.frame.size.height;
+    if (@available(iOS 11.0, *)) {
+        self.navigationItem.searchController = controller;
+    } else {
+        controller.searchBar.autoresizingMask |= UIViewAutoresizingFlexibleBottomMargin;
+        [self.tableHeaderViewContainer addSubview:controller.searchBar];
+        CGRect subviewFrame = controller.searchBar.frame;
+        CGRect frame = self.tableHeaderViewContainer.frame;
+        frame.size.width = MAX(frame.size.width, subviewFrame.size.width);
+        frame.size.height = subviewFrame.size.height;
+        
+        // 如果轮播已经存在，将其往下移动
+        if (self.showsCarousel) {
+            self.carousel.frame = FLEXRectSetY(
+                self.carousel.frame, subviewFrame.size.height
+            );
+            frame.size.height += self.carousel.frame.size.height;
+        }
+        
+        self.tableHeaderViewContainer.frame = frame;
+        [self layoutTableHeaderIfNeeded];
     }
-    
-    self.tableHeaderViewContainer.frame = frame;
-    [self layoutTableHeaderIfNeeded];
 }
 
 - (void)removeSearchController:(UISearchController *)controller {
     [controller.searchBar removeFromSuperview];
     
     if (self.showsCarousel) {
+        // self.carousel.frame = FLEXRectRemake(CGPointZero, self.carousel.frame.size);
         [self removeCarousel:self.carousel];
         [self addCarousel:self.carousel];
     } else {
@@ -449,8 +533,8 @@ CGFloat const kFLEXDebounceForExpensiveIO = 0.5;
 
 static UITextField *kDummyTextField = nil;
 
-/// 使键盘立即出现。我们用它来使键盘在搜索栏最初设置为出现时更快地出现。
-/// 您必须在搜索栏出现之前调用 \c -removeDummyTextField。
+/// 使键盘立即出现。我们使用这个来使键盘在搜索栏初始显示时更快地出现。
+/// 在搜索栏出现之前，您必须调用 \c -removeDummyTextField。
 - (void)makeKeyboardAppearNow {
     if (!kDummyTextField) {
         kDummyTextField = [UITextField new];
@@ -458,46 +542,13 @@ static UITextField *kDummyTextField = nil;
     }
     
     kDummyTextField.inputAccessoryView = self.searchController.searchBar.inputAccessoryView;
-    
-    UIWindow *window = nil;
-    if (@available(iOS 13.0, *)) {
-        UIWindowScene *scene = FLEXUtility.activeScene;
-        window = scene.windows.firstObject;
-    } else {
-        window = [[UIApplication sharedApplication].delegate window];
-    }
-    
-    if (window) {
-        [window addSubview:kDummyTextField];
-    }
+    [UIApplication.sharedApplication.keyWindow addSubview:kDummyTextField];
+    [kDummyTextField becomeFirstResponder];
 }
 
 - (void)removeDummyTextField {
     if (kDummyTextField.superview) {
         [kDummyTextField removeFromSuperview];
-    }
-}
-
-- (void)textFieldFocusLoop:(NSNotification *)notification {
-    UIWindow *window = nil;
-    
-    if (@available(iOS 13.0, *)) {
-        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
-            if ([scene isKindOfClass:[UIWindowScene class]]) {
-                UIWindowScene *windowScene = (UIWindowScene *)scene;
-                window = windowScene.windows.firstObject;
-                if (window) break;
-            }
-        }
-    }
-    
-    // 降级使用应用程序代理的window
-    if (!window) {
-        window = [[UIApplication sharedApplication].delegate window];
-    }
-    
-    if (window) {
-        [window addSubview:kDummyTextField];
     }
 }
 
@@ -515,8 +566,8 @@ static UITextField *kDummyTextField = nil;
         }
     };
     
-    // 仅当我们想要并且有非空字符串时才进行去抖动
-    // 空字符串事件会立即发送
+    // 只有当我们需要时，并且有非空字符串时才延迟处理
+    // 空字符串事件立即发送
     if (text.length && self.searchBarDebounceInterval > kFLEXDebounceInstant) {
         [self debounce:updateSearchResults];
     } else {
@@ -528,14 +579,15 @@ static UITextField *kDummyTextField = nil;
 #pragma mark UISearchControllerDelegate
 
 - (void)willPresentSearchController:(UISearchController *)searchController {
-    // 直接显示取消按钮
-    if (self.automaticallyShowsSearchBarCancelButton) {
+    // 手动显示iOS 13以下版本的取消按钮
+    if (!@available(iOS 13, *) && self.automaticallyShowsSearchBarCancelButton) {
         [searchController.searchBar setShowsCancelButton:YES animated:YES];
     }
 }
 
 - (void)willDismissSearchController:(UISearchController *)searchController {
-    if (self.automaticallyShowsSearchBarCancelButton) {
+    // 手动隐藏iOS 13以下版本的取消按钮
+    if (!@available(iOS 13, *) && self.automaticallyShowsSearchBarCancelButton) {
         [searchController.searchBar setShowsCancelButton:NO animated:YES];
     }
 }
@@ -543,16 +595,23 @@ static UITextField *kDummyTextField = nil;
 
 #pragma mark UISearchBarDelegate
 
-/// 在 iOS 13 中不是必需的；当 iOS 13 是部署目标时移除此项
+/// iOS 13中不需要；当iOS 13成为部署目标时移除此项
 - (void)searchBar:(UISearchBar *)searchBar selectedScopeButtonIndexDidChange:(NSInteger)selectedScope {
     [self updateSearchResultsForSearchController:self.searchController];
 }
 
 
-#pragma mark 表格视图
+#pragma mark 表视图
 
+/// 在第一个部分没有标题在圆角表视图样式下看起来很奇怪
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return nil;
+    if (@available(iOS 13, *)) {
+        if (self.style == UITableViewStyleInsetGrouped) {
+            return @" ";
+        }
+    }
+
+    return nil; // 对于普通/分组样式
 }
 
 @end

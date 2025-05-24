@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXArgumentInputNumberView.h
 //  Flipboard
@@ -9,7 +8,6 @@
 
 #import "FLEXArgumentInputTextView.h"
 
-// 用于输入数字类型参数的视图
 @interface FLEXArgumentInputNumberView : FLEXArgumentInputTextView
 
 @end

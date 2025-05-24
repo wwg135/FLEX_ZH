@@ -2,11 +2,9 @@
 //  FLEXLiveObjectsController.m
 //  Flipboard
 //
-//  创建者: Ryan Olson on 5/28/14.
-//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
+//  Created by Ryan Olson on 5/28/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXLiveObjectsController.h"
 #import "FLEXHeapEnumerator.h"
@@ -53,12 +51,12 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
 }
 
 - (void)reloadTableData {
-    // 设置一个带有类指针键和NSUInteger值的CFMutableDictionary。
-    // 我们通过审慎的类型转换滥用CFMutableDictionary来拥有原始键，但它能完成工作。
-    // 该字典初始化时为每个类设置0计数，这样在枚举期间它就不必扩展。
-    // 虽然使用类名字符串键到NSNumber计数的NSMutableDictionary填充可能更清晰，
-    // 但我们选择CF/原始类型方法，因为它让我们可以在不在枚举期间分配任何内存的情况下枚举堆中的对象。
-    // 创建堆上每个对象的一个NSString/NSNumber的替代方案最终会相当严重地污染活动对象的计数。
+    // Set up a CFMutableDictionary with class pointer keys and NSUInteger values.
+    // We abuse CFMutableDictionary a little to have primitive keys through judicious casting, but it gets the job done.
+    // The dictionary is intialized with a 0 count for each class so that it doesn't have to expand during enumeration.
+    // While it might be a little cleaner to populate an NSMutableDictionary with class name string keys to NSNumber counts,
+    // we choose the CF/primitives approach because it lets us enumerate the objects in the heap without allocating any memory during enumeration.
+    // The alternative of creating one NSString/NSNumber per object on the heap ends up polluting the count of live objects quite a bit.
     unsigned int classCount = 0;
     Class *classes = objc_copyClassList(&classCount);
     CFMutableDictionaryRef mutableCountsForClasses = CFDictionaryCreateMutable(NULL, classCount, NULL, NULL);
@@ -66,14 +64,14 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
         CFDictionarySetValue(mutableCountsForClasses, (__bridge const void *)classes[i], (const void *)0);
     }
     
-    // 枚举堆上的所有对象以构建每个类的实例计数。
+    // Enumerate all objects on the heap to build the counts of instances for each class.
     [FLEXHeapEnumerator enumerateLiveObjectsUsingBlock:^(__unsafe_unretained id object, __unsafe_unretained Class actualClass) {
         NSUInteger instanceCount = (NSUInteger)CFDictionaryGetValue(mutableCountsForClasses, (__bridge const void *)actualClass);
         instanceCount++;
         CFDictionarySetValue(mutableCountsForClasses, (__bridge const void *)actualClass, (const void *)instanceCount);
     }];
     
-    // 将我们的CF原始字典转换为更好的类名字符串到计数的映射，我们将用作表的模型。
+    // Convert our CF primitive dictionary into a nicer mapping of class name strings to counts that we will use as the table's model.
     NSMutableDictionary<NSString *, NSNumber *> *mutableCountsForClassNames = [NSMutableDictionary new];
     NSMutableDictionary<NSString *, NSNumber *> *mutableSizesForClassNames = [NSMutableDictionary new];
     for (unsigned int i = 0; i < classCount; i++) {
@@ -116,9 +114,9 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
     }
     
     if (filteredCount == totalCount) {
-        // 未过滤
+        // Unfiltered
         self.headerTitle = [NSString
-            stringWithFormat:@"%@ 个对象, %@",
+            stringWithFormat:@"%@ objects, %@",
             @(totalCount), [NSByteCountFormatter
                 stringFromByteCount:totalSize
                 countStyle:NSByteCountFormatterCountStyleFile
@@ -126,7 +124,7 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
         ];
     } else {
         self.headerTitle = [NSString
-            stringWithFormat:@"%@ / %@ 个对象, %@",
+            stringWithFormat:@"%@ of %@ objects, %@",
             @(filteredCount), @(totalCount), [NSByteCountFormatter
                 stringFromByteCount:filteredSize
                 countStyle:NSByteCountFormatterCountStyleFile
@@ -150,7 +148,7 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
 }
 
 
-#pragma mark - 搜索栏
+#pragma mark - Search bar
 
 - (void)updateSearchResults:(NSString *)filter {
     NSInteger selectedScope = self.selectedScope;
@@ -168,7 +166,7 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
         self.filteredClassNames = [self.filteredClassNames sortedArrayUsingComparator:^NSComparisonResult(NSString *className1, NSString *className2) {
             NSNumber *count1 = self.instanceCountsForClassNames[className1];
             NSNumber *count2 = self.instanceCountsForClassNames[className2];
-            // 为了降序计数而反转
+            // Reversed for descending counts.
             return [count2 compare:count1];
         }];
     } else if (selectedScope == kFLEXLiveObjectsSortBySizeIndex) {
@@ -177,7 +175,7 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
             NSNumber *count2 = self.instanceCountsForClassNames[className2];
             NSNumber *size1 = self.instanceSizesForClassNames[className1];
             NSNumber *size2 = self.instanceSizesForClassNames[className2];
-            // 为了降序大小而反转
+            // Reversed for descending sizes.
             return [@(count2.integerValue * size2.integerValue) compare:@(count1.integerValue * size1.integerValue)];
         }];
     }
@@ -187,7 +185,7 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
 }
 
 
-#pragma mark - 表视图数据源
+#pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
@@ -208,7 +206,7 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
     NSNumber *size = self.instanceSizesForClassNames[className];
     unsigned long totalSize = count.unsignedIntegerValue * size.unsignedIntegerValue;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    cell.textLabel.text = [NSString stringWithFormat:@"%@ (数量:%ld, 大小:%@)",
+    cell.textLabel.text = [NSString stringWithFormat:@"%@ (%ld, %@)",
         className, (long)[count integerValue],
         [NSByteCountFormatter
             stringFromByteCount:totalSize
@@ -224,7 +222,7 @@ static const NSInteger kFLEXLiveObjectsSortBySizeIndex = 2;
 }
 
 
-#pragma mark - 表视图代理
+#pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSString *className = self.filteredClassNames[indexPath.row];

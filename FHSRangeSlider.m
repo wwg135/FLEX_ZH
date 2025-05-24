@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FHSRangeSlider.m
 //  FLEX
@@ -12,24 +11,18 @@
 #import "FLEXUtility.h"
 
 @interface FHSRangeSlider ()
-// 轨道视图
 @property (nonatomic, readonly) UIImageView *track;
-// 填充视图
 @property (nonatomic, readonly) UIImageView *fill;
-// 左侧滑块
 @property (nonatomic, readonly) UIImageView *leftHandle;
-// 右侧滑块
 @property (nonatomic, readonly) UIImageView *rightHandle;
 
-// 是否正在拖动左侧滑块
 @property (nonatomic, getter=isTrackingLeftHandle) BOOL trackingLeftHandle;
-// 是否正在拖动右侧滑块
 @property (nonatomic, getter=isTrackingRightHandle) BOOL trackingRightHandle;
 @end
 
 @implementation FHSRangeSlider
 
-#pragma mark - 初始化
+#pragma mark - Initialization
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -47,7 +40,7 @@
     UIImageView * (^newSubviewImageView)(UIImage *) = ^UIImageView *(UIImage *image) {
         UIImageView *iv = [UIImageView new];
         iv.image = image;
-//        iv.userInteractionEnabled = YES; // 用户交互已在 self 上启用
+//        iv.userInteractionEnabled = YES;
         [self addSubview:iv];
         return iv;
     };
@@ -58,7 +51,7 @@
     _rightHandle = newSubviewImageView(FLEXResources.rangeSliderRightHandle);
 }
 
-#pragma mark - 设置器 / 私有方法
+#pragma mark - Setters / Private
 
 - (CGFloat)valueAt:(CGFloat)x {
     CGFloat minX = self.leftHandle.image.size.width;
@@ -73,8 +66,8 @@
 - (void)setAllowedMinValue:(CGFloat)allowedMinValue {
     _allowedMinValue = allowedMinValue;
 
-    if (self.minValue < self.allowedMaxValue) { // 应该是 self.minValue < self.allowedMinValue
-        self.minValue = self.allowedMinValue; // 如果当前最小值小于允许的最小值，则更新为允许的最小值
+    if (self.minValue < self.allowedMaxValue) {
+        self.minValue = self.allowedMaxValue;
     } else {
         [self setNeedsLayout];
     }
@@ -109,7 +102,7 @@
     }
 }
 
-#pragma mark - 重写方法
+#pragma mark - Overrides
 
 - (CGSize)intrinsicContentSize {
     return CGSizeMake(UIViewNoIntrinsicMetric, self.leftHandle.image.size.height);
@@ -130,22 +123,20 @@
     } else {
         minPercent = MAX(0, (self.minValue - self.allowedMinValue) / delta);
         maxPercent = MAX(minPercent, (self.maxValue - self.allowedMinValue) / delta);
-        // 确保 maxPercent 不超过 1
-        maxPercent = MIN(maxPercent, 1.0);
     }
 
     CGFloat rangeSliderWidth = self.bounds.size.width - lhs.width - rhs.width;
 
     self.leftHandle.frame = FLEXRectMake(
         rangeSliderWidth * minPercent,
-        CGRectGetMidY(self.bounds) - (lhs.height / 2.f) + 3.f, // +3.f 是一个微调
+        CGRectGetMidY(self.bounds) - (lhs.height / 2.f) + 3.f,
         lhs.width,
         lhs.height
     );
 
     self.rightHandle.frame = FLEXRectMake(
         lhs.width + (rangeSliderWidth * maxPercent),
-        CGRectGetMidY(self.bounds) - (rhs.height / 2.f) + 3.f, // +3.f 是一个微调
+        CGRectGetMidY(self.bounds) - (rhs.height / 2.f) + 3.f,
         rhs.width,
         rhs.height
     );

@@ -2,10 +2,9 @@
 // FLEXBlockShortcuts.m
 //  FLEX
 //
-//  创建者：Tanner，日期：1/30/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  由 Tanner 于 1/30/20 创建.
+//  版权所有 © 2020 FLEX Team. 保留所有权利.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXBlockShortcuts.h"
 #import "FLEXShortcut.h"
@@ -15,7 +14,7 @@
 #pragma mark - 
 @implementation FLEXBlockShortcuts
 
-#pragma mark 覆盖方法
+#pragma mark 重写
 
 + (instancetype)forObject:(id)block {
     NSParameterAssert([block isKindOfClass:NSClassFromString(@"NSBlock")]);

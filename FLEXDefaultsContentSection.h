@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXDefaultsContentSection.h
 //  FLEX
 //
-//  创建者：Tanner Bennett，日期：8/28/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner Bennett on 8/28/19.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXCollectionContentSection.h"
@@ -12,17 +11,17 @@
 
 @interface FLEXDefaultsContentSection : FLEXCollectionContentSection <FLEXObjectInfoSection>
 
-/// 使用 \c NSUserDefaults.standardUserDefaults
+/// Uses \c NSUserDefaults.standardUserDefaults
 + (instancetype)standard;
 + (instancetype)forDefaults:(NSUserDefaults *)userDefaults;
 
-/// 是否过滤掉应用用户默认设置文件中不存在的键。
+/// Whether or not to filter out keys not present in the app's user defaults file.
 ///
-/// 这对于过滤掉一些似乎出现在每个应用的默认设置中，
-/// 但实际上从未被应用使用或接触过的无用键很有用。
-/// 仅适用于使用 \c NSUserDefaults.standardUserDefaults 的实例。
-/// 这是任何使用 \c standardUserDefaults 的实例的默认行为，因此
-/// 如果您不希望出现此行为，则必须在这些实例中选择退出。
+/// This is useful for filtering out some useless keys that seem to appear
+/// in every app's defaults but are never actually used or touched by the app.
+/// Only applies to instances using \c NSUserDefaults.standardUserDefaults.
+/// This is the default for any instance using \c standardUserDefaults, so
+/// you must opt-out in those instances if you don't want this behavior.
 @property (nonatomic) BOOL onlyShowKeysForAppPrefs;
 
 @end

@@ -2,10 +2,9 @@
 //  FLEXBundleShortcuts.m
 //  FLEX
 //
-//  创建者：Tanner Bennett，日期：12/12/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  由 Tanner Bennett 于 12/12/19 创建.
+//  版权所有 © 2020 FLEX Team. 保留所有权利.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXBundleShortcuts.h"
 #import "FLEXShortcut.h"
@@ -17,12 +16,12 @@
 
 #pragma mark -
 @implementation FLEXBundleShortcuts
-#pragma mark 覆盖方法
+#pragma mark 重写
 
 + (instancetype)forObject:(NSBundle *)bundle { weakify(self)
     return [self forObject:bundle additionalRows:@[
         [FLEXActionShortcut
-            title:@"浏览 Bundle 目录" subtitle:nil
+            title:@"浏览包目录" subtitle:nil
             viewer:^UIViewController *(NSBundle *bundle) {
                 return [FLEXFileBrowserController path:bundle.bundlePath];
             }
@@ -30,7 +29,7 @@
                 return UITableViewCellAccessoryDisclosureIndicator;
             }
         ],
-        [FLEXActionShortcut title:@"将 Bundle 浏览为数据库…" subtitle:nil
+        [FLEXActionShortcut title:@"以数据库形式浏览包…" subtitle:nil
             selectionHandler:^(UIViewController *host, NSBundle *bundle) { strongify(self)
                 [self promptToExportBundleAsDatabase:bundle host:host];
             }
@@ -44,13 +43,13 @@
 + (void)promptToExportBundleAsDatabase:(NSBundle *)bundle host:(UIViewController *)host {
     [FLEXAlert makeAlert:^(FLEXAlert *make) {
         make.title(@"另存为…").message(
-            @"数据库将保存在 Library 文件夹中。"
+            @"数据库将保存在库文件夹中。"
             "根据类的数量，导出可能需要"
-            "10 分钟或更长时间才能完成。20,000 个"
-            "类大约需要 7 分钟。" // 消息内容
+            "10分钟或更长时间。20,000个"
+            "类大约需要7分钟。"
         );
         make.configuredTextField(^(UITextField *field) {
-            field.placeholder = @"FLEXRuntimeExport.objc.db"; // 占位符，保持原样以保持一致性
+            field.placeholder = @"FLEXRuntimeExport.objc.db";
             field.text = [NSString stringWithFormat:
                 @"%@.objc.db", bundle.executablePath.lastPathComponent
             ];
@@ -58,7 +57,7 @@
         make.button(@"开始").handler(^(NSArray<NSString *> *strings) {
             [self browseBundleAsDatabase:bundle host:host name:strings[0]];
         });
-        make.button(@"取消").cancelStyle(); // 原英文："Cancel"
+        make.button(@"取消").cancelStyle();
     } showFrom:host];
 }
 
@@ -67,9 +66,8 @@
 
     UIAlertController *progress = [FLEXAlert makeAlert:^(FLEXAlert *make) {
         make.title(@"正在生成数据库");
-        // 某些 iOS 版本如果没有初始消息并且稍后添加消息，
-        // 会出现故障
-        make.message(@"…"); // 原英文："…"
+        // 某些iOS版本如果初始没有消息并且后续添加会出现故障
+        make.message(@"…");
     }];
 
     [host presentViewController:progress animated:YES completion:^{
@@ -92,7 +90,7 @@
                     [progress.view layoutIfNeeded];
                 });
             } completion:^(NSString *error) {
-                // 如果有错误则显示
+                // 显示错误（如果有）
                 if (error) {
                     progress.title = @"错误";
                     progress.message = error;

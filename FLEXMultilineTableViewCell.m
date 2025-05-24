@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMultilineTableViewCell.m
 //  FLEX
 //
-//  由 Ryan Olson 创建于 2/13/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 2/13/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXMultilineTableViewCell.h"
@@ -36,7 +35,7 @@
                               showsAccessory:(BOOL)showsAccessory {
     CGFloat labelWidth = contentViewWidth;
 
-    // 在 iOS 8.1 iPhone 6 上观察到的由于附件视图导致的 contentView 插入。
+    // Content view inset due to accessory view observed on iOS 8.1 iPhone 6.
     if (showsAccessory) {
         labelWidth -= 34.0;
     }

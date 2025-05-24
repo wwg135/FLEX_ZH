@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMutableListSection.m
 //  FLEX
 //
-//  由 Tanner 创建于 3/9/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利.
+//  Created by Tanner on 3/9/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXMutableListSection.h"

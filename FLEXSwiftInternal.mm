@@ -1,38 +1,36 @@
 //
-// 遇到问题联系中文翻译作者：pxx917144686
-//
 //  FLEXSwiftInternal.m
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 10/28/21.
-//  版权所有 © 2021 Flipboard。保留所有权利。
+//  版权所有 © 2021 Flipboard. 保留所有权利。
 //
 
 #import "FLEXSwiftInternal.h"
 #import <objc/runtime.h>
 #include <atomic>
 
-// 类是来自预稳定 Swift ABI 的 Swift 类
+// 类是来自于预稳定 Swift ABI 的 Swift 类
 #define FAST_IS_SWIFT_LEGACY  (1UL<<0)
-// 类是来自稳定 Swift ABI 的 Swift 类
+// 类是来自于稳定 Swift ABI 的 Swift 类
 #define FAST_IS_SWIFT_STABLE  (1UL<<1)
 // 数据指针
 #define FAST_DATA_MASK        0xfffffffcUL
 
 typedef uintptr_t class_data_bits_t;
 #if __LP64__
-typedef uint32_t mask_t;  // x86_64 和 arm64汇编在16位情况下效率较低
+typedef uint32_t mask_t;  // x86_64 和 arm64 汇编对16位处理效率较低
 #else
 typedef uint16_t mask_t;
 #endif
 
-/* dyld_shared_cache_builder 和 obj-C 在这些定义上达成一致 */
+/* dyld_shared_cache_builder 和 obj-C 对这些定义达成一致 */
 struct preopt_cache_entry_t {
     uint32_t sel_offs;
     uint32_t imp_offs;
 };
 
-/* dyld_shared_cache_builder 和 obj-C 在这些定义上达成一致 */
+/* dyld_shared_cache_builder 和 obj-C 对这些定义达成一致 */
 struct preopt_cache_t {
     int32_t fallback_class_offset;
     union {
@@ -74,7 +72,7 @@ struct objc_object_ {
 
 struct objc_class_ : objc_object_ {
     Class superclass;
-    cache_t cache; // 以前是缓存指针和虚函数表
+    cache_t cache; // 之前为缓存指针和虚表
     class_data_bits_t bits;    
 };
 

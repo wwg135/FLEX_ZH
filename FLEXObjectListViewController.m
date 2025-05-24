@@ -2,10 +2,9 @@
 //  FLEXObjectListViewController.m
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 5/28/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 5/28/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXObjectListViewController.h"
 #import "FLEXObjectExplorerFactory.h"
@@ -48,18 +47,18 @@ typedef NS_ENUM(NSUInteger, FLEXObjectReferenceSection) {
 @implementation FLEXObjectListViewController
 @dynamic sections, allSections;
 
-#pragma mark - 引用分组
+#pragma mark - Reference Grouping
 
 + (NSPredicate *)defaultPredicateForSection:(NSInteger)section {
     // 这些是我们通常不关心的引用类型。
-    // 我们希望将这个“对象-ivar 对”列表分成两个部分。
+    // 我们希望将这个"对象-实例变量对"列表分成两个部分。
     BOOL(^isKVORelated)(FLEXObjectRef *, NSDictionary *) = ^BOOL(FLEXObjectRef *ref, NSDictionary *bindings) {
         NSString *row = ref.reference;
         return [row isEqualToString:@"__NSObserver object"] ||
                [row isEqualToString:@"_CFXNotificationObjcObserverRegistration _object"];
     };
 
-    /// 这些是我们也很少关心的常见的 AutoLayout 相关引用。
+    /// 这些是我们也很少关心的常见AutoLayout相关引用。
     BOOL(^isConstraintRelated)(FLEXObjectRef *, NSDictionary *) = ^BOOL(FLEXObjectRef *ref, NSDictionary *bindings) {
         static NSSet *ignored = nil;
         static dispatch_once_t onceToken;
@@ -81,7 +80,7 @@ typedef NS_ENUM(NSUInteger, FLEXObjectReferenceSection) {
                [ignored containsObject:row];
     };
     
-    /// 这些是 FLEX 类，通常您不会在 FLEX 内部寻找 FLEX 引用
+    /// 这些是FLEX类，通常你不会在FLEX内部寻找FLEX引用
     BOOL(^isFLEXClass)(FLEXObjectRef *, NSDictionary *) = ^BOOL(FLEXObjectRef *ref, NSDictionary *bindings) {
         return [ref.reference hasPrefix:@"FLEX"];
     };
@@ -121,7 +120,7 @@ typedef NS_ENUM(NSUInteger, FLEXObjectReferenceSection) {
 }
 
 
-#pragma mark - 初始化
+#pragma mark - Initialization
 
 - (id)initWithReferences:(nullable NSArray<FLEXObjectRef *> *)references {
     return [self initWithReferences:references predicates:nil sectionTitles:nil];
@@ -161,7 +160,7 @@ typedef NS_ENUM(NSUInteger, FLEXObjectReferenceSection) {
 + (instancetype)subclassesOfClassWithName:(NSString *)className {
     NSArray<FLEXObjectRef *> *references = [FLEXRuntimeUtility subclassesOfClassWithName:className];
     FLEXObjectListViewController *controller = [[self alloc] initWithReferences:references];
-    controller.title = [NSString stringWithFormat:@"%@ 的子类 (%@)",
+    controller.title = [NSString stringWithFormat:@"%@的子类 (%@)",
         className, @(references.count)
     ];
 
@@ -185,7 +184,7 @@ typedef NS_ENUM(NSUInteger, FLEXObjectReferenceSection) {
 }
 
 
-#pragma mark - 重写方法
+#pragma mark - Overrides
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -202,7 +201,7 @@ typedef NS_ENUM(NSUInteger, FLEXObjectReferenceSection) {
 }
 
 
-#pragma mark - 私有方法
+#pragma mark - Private
 
 - (NSArray *)buildSections:(NSArray<NSString *> *)titles predicates:(NSArray<NSPredicate *> *)predicates {
     NSParameterAssert(titles.count == predicates.count);

@@ -2,8 +2,8 @@
 //  FLEXExplorerViewController.m
 //  Flipboard
 //
-//  创建者：Ryan Olson，日期：4/4/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 4/4/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXExplorerViewController.h"
@@ -30,47 +30,47 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 
 @interface FLEXExplorerViewController () <FLEXHierarchyDelegate, UIAdaptivePresentationControllerDelegate>
 
-/// 跟踪当前活动的工具/模式
+/// 追踪当前活动的工具/模式
 @property (nonatomic) FLEXExplorerMode currentMode;
 
-/// 用于在移动模式下拖动视图的手势识别器
+/// 在移动模式下拖动视图的手势识别器
 @property (nonatomic) UIPanGestureRecognizer *movePanGR;
 
-/// 用于显示所选视图附加详情的手势识别器
+/// 显示所选视图其他详细信息的手势识别器
 @property (nonatomic) UITapGestureRecognizer *detailsTapGR;
 
-/// 仅在移动平移手势进行中有效。
+/// 仅在移动手势进行时有效
 @property (nonatomic) CGRect selectedViewFrameBeforeDragging;
 
-/// 仅在工具栏拖动平移手势进行中有效。
+/// 仅在工具栏拖动手势进行时有效
 @property (nonatomic) CGRect toolbarFrameBeforeDragging;
 
-/// 仅在选定视图平移手势进行中有效。
+/// 仅在所选视图的拖动手势进行时有效
 @property (nonatomic) CGFloat selectedViewLastPanX;
 
-/// 选择点处层级中所有可见视图的边框。
-/// 键是带有相应视图（非保留）的 NSValue。
+/// 选择点处层次结构中所有可见视图的边框
+/// 键是包含相应视图（非持久）的NSValues
 @property (nonatomic) NSDictionary<NSValue *, UIView *> *outlineViewsForVisibleViews;
 
-/// 选择点处的实际视图，最深层的视图在最后。
+/// 选择点处的实际视图，最深层的视图在最后
 @property (nonatomic) NSArray<UIView *> *viewsAtTapPoint;
 
-/// 我们当前用覆盖层高亮显示并显示详情的视图。
+/// 我们当前用叠加层突出显示并显示其详细信息的视图
 @property (nonatomic) UIView *selectedView;
 
-/// 一个彩色的透明覆盖层，用于指示视图已被选中。
+/// 一个有色透明叠加层，表示视图已被选中
 @property (nonatomic) UIView *selectedViewOverlay;
 
-/// 用于在 iOS 10+ 上驱动视图选择更改
+/// 用于在iOS 10+上执行视图选择更改
 @property (nonatomic, readonly) UISelectionFeedbackGenerator *selectionFBG API_AVAILABLE(ios(10.0));
 
 /// self.view.window 作为 \c FLEXWindow
 @property (nonatomic, readonly) FLEXWindow *window;
 
-/// 我们正在进行 KVO 的所有视图。用于帮助我们正确清理。
+/// 我们正在KVO观察的所有视图。帮助我们正确清理
 @property (nonatomic) NSMutableSet<UIView *> *observedViews;
 
-/// 用于保留目标应用的 UIMenuController 项目。
+/// 用于保存目标应用的UIMenuController项目
 @property (nonatomic) NSArray<UIMenuItem *> *appMenuItems;
 
 @end
@@ -97,7 +97,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
     // 工具栏
     _explorerToolbar = [FLEXExplorerToolbar new];
 
-    // 使工具栏初始位于视图顶部任何栏的下方。
+    // 将工具栏放置在视图顶部的任何栏下方。
     CGFloat toolbarOriginY = NSUserDefaults.standardUserDefaults.flex_toolbarTopMargin;
 
     CGRect safeArea = [self viewSafeArea];
@@ -130,7 +130,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
         _selectionFBG = [UISelectionFeedbackGenerator new];
     }
     
-    // 观察键盘以便将自身移开
+    // 观察键盘以将自身移开
     [NSNotificationCenter.defaultCenter
         addObserver:self
         selector:@selector(keyboardShown:)
@@ -146,7 +146,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - 旋转
+#pragma mark - Rotation
 
 - (UIViewController *)viewControllerForRotationAndOrientation {
     UIViewController *viewController = FLEXUtility.appKeyWindow.rootViewController;
@@ -163,22 +163,21 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    // 在我找到更好的解决方案之前，先注释掉这部分代码
+    // 注释掉此代码，直到找到更好的解决方案
 //    if (self.window.isKeyWindow) {
 //        [self.window resignKeyWindow];
 //    }
     
     UIViewController *viewControllerToAsk = [self viewControllerForRotationAndOrientation];
     UIInterfaceOrientationMask supportedOrientations = FLEXUtility.infoPlistSupportedInterfaceOrientationsMask;
-    // 我们通过名称检查它的类，因为对于在运行时定义两次的同一个类，使用 isKindOfClass 会失败；
-    // 这里的目标是避免在我从 tweak dylib 中使用 FLEX 检查自身时递归调用 -supportedInterfaceOrientations
+    // 我们通过名称检查其类，因为使用 isKindOfClass 将在运行时定义两次的同一类失败；
+    // 这里的目标是避免在我从 tweak dylib 中使用自己检查 FLEX 时递归调用 -supportedInterfaceOrientations
     if (viewControllerToAsk && ![NSStringFromClass([viewControllerToAsk class]) hasPrefix:@"FLEX"]) {
         supportedOrientations = [viewControllerToAsk supportedInterfaceOrientations];
     }
     
-    // UIViewController 文档指出此方法不能返回零。
-    // 如果我们无法获取支持的界面方向的有效值，
-    // 则默认为全部支持。
+    // UIViewController 文档指出此方法不得返回零。
+    // 如果我们无法获得支持的接口方向的有效值，则默认为全部支持。
     if (supportedOrientations == 0) {
         supportedOrientations = UIInterfaceOrientationMaskAll;
     }
@@ -221,7 +220,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - Setter 重写
+#pragma mark - Setter Overrides
 
 - (void)setSelectedView:(UIView *)selectedView {
     if (![_selectedView isEqual:selectedView]) {
@@ -233,7 +232,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
         
         [self beginObservingView:selectedView];
 
-        // 更新工具栏和选定覆盖层
+        // 更新工具栏和选中叠加层
         self.explorerToolbar.selectedViewDescription = [FLEXUtility
             descriptionForView:selectedView includingFrame:YES
         ];
@@ -252,7 +251,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
             self.selectedViewOverlay.layer.borderColor = outlineColor.CGColor;
             self.selectedViewOverlay.frame = [self.view convertRect:selectedView.bounds fromView:selectedView];
             
-            // 确保选定覆盖层位于所有其他子视图的前面
+            // 确保选中叠加层位于所有其他子视图的前面
             // 除了工具栏，它应该始终保持在顶部。
             [self.view bringSubviewToFront:self.selectedViewOverlay];
             [self.view bringSubviewToFront:self.explorerToolbar];
@@ -261,7 +260,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
             self.selectedViewOverlay = nil;
         }
         
-        // 一些按钮状态取决于我们是否有选定视图。
+        // 一些按钮状态取决于我们是否有选中的视图。
         [self updateButtonStates];
     }
 }
@@ -301,7 +300,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
                 break;
                 
             case FLEXExplorerModeMove:
-                // 隐藏所有轮廓视图以专注于选定视图，
+                // 隐藏所有轮廓视图以专注于选中的视图，
                 // 它是唯一会移动的视图。
                 for (NSValue *key in self.outlineViewsForVisibleViews) {
                     UIView *outlineView = self.outlineViewsForVisibleViews[key];
@@ -315,10 +314,10 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - 视图跟踪
+#pragma mark - View Tracking
 
 - (void)beginObservingView:(UIView *)view {
-    // 如果我们已经在观察此视图或没有可观察的内容，则返回。
+    // 如果我们已经在观察此视图或没有要观察的内容，则退出。
     if (!view || [self.observedViews containsObject:view]) {
         return;
     }
@@ -369,7 +368,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
         }
     }
     if (object == self.selectedView) {
-        // 更新选定视图描述，因为我们在此处显示框架值。
+        // 更新选中视图描述，因为我们在那里显示框架值。
         self.explorerToolbar.selectedViewDescription = [FLEXUtility
             descriptionForView:self.selectedView includingFrame:YES
         ];
@@ -379,9 +378,9 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 - (CGRect)frameInLocalCoordinatesForView:(UIView *)view {
-    // 转换为窗口坐标，因为视图可能与我们的视图不在同一个窗口中
+    // 转换为窗口坐标，因为视图可能位于与我们的视图不同的窗口中
     CGRect frameInWindow = [view convertRect:view.bounds toView:nil];
-    // 从窗口转换为我们视图的坐标空间
+    // 从窗口转换为我们的视图的坐标空间
     return [self.view convertRect:frameInWindow fromView:nil];
 }
 
@@ -391,7 +390,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
     
     if (CGRectGetMinY(keyboardFrame) < CGRectGetMaxY(toolbarFrame)) {
         toolbarFrame.origin.y = keyboardFrame.origin.y - toolbarFrame.size.height;
-        // 再减去一点，以忽略辅助输入视图
+        // 再减一点，以忽略附件输入视图
         toolbarFrame.origin.y -= 50;
         
         [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:1 initialSpringVelocity:0.5
@@ -401,7 +400,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
     }
 }
 
-#pragma mark - 工具栏按钮
+#pragma mark - Toolbar Buttons
 
 - (void)setupToolbarActions {
     FLEXExplorerToolbar *toolbar = self.explorerToolbar;
@@ -428,20 +427,16 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 - (UIWindow *)statusWindow {
-    if (@available(iOS 16, *)) {
-        return nil;
-    } else {
-        if (@available(iOS 13, *)) {
-            return nil;
-        } else {
-            NSString *statusBarString = [NSString stringWithFormat:@"%@arWindow", @"_statusB"];
-            return [UIApplication.sharedApplication valueForKey:statusBarString];
-        }
+    if (!@available(iOS 16, *)) {
+        NSString *statusBarString = [NSString stringWithFormat:@"%@arWindow", @"_statusB"];
+        return [UIApplication.sharedApplication valueForKey:statusBarString];
     }
+    
+    return nil;
 }
 
 - (void)recentButtonTapped:(FLEXExplorerToolbarItem *)sender {
-    NSAssert(FLEXTabList.sharedList.activeTab, @"必须有活动标签页");
+    NSAssert(FLEXTabList.sharedList.activeTab, @"必须有活动标签");
     [self presentViewController:FLEXTabList.sharedList.activeTab animated:YES completion:nil];
 }
 
@@ -463,12 +458,12 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
     
     toolbar.selectItem.selected = self.currentMode == FLEXExplorerModeSelect;
     
-    // “移动”仅在选择了对象时启用。
+    // 仅当选择了对象时才启用移动功能
     BOOL hasSelectedObject = self.selectedView != nil;
     toolbar.moveItem.enabled = hasSelectedObject;
     toolbar.moveItem.selected = self.currentMode == FLEXExplorerModeMove;
     
-    // “最近”仅在我们有最后一个活动标签页时启用
+    // 仅当我们有上次活动标签时才启用最近按钮
     if (!self.presentedViewController) {
         toolbar.recentItem.enabled = FLEXTabList.sharedList.activeTab != nil;
     } else {
@@ -477,44 +472,44 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - 工具栏拖动
+#pragma mark - Toolbar Dragging
 
 - (void)setupToolbarGestures {
     FLEXExplorerToolbar *toolbar = self.explorerToolbar;
     
-    // 用于拖动的平移手势。
+    // 拖动的平移手势。
     [toolbar.dragHandle addGestureRecognizer:[[UIPanGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleToolbarPanGesture:)
     ]];
     
-    // 用于提示的点击手势。
+    // 提示的点击手势。
     [toolbar.dragHandle addGestureRecognizer:[[UITapGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleToolbarHintTapGesture:)
     ]];
     
-    // 用于显示附加详情的点击手势
+    // 显示其他详细信息的点击手势
     self.detailsTapGR = [[UITapGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleToolbarDetailsTapGesture:)
     ];
     [toolbar.selectedViewDescriptionContainer addGestureRecognizer:self.detailsTapGR];
     
-    // 用于在某点选择更深/更高层视图的滑动手势
+    // 选择点处选择更深/更高视图的滑动手势
     UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleChangeViewAtPointGesture:)
     ];
     [toolbar.selectedViewDescriptionContainer addGestureRecognizer:panGesture];
     
-    // 用于显示标签页管理器的长按手势
+    // 长按手势以显示标签管理器
     [toolbar.globalsItem addGestureRecognizer:[[UILongPressGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleToolbarShowTabsGesture:)
     ]];
     
-    // 用于显示窗口管理器的长按手势
+    // 长按手势以显示窗口管理器
     [toolbar.selectItem addGestureRecognizer:[[UILongPressGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleToolbarWindowManagerGesture:)
     ]];
     
-    // 用于显示视图控制器的长按手势
+    // 长按手势以显示点击处的视图控制器
     [toolbar.hierarchyItem addGestureRecognizer:[[UILongPressGestureRecognizer alloc]
         initWithTarget:self action:@selector(handleToolbarShowViewControllersGesture:)
     ]];
@@ -547,8 +542,8 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 
 - (void)updateToolbarPositionWithUnconstrainedFrame:(CGRect)unconstrainedFrame {
     CGRect safeArea = [self viewSafeArea];
-    // 我们只约束 Y 轴，因为我们希望工具栏
-    // 自己处理 X 轴安全区域布局
+    // 我们只约束Y轴，因为我们希望工具栏
+    // 自己处理X轴安全区域布局
     CGFloat minY = CGRectGetMinY(safeArea);
     CGFloat maxY = CGRectGetMaxY(safeArea) - unconstrainedFrame.size.height;
     if (unconstrainedFrame.origin.y < minY) {
@@ -562,8 +557,8 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 - (void)handleToolbarHintTapGesture:(UITapGestureRecognizer *)tapGR {
-    // 使工具栏弹跳以指示它是可拖动的。
-    // TODO: 使其更有弹性。
+    // 弹跳工具栏以表明它是可拖动的
+    // TODO: 使其弹性更强
     if (tapGR.state == UIGestureRecognizerStateRecognized) {
         CGRect originalToolbarFrame = self.explorerToolbar.frame;
         const NSTimeInterval kHalfwayDuration = 0.2;
@@ -591,10 +586,10 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 
 - (void)handleToolbarShowTabsGesture:(UILongPressGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateBegan) {
-        // 备份 UIMenuController 项目，因为 dismissViewController: 将尝试替换它们
+        // 备份UIMenuController项目，因为dismissViewController:将尝试替换它们
         self.appMenuItems = UIMenuController.sharedMenuController.menuItems;
         
-        // 不使用 FLEXNavigationController，因为标签页查看器本身不是标签页
+        // 不使用FLEXNavigationController，因为标签查看器本身不是标签
         [super presentViewController:[[UINavigationController alloc]
             initWithRootViewController:[FLEXTabsViewController new]
         ] animated:YES completion:nil];
@@ -603,7 +598,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 
 - (void)handleToolbarWindowManagerGesture:(UILongPressGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateBegan) {
-        // 备份 UIMenuController 项目，因为 dismissViewController: 将尝试替换它们
+        // 备份UIMenuController项目，因为dismissViewController:将尝试替换它们
         self.appMenuItems = UIMenuController.sharedMenuController.menuItems;
         
         [super presentViewController:[FLEXNavigationController
@@ -614,7 +609,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 
 - (void)handleToolbarShowViewControllersGesture:(UILongPressGestureRecognizer *)sender {
     if (sender.state == UIGestureRecognizerStateBegan && self.viewsAtTapPoint.count) {
-        // 备份 UIMenuController 项目，因为 dismissViewController: 将尝试替换它们
+        // 备份UIMenuController项目，因为dismissViewController:将尝试替换它们
         self.appMenuItems = UIMenuController.sharedMenuController.menuItems;
         
         UIViewController *list = [FLEXViewControllersViewController
@@ -627,14 +622,14 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - 视图选择
+#pragma mark - View Selection
 
 - (void)handleSelectionTap:(UITapGestureRecognizer *)tapGR {
     // 仅当我们处于选择模式时
     if (self.currentMode == FLEXExplorerModeSelect && tapGR.state == UIGestureRecognizerStateRecognized) {
-        // 请注意，[tapGR locationInView:nil] 在 iOS 8 中是有问题的，
+        // 请注意，[tapGR locationInView:nil] 在 iOS 8 中已损坏，
         // 因此我们必须进行两步转换到窗口坐标。
-        // 感谢 @lascorbe 找到这个问题：https://github.com/Flipboard/FLEX/pull/31
+        // 感谢 @lascorbe 找到这个：https://github.com/Flipboard/FLEX/pull/31
         CGPoint tapPointInView = [tapGR locationInView:self.view];
         CGPoint tapPointInWindow = [self.view convertPoint:tapPointInView toView:nil];
         [self updateOutlineViewsForSelectionPoint:tapPointInWindow];
@@ -646,10 +641,10 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
     NSInteger currentIdx = [self.viewsAtTapPoint indexOfObject:self.selectedView];
     CGFloat locationX = [sender locationInView:self.view].x;
     
-    // 跟踪平移手势：每当我们沿 X 轴移动 N 点时，
-    // 触发一些触觉反馈并在层级中向上或向下移动。
-    // 我们只有在达到阈值时才存储“最后”位置。
-    // 我们只有在视图选择更改时才更改视图并触发反馈；
+    // 跟踪平移手势：每当我们沿着X轴移动N点时，
+    // 触发一些触觉反馈并沿层次结构向上或向下移动。
+    // 只有当我们达到阈值时，我们才会存储“最后”位置。
+    // 只有当视图选择发生变化时，我们才会更改视图并触发反馈；
     // 也就是说，只要我们不超出或低于数组。
     switch (sender.state) {
         case UIGestureRecognizerStateBegan: {
@@ -661,15 +656,15 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
             CGFloat lastX = self.selectedViewLastPanX;
             NSInteger newSelection = currentIdx;
             
-            // 向左，向层级下方移动
+            // 向左，向下层次结构
             if (locationX < lastX && (lastX - locationX) >= kNextLevelThreshold) {
-                // 选择一个新的视图索引，最多到最大索引
+                // 选择一个新的视图索引，直到最大索引
                 newSelection = MIN(max, currentIdx + 1);
                 self.selectedViewLastPanX = locationX;
             }
-            // 向右，向层级上方移动
+            // 向右，向上层次结构
             else if (lastX < locationX && (locationX - lastX) >= kNextLevelThreshold) {
-                // 选择一个新的视图索引，最少到最小索引
+                // 选择一个新的视图索引，直到最小索引
                 newSelection = MAX(0, currentIdx - 1);
                 self.selectedViewLastPanX = locationX;
             }
@@ -695,11 +690,11 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 - (void)updateOutlineViewsForSelectionPoint:(CGPoint)selectionPointInWindow {
     [self removeAndClearOutlineViews];
     
-    // 包括隐藏视图在“viewsAtTapPoint”数组中，以便我们可以在层级列表中显示它们。
+    // 包括隐藏视图在“viewsAtTapPoint”数组中，以便我们可以在层次结构列表中显示它们。
     self.viewsAtTapPoint = [self viewsAtPoint:selectionPointInWindow skipHiddenViews:NO];
     
-    // 对于轮廓视图和选定视图，仅使用可见视图。
-    // 对隐藏视图进行轮廓化会增加混乱，并使选择行为令人困惑。
+    // 对于轮廓视图和选中的视图，仅使用可见视图。
+    // 对隐藏视图进行轮廓化会增加混乱并使选择行为令人困惑。
     NSArray<UIView *> *visibleViewsAtTapPoint = [self viewsAtPoint:selectionPointInWindow skipHiddenViews:YES];
     NSMutableDictionary<NSValue *, UIView *> *newOutlineViewsForVisibleViews = [NSMutableDictionary new];
     for (UIView *view in visibleViewsAtTapPoint) {
@@ -749,12 +744,12 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 - (UIView *)viewForSelectionAtPoint:(CGPoint)tapPointInWindow {
-    // 使用 FLEXUtility 提供的方法获取 activeScene
-    UIWindowScene *scene = FLEXUtility.activeScene;
-    UIWindow *windowForSelection = scene.windows.firstObject;
-    
-    // 遍历所有窗口查找合适的选择目标
+    // 在会处理触摸的窗口中选择，但不只使用hitTest:withEvent:的结果
+    // 因此我们仍然可以选择已禁用交互的视图
+    // 如果没有窗口想要触摸，则默认为应用程序的关键窗口
+    UIWindow *windowForSelection = UIApplication.sharedApplication.keyWindow;
     for (UIWindow *window in FLEXUtility.allWindows.reverseObjectEnumerator) {
+        // 忽略探索者自己的窗口。
         if (window != self.view.window) {
             if ([window hitTest:tapPointInWindow withEvent:nil]) {
                 windowForSelection = window;
@@ -763,9 +758,8 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
         }
     }
     
-    return [self recursiveSubviewsAtPoint:tapPointInWindow 
-                                 inView:windowForSelection 
-                        skipHiddenViews:YES].lastObject;
+    // 选择点击点处最深的可见视图。这通常对应于用户想要选择的内容。
+    return [self recursiveSubviewsAtPoint:tapPointInWindow inView:windowForSelection skipHiddenViews:YES].lastObject;
 }
 
 - (NSArray<UIView *> *)recursiveSubviewsAtPoint:(CGPoint)pointInView
@@ -783,7 +777,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
             [subviewsAtPoint addObject:subview];
         }
         
-        // 如果此视图不裁剪到其边界，我们需要检查其子视图，即使它
+        // 如果此视图不剪裁到其边界，我们需要检查其子视图，即使它
         // 不包含选择点。它们可能是可见的并包含选择点。
         if (subviewContainsPoint || !subview.clipsToBounds) {
             CGPoint pointInSubview = [view convertPoint:pointInView toView:subview];
@@ -796,7 +790,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - 移动选定视图
+#pragma mark - Selected View Moving
 
 - (void)handleMovePan:(UIPanGestureRecognizer *)movePanGR {
     switch (movePanGR.state) {
@@ -824,7 +818,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - 安全区域处理
+#pragma mark - Safe Area Handling
 
 - (CGRect)viewSafeArea {
     CGRect safeArea = self.view.bounds;
@@ -853,12 +847,12 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - 触摸处理
+#pragma mark - Touch Handling
 
 - (BOOL)shouldReceiveTouchAtWindowPoint:(CGPoint)pointInWindowCoordinates {
     CGPoint pointInLocalCoordinates = [self.view convertPoint:pointInWindowCoordinates fromView:nil];
     
-    // 如果我们有一个模态显示，它是否在模态中？
+    // 如果我们有一个模态呈现，它是否在模态中？
     if (self.presentedViewController) {
         UIView *presentedView = self.presentedViewController.view;
         CGPoint pipvc = [presentedView convertPoint:pointInLocalCoordinates fromView:self.view];
@@ -873,7 +867,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
         return YES;
     }
     
-    // 始终在移动模式中也是
+    // 移动模式也始终如此
     if (self.currentMode == FLEXExplorerModeMove) {
         return YES;
     }
@@ -887,42 +881,46 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - FLEXHierarchy 代理
+#pragma mark - FLEXHierarchyDelegate
 
 - (void)viewHierarchyDidDismiss:(UIView *)selectedView {
     // 请注意，我们需要等到视图控制器被解雇后才能计算框架
     // 轮廓视图，否则坐标转换不会给出正确的结果。
     [self toggleViewsToolWithCompletion:^{
-        // 如果选定视图在点击点数组之外（从“完整层级”中选择），
-        // 则清除点击点数组并移除所有轮廓视图。
+        // 如果选中的视图在点击点数组之外（从“完整层次结构”中选择），
+        // 然后清除点击点数组并删除所有轮廓视图。
         if (![self.viewsAtTapPoint containsObject:selectedView]) {
             self.viewsAtTapPoint = nil;
             [self removeAndClearOutlineViews];
         }
         
-        // 如果我们现在有一个选定视图并且我们之前没有一个，请进入“选择”模式。
+        // 如果我们现在有一个选中的视图并且我们之前没有一个，请转到“选择”模式。
         if (self.currentMode == FLEXExplorerModeDefault && selectedView) {
             self.currentMode = FLEXExplorerModeSelect;
         }
         
-        // 选定视图设置器还将适当地更新选定视图覆盖层。
+        // 选中视图设置器还将适当地更新选中视图叠加层。
         self.selectedView = selectedView;
     }];
 }
 
 
-#pragma mark - 模态显示和窗口管理
+#pragma mark - Modal Presentation and Window Management
 
-- (void)presentViewController:(UIViewController *)toPresent 
-                   animated:(BOOL)animated
-                 completion:(void (^)(void))completion {
-    // 移除 iOS 13+ 判断,直接使用旧版本代码
+- (void)presentViewController:(UIViewController *)toPresent
+                               animated:(BOOL)animated
+                             completion:(void (^)(void))completion {
+    // 使我们的窗口成为关键窗口以正确处理输入。
     [self.view.window makeKeyWindow];
-    [self statusWindow].windowLevel = self.view.window.windowLevel + 1.0;
+
+    // 将状态栏移到FLEX顶部，以便我们可以获得滚动到顶部的行为。
+    if (!@available(iOS 13, *)) {
+        [self statusWindow].windowLevel = self.view.window.windowLevel + 1.0;
+    }
     
-    // 备份并替换 UIMenuController 项目
+    // 备份并替换UIMenuController项目
     // 编辑：不再替换项目，但仍然备份它们
-    // 以防我们将来再次开始替换它们
+    // 如果我们将来再次开始替换它们
     self.appMenuItems = UIMenuController.sharedMenuController.menuItems;
     
     [self updateButtonStates];
@@ -940,15 +938,15 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
     [appWindow makeKeyWindow];
     [appWindow.rootViewController setNeedsStatusBarAppearanceUpdate];
     
-    // 恢复之前的 UIMenuController 项目
-    // 备份并替换 UIMenuController 项目
+    // 恢复以前的UIMenuController项目
+    // 备份并替换UIMenuController项目
     UIMenuController.sharedMenuController.menuItems = self.appMenuItems;
     [UIMenuController.sharedMenuController update];
     self.appMenuItems = nil;
     
     // 恢复状态栏窗口的正常窗口级别。
-    // 我们希望它在显示模态时高于 FLEX，
-    // 但在探索时低于 FLEX。
+    // 在呈现模态时，我们希望它在FLEX之上，以便滚动到顶部
+    // 但在其他情况下在FLEX之下以便探索。
     [self statusWindow].windowLevel = UIWindowLevelStatusBar;
     
     [self updateButtonStates];
@@ -967,8 +965,8 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 - (void)toggleToolWithViewControllerProvider:(UINavigationController *(^)(void))future
                                   completion:(void (^)(void))completion {
     if (self.presentedViewController) {
-        // 我们不希望显示未来；这是
-        // 用于切换相同工具的便利方法
+        // 我们不希望呈现未来；这是
+        // 用于切换相同工具的便捷方法
         [self dismissViewControllerAnimated:YES completion:completion];
     } else if (future) {
         [self presentViewController:future() animated:YES completion:completion];
@@ -978,7 +976,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 - (void)presentTool:(UINavigationController *(^)(void))future
          completion:(void (^)(void))completion {
     if (self.presentedViewController) {
-        // 如果工具已经显示，先解雇它
+        // 如果工具已经呈现，先解雇它
         [self dismissViewControllerAnimated:YES completion:^{
             [self presentViewController:future() animated:YES completion:completion];
         }];
@@ -992,7 +990,7 @@ typedef NS_ENUM(NSUInteger, FLEXExplorerMode) {
 }
 
 
-#pragma mark - 键盘快捷键助手
+#pragma mark - Keyboard Shortcut Helpers
 
 - (void)toggleSelectTool {
     if (self.currentMode == FLEXExplorerModeSelect) {

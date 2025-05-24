@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  PTTableListViewController.m
 //  PTDatabaseReader
 //
 //  由 Peng Tao 创建于 15/11/23.
-//  版权所有 © 2015年 Peng Tao。保留所有权利。
+//  版权所有 © 2015年 Peng Tao. 保留所有权利。
+//
 
 #import "FLEXTableListViewController.h"
 #import "FLEXDatabaseManager.h"
@@ -44,7 +44,7 @@
 
     self.showsSearchBar = YES;
     
-    // 编写查询按钮 //
+    // 撰写查询按钮 //
 
     UIBarButtonItem *composeQuery = [[UIBarButtonItem alloc]
         initWithBarButtonSystemItem:UIBarButtonSystemItemCompose
@@ -110,12 +110,12 @@
             FLEXSQLResult *result = [database executeStatement:query];
             
             if (result.message) {
-                // 如果用户的上一个查询出错，则允许用户编辑该查询
+                // 如果查询有错误，允许用户编辑他们的最后一个查询
                 if ([result.message containsString:@"error"]) {
                     [FLEXAlert makeAlert:^(FLEXAlert *make) {
                         make.title(@"错误").message(result.message);
                         make.button(@"编辑查询").preferred().handler(^(NSArray<NSString *> *_) {
-                            // 使用我们上次的输入再次显示查询编辑器
+                            // 再次显示查询编辑器，包含我们上次的输入
                             [self showQueryInput:query];
                         });
                         

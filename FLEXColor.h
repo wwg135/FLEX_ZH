@@ -2,10 +2,9 @@
 //  FLEXColor.h
 //  FLEX
 //
-//  创建者：Benny Wong，日期：6/18/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Benny Wong on 6/18/19.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
@@ -29,11 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, class) UIColor *secondaryGroupedBackgroundColor;
 + (UIColor *)secondaryGroupedBackgroundColorWithAlpha:(CGFloat)alpha;
 
-// 文本颜色
+// Text colors
 @property (readonly, class) UIColor *primaryTextColor;
 @property (readonly, class) UIColor *deemphasizedTextColor;
 
-// UI 元素颜色
+// UI element colors
 @property (readonly, class) UIColor *tintColor;
 @property (readonly, class) UIColor *scrollViewBackgroundColor;
 @property (readonly, class) UIColor *iconColor;

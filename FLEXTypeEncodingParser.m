@@ -3,9 +3,8 @@
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 8/22/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXTypeEncodingParser.h"
 #import "FLEXRuntimeUtility.h"
@@ -16,38 +15,40 @@
 })
 
 typedef struct FLEXTypeInfo {
-    /// 大小未对齐。如果完全不支持，则为 -1。
+    /// 大小未对齐。如果完全不支持则为 -1。
     ssize_t size;
     ssize_t align;
-    /// 如果类型完全不受支持，则为 NO
-    /// 如果类型完全或部分受支持，则为 YES。
+    /// 如果类型完全不支持则为 NO
+    /// 如果类型完全或部分支持则为 YES。
     BOOL supported;
-    /// 如果类型仅部分受支持，则为 YES，例如
-    /// 指针类型中的联合，或没有成员信息的命名结构类型。
-    /// 这些可以手动更正，因为它们可以被修复或替换为较少的信息。
+    /// 如果类型仅部分支持则为 YES，比如
+    /// 指针类型中的联合体，或没有成员信息的具名结构体
+    /// 类型。这些可以手动修正，因为它们可以被修复
+    /// 或替换为包含较少信息的类型。
     BOOL fixesApplied;
-    /// 此类型是否为联合，或者其成员之一
-    /// 递归包含联合（不包括指针）。
+    /// 此类型是否为联合体或其成员之一
+    /// 递归包含联合体，不包括指针。
     ///
-    /// 联合比较棘手，因为它们受 \c NSGetSizeAndAlignment 支持，
-    /// 但不受 \c NSMethodSignature 支持，因此我们需要跟踪
-    /// 类型何时包含联合，以便将其从指针类型中清除。
+    /// 联合体很棘手，因为它们被
+    /// \c NSGetSizeAndAlignment 支持，但不被 \c NSMethodSignature 支持
+    /// 所以我们需要跟踪类型何时包含联合体
+    /// 以便我们可以从指针类型中清除它。
     BOOL containsUnion;
-    /// 如果不是 void，则 size 只能为 0
+    /// size 只有在 void 时才能为 0
     BOOL isVoid;
 } FLEXTypeInfo;
 
-/// 完全不受支持的类型的类型信息。
+/// 完全不支持的类型的类型信息。
 static FLEXTypeInfo FLEXTypeInfoUnsupported = (FLEXTypeInfo){ -1, 0, NO, NO, NO, NO };
 /// void 返回类型的类型信息。
 static FLEXTypeInfo FLEXTypeInfoVoid = (FLEXTypeInfo){ 0, 0, YES, NO, NO, YES };
 
-/// 为完全或部分受支持的类型构建类型信息。
+/// 构建完全或部分支持的类型的类型信息。
 static inline FLEXTypeInfo FLEXTypeInfoMake(ssize_t size, ssize_t align, BOOL fixed) {
     return (FLEXTypeInfo){ size, align, YES, fixed, NO, NO };
 }
 
-/// 为完全或部分受支持的类型构建类型信息。
+/// 构建完全或部分支持的类型的类型信息。
 static inline FLEXTypeInfo FLEXTypeInfoMakeU(ssize_t size, ssize_t align, BOOL fixed, BOOL hasUnion) {
     return (FLEXTypeInfo){ size, align, YES, fixed, hasUnion, NO };
 }
@@ -78,9 +79,9 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 @property (nonatomic, readonly) NSString *unscanned;
 @property (nonatomic, readonly) char nextChar;
 
-/// 在扫描时根据需要对此字符串进行替换
+/// 替换会在扫描时根据需要应用到此字符串
 @property (nonatomic) NSMutableString *cleaned;
-/// \c cleaned 中进行进一步替换的偏移量
+/// 对 \e cleaned 中进一步替换的偏移量
 @property (nonatomic, readonly) NSUInteger cleanedReplacingOffset;
 @end
 
@@ -108,7 +109,7 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 }
 
 
-#pragma mark 公开
+#pragma mark 公共方法
 
 + (BOOL)methodTypeEncodingSupported:(NSString *)typeEncoding cleaned:(NSString * __autoreleasing *)cleanedEncoding {
     if (!typeEncoding.length) {
@@ -135,11 +136,11 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 + (NSString *)type:(NSString *)typeEncoding forMethodArgumentAtIndex:(NSUInteger)idx {
     FLEXTypeEncodingParser *parser = [[self alloc] initWithObjCTypes:typeEncoding];
 
-    // 扫描到我们想要的参数
+    // 扫描到我们需要的参数
     for (NSUInteger i = 0; i < idx; i++) {
         if (![parser scanPastArg]) {
             [NSException raise:NSRangeException
-                format:@"索引 %@ 超出类型编码 '%@' 的范围", 
+                format:@"Index %@ out of bounds for type encoding '%@'", 
                 @(idx), typeEncoding
             ];
         }
@@ -172,7 +173,7 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         }
     }
     
-    // 如果不支持，则 size 为 -1
+    // size 为 -1 表示不支持
     return size;
 }
 
@@ -190,7 +191,7 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
     return [self parseType:type cleaned:nil];
 }
 
-#pragma mark 私有
+#pragma mark 私有方法
 
 - (NSCharacterSet *)identifierFirstCharCharacterSet {
     static NSCharacterSet *identifierFirstSet = nil;
@@ -238,7 +239,7 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
     return prefix;
 }
 
-/// @return 以字节为单位的大小
+/// @return 字节大小
 - (ssize_t)sizeForType:(FLEXTypeEncoding)type {
     switch (type) {
         case FLEXTypeEncodingChar: return sizeof(char);
@@ -260,8 +261,8 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         case FLEXTypeEncodingObjcObject:  return sizeof(id);
         case FLEXTypeEncodingObjcClass:  return sizeof(Class);
         case FLEXTypeEncodingSelector: return sizeof(SEL);
-        // 未知 / '?' 通常是指针。在极少数情况下
-        // 它不是，例如在 '{?=...}' 中，它永远不会传递到这里。
+        // 未知 / '?' 通常是一个指针。在极少数情况下
+        // 它不是，例如在 '{?=...}' 中，它从未传递到这里。
         case FLEXTypeEncodingUnknown:
         case FLEXTypeEncodingPointer: return sizeof(uintptr_t);
 
@@ -274,7 +275,7 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 
     // 首先检查 void
     if ([self scanChar:FLEXTypeEncodingVoid]) {
-        // 跳过方法签名中的参数帧
+        // 跳过方法签名的参数框架
         [self scanSize];
         return FLEXTypeInfoVoid;
     }
@@ -287,24 +288,24 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         // 递归扫描其他内容
         NSUInteger pointerTypeStart = self.scan.scanLocation;
         if ([self scanPastArg]) {
-            // 确保指针类型受支持，如果不支持则清理它
+            // 确保指针类型受支持，并在不支持时清理它
             NSUInteger pointerTypeLength = self.scan.scanLocation - pointerTypeStart;
             NSString *pointerType = [self.scan.string
                 substringWithRange:NSMakeRange(pointerTypeStart, pointerTypeLength)
             ];
             
-            // 深层嵌套的清理信息会在这里丢失
+            // 深度嵌套清理信息在此处丢失
             NSString *cleaned = nil;
             FLEXTypeInfo info = [self.class parseType:pointerType cleaned:&cleaned];
             BOOL needsCleaning = !info.supported || info.containsUnion || info.fixesApplied;
             
-            // 如果类型不受支持、格式错误或包含联合，则清理该类型。
-            // （联合受 NSGetSizeAndAlignment 支持，但由于某种原因
-            // 不受 NSMethodSignature 支持）
+            // 如果类型不受支持、格式错误或包含联合体，则清理类型。
+            // （联合体被 NSGetSizeAndAlignment 支持，但不被
+            // NSMethodSignature 支持）
             if (needsCleaning) {
-                // 如果不受支持，则上面的 parseType:cleaned: 中没有发生清理。
-                // 否则，类型部分受支持并且我们确实清理了它，
-                // 我们将用上面清理后的类型替换此类型。
+                // 如果不支持，则在上面的 parseType:cleaned: 中没有进行清理。
+                // 否则，类型是部分支持的，我们确实进行了清理，
+                // 并且我们将用上面清理过的类型替换此类型。
                 if (!info.supported || info.containsUnion) {
                     cleaned = [self cleanPointeeTypeAtLocation:pointerTypeStart];
                 }
@@ -316,19 +317,19 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
                 ) withString:cleaned];
             }
             
-            // 跳过可选的帧偏移量
+            // 跳过可选的框架偏移量
             [self scanSize];
             
             ssize_t size = [self sizeForType:FLEXTypeEncodingPointer];
             return FLEXTypeInfoMake(size, size, !info.supported || info.fixesApplied);
         } else {
-            // 扫描失败，中止
+            // 扫描失败，终止
             self.scan.scanLocation = start;
             return FLEXTypeInfoUnsupported;
         }
     }
 
-    // 检查结构体/联合/数组
+    // 检查结构体/联合体/数组
     char next = self.nextChar;
     BOOL didScanSUA = YES, structOrUnion = NO, isUnion = NO;
     FLEXTypeEncoding opening = FLEXTypeEncodingNull, closing = FLEXTypeEncodingNull;
@@ -359,14 +360,14 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         
         NSUInteger backup = self.scan.scanLocation;
 
-        // 确保我们有一个结束标记
+        // 确保我们有一个关闭标签
         if (![self scanPair:opening close:closing]) {
-            // 扫描失败，中止
+            // 扫描失败，终止
             self.scan.scanLocation = start;
             return FLEXTypeInfoUnsupported;
         }
 
-        // 将光标移到开始标记（结构体/联合/数组）之后
+        // 将光标移到打开标签（结构体/联合体/数组）之后
         NSInteger arrayCount = -1;
         self.scan.scanLocation = backup + 1;
         
@@ -374,17 +375,17 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
             arrayCount = [self scanSize];
             if (!arrayCount || self.nextChar == FLEXTypeEncodingArrayEnd) {
                 // 格式错误的数组类型：
-                // 1. 数组必须在左大括号后有一个计数
-                // 2. 数组必须在计数后有一个元素类型
+                // 1. 数组在开括号后必须有一个计数
+                // 2. 数组在计数后必须有一个元素类型
                 self.scan.scanLocation = start;
                 return FLEXTypeInfoUnsupported;
             }
         } else {
-            // 如果我们遇到类似 {?=b8b4b1b1b18[8S]} 中的 ?= 部分，
-            // 那么我们跳过它，因为它在这种情况下对我们没有任何意义。
+            // 如果我们遇到类似 {?=b8b4b1b1b18[8S]} 的 ?= 部分
+            // 那么我们跳过它，因为在此上下文中它对我们来说毫无意义。
             // 它是完全可选的，如果失败，我们会回到原来的位置。
             if (![self scanTypeName] && self.nextChar == FLEXTypeEncodingUnknown) {
-                // 例外：我们正在尝试解析无效的 {?}
+                // 异常：我们试图解析 {?}，这是无效的
                 self.scan.scanLocation = start;
                 return FLEXTypeInfoUnsupported;
             }
@@ -408,43 +409,23 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
                 return FLEXTypeInfoUnsupported;
             }
 
-            // 结构体字段可以命名
+            // 结构体字段可能是命名的
             if (next == FLEXTypeEncodingQuote) {
                 [self scanPair:FLEXTypeEncodingQuote close:FLEXTypeEncodingQuote];
             }
 
             FLEXTypeInfo info = [self parseNextType];
             if (!info.supported || info.containsUnion) {
-                // 上面的调用是此方法中唯一一次
-                // `cleaned` 可能被递归修改的地方，所以这是
-                // 唯一需要保留和恢复备份的地方
-                //
-                // 例如，如果我们一直在迭代一个结构的成员，
-                // 并且到目前为止遇到了一些需要清理的指针，
-                // 然后突然遇到一个不受支持的成员，我们需要能够“倒带”并
-                // 撤消对 `self.cleaned` 的任何更改，以便调用堆栈中的父调用
-                // 可以在需要时完全清除当前结构。示例如下：
-                //
-                //      初始: ^{foo=^{pair<d,d>}{^pair<i,i>}{invalid_type<d>}}
-                //                       v-- 此处
-                //    第一次清理: ^{foo=^{?=}{^pair<i,i>}{invalid_type<d>}
-                //                           v-- 此处
-                //    第二次清理: ^{foo=^{?=}{?=}{invalid_type<d>}
-                //                               v-- 此处
-                //  无法清理: ^{foo=^{?=}{?=}{invalid_type<d>}
-                //                 v-- 到此处
-                //       倒带: ^{foo=^{pair<d,d>}{^pair<i,i>}{invalid_type<d>}}
-                //  最终清理: ^{foo=}
                 self.cleaned = cleanedBackup;
                 self.scan.scanLocation = start;
                 return FLEXTypeInfoUnsupported;
             }
             
-            // 联合的大小是其最大成员的大小，
-            // 数组是 element.size x length，并且
+            // 联合体的大小是其最大成员的大小，
+            // 数组是元素大小 x 长度，和
             // 结构体是其成员的总和
             if (structOrUnion) {
-                if (isUnion) { // 联合
+                if (isUnion) { // 联合体
                     sizeSoFar = MAX(sizeSoFar, info.size);
                 } else { // 结构体
                     sizeSoFar += info.size;
@@ -459,7 +440,7 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
             fixesApplied = fixesApplied || info.fixesApplied;
         }
         
-        // 跳过可选的帧偏移量
+        // 跳过可选的框架偏移量
         [self scanSize];
 
         return FLEXTypeInfoMakeU(sizeSoFar, maxAlign, fixesApplied, containsUnion);
@@ -488,7 +469,7 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         case FLEXTypeEncodingSelector:
         case FLEXTypeEncodingBitField: {
             self.scan.scanLocation++;
-            // 跳过可选的帧偏移量
+            // 跳过可选的框架偏移量
             [self scanSize];
             
             if (t == FLEXTypeEncodingBitField) {
@@ -504,8 +485,8 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         case FLEXTypeEncodingObjcObject:
         case FLEXTypeEncodingObjcClass: {
             self.scan.scanLocation++;
-            // 这些后面可能有数字或引号
-            // 跳过可选的帧偏移量
+            // 这些可能在它们之后有数字或引号
+            // 跳过可选的框架偏移量
             [self scanSize];
             [self scanPair:FLEXTypeEncodingQuote close:FLEXTypeEncodingQuote];
             size = sizeof(id);
@@ -516,7 +497,7 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
     }
 
     if (size > 0) {
-        // 标量类型的对齐方式是其大小
+        // 标量类型的对齐是其大小
         return FLEXTypeInfoMake(size, size, NO);
     }
 
@@ -543,9 +524,6 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 }
 
 - (BOOL)canScanChar:(char)c {
-    // 通过避免对这两个我们知道不会被释放的对象进行任何 ARC 调用，
-    // 我们在这个解析器中获得了巨大的性能提升，因为这个方法是解析器中使用最频繁的方法之一。
-    // 这可能是这个类中性能最关键的方法。
     __unsafe_unretained NSScanner *scan = self.scan;
     __unsafe_unretained NSString *string = scan.string;
     if (scan.scanLocation >= string.length) return NO;
@@ -581,60 +559,45 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 }
 
 - (NSString *)scanPair:(char)c1 close:(char)c2 {
-    // 起始位置和字符串变量
     NSUInteger start = self.scan.scanLocation;
     NSString *s1 = S(c1);
 
-    // 扫描开始标记
     if (![self scanChar:c1]) {
         self.scan.scanLocation = start;
         return nil;
     }
 
-    // 用于扫描到任一符号的字符集
     NSCharacterSet *bothChars = ({
         unichar buff[2] = { c1, c2 };
         NSString *bothCharsStr = [[NSString alloc] initWithCharacters:buff length:2];
         [NSCharacterSet characterSetWithCharactersInString:bothCharsStr];
     });
 
-    // 用于查找配对的堆栈，从开始符号开始
     NSMutableArray *stack = [NSMutableArray arrayWithObject:s1];
 
-    // 扫描到一对开始/结束符号的结束端的算法
-    // scanUpToCharactersFromSet:intoString: 如果您已经在其中一个字符处，则返回 NO，
-    // 因此我们需要检查如果它返回 NO，我们是否真的可以扫描一个
     while ([self.scan scanUpToCharactersFromSet:bothChars intoString:nil] ||
            [self canScanChar:c1] || [self canScanChar:c2]) {
-        // 找到结束符号
         if ([self scanChar:c2]) {
             if (!stack.count) {
-                // 中止，没有匹配的开始符号
                 self.scan.scanLocation = start;
                 return nil;
             }
 
-            // 找到配对，弹出开始符号
             [stack removeLastObject];
-            // 如果我们到达了需要的结束大括号，则退出循环
             if (!stack.count) {
                 break;
             }
         }
-        // 找到开始符号
         if ([self scanChar:c1]) {
-            // 开始配对
             [stack addObject:s1];
         }
     }
 
     if (stack.count) {
-        // 中止，没有匹配的结束符号
         self.scan.scanLocation = start;
         return nil;
     }
 
-    // 切出我们刚刚扫描的字符串
     return [self.scan.string
         substringWithRange:NSMakeRange(start, self.scan.scanLocation - start)
     ];
@@ -643,21 +606,16 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 - (BOOL)scanPastArg {
     NSUInteger start = self.scan.scanLocation;
 
-    // 首先检查 void
     if ([self scanChar:FLEXTypeEncodingVoid]) {
         return YES;
     }
 
-    // 扫描可选的 const
     [self scanChar:FLEXTypeEncodingConst];
 
-    // 检查指针，然后扫描下一个
     if ([self scanChar:FLEXTypeEncodingPointer]) {
-        // 递归扫描其他内容
         if ([self scanPastArg]) {
             return YES;
         } else {
-            // 扫描失败，中止
             self.scan.scanLocation = start;
             return NO;
         }
@@ -665,7 +623,6 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
     
     char next = self.nextChar;
 
-    // 检查结构体/联合/数组，扫描过去
     FLEXTypeEncoding opening = FLEXTypeEncodingNull, closing = FLEXTypeEncodingNull;
     BOOL checkPair = YES;
     switch (next) {
@@ -691,7 +648,6 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         return YES;
     }
 
-    // 扫描单个内容和可能的大小并返回
     switch (next) {
         case FLEXTypeEncodingUnknown:
         case FLEXTypeEncodingChar:
@@ -712,7 +668,6 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         case FLEXTypeEncodingSelector:
         case FLEXTypeEncodingBitField: {
             self.scan.scanLocation++;
-            // 大小是可选的
             [self scanSize];
             return YES;
         }
@@ -720,7 +675,6 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         case FLEXTypeEncodingObjcObject:
         case FLEXTypeEncodingObjcClass: {
             self.scan.scanLocation++;
-            // 这些后面可能有数字或引号
             [self scanSize] || [self scanPair:FLEXTypeEncodingQuote close:FLEXTypeEncodingQuote];
             return YES;
         }
@@ -746,17 +700,13 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 - (BOOL)scanTypeName {
     NSUInteger start = self.scan.scanLocation;
 
-    // 类似 {?=b8b4b1b1b18[8S]} 中的 ?= 部分
     if ([self scanChar:FLEXTypeEncodingUnknown]) {
         if (![self scanString:@"="]) {
-            // 对于像 {?=} 这样的字符串，没有可用的大小信息
             self.scan.scanLocation = start;
             return NO;
         }
     } else {
         if (![self scanIdentifier] || ![self scanString:@"="]) {
-            // 1. 不是有效的标识符
-            // 2. 对于像 {CGPoint} 这样的字符串，没有可用的大小信息
             self.scan.scanLocation = start;
             return NO;
         }
@@ -768,7 +718,6 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
 - (NSString *)extractTypeNameFromScanLocation:(BOOL)allowMissingTypeInfo closing:(FLEXTypeEncoding)closeTag {
     NSUInteger start = self.scan.scanLocation;
 
-    // 类似 {?=b8b4b1b1b18[8S]} 中的 ?= 部分
     if ([self scanChar:FLEXTypeEncodingUnknown]) {
         return @"?";
     } else {
@@ -776,7 +725,6 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
         char next = self.nextChar;
         
         if (!typeName) {
-            // 没有扫描到标识符
             self.scan.scanLocation = start;
             return nil;
         }
@@ -786,13 +734,9 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
                 return typeName;
                 
             default: {
-                // = 是非可选的，除非我们 allowMissingTypeInfo，在这种情况下
-                // 下一个字符需要是结束大括号
                 if (allowMissingTypeInfo && next == closeTag) {
                     return typeName;
                 } else {
-                    // 不是有效的标识符；可能是通用的 C++ 类型
-                    // 例如 {pair<T, U>} 其中 `name` 被找到为 `pair`
                     self.scan.scanLocation = start;
                     return nil;
                 }
@@ -805,38 +749,29 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
     NSUInteger start = self.scan.scanLocation;
     self.scan.scanLocation = scanLocation;
     
-    // 当扫描的类型已经干净时的返回/清理代码
     NSString * (^typeIsClean)(void) = ^NSString * {
         NSString *clean = [self.scan.string
             substringWithRange:NSMakeRange(scanLocation, self.scan.scanLocation - scanLocation)
         ];
-        // 即使成功也要重置扫描位置，因为此方法不应该更改它
         self.scan.scanLocation = start;
         return clean;
     };
 
-    // 没有 void，这不是返回类型
-
-    // 扫描可选的 const
     [self scanChar:FLEXTypeEncodingConst];
     
     char next = self.nextChar;
     switch (next) {
         case FLEXTypeEncodingPointer:
-            // 递归扫描其他内容
             [self scanChar:next];
             return [self cleanPointeeTypeAtLocation:self.scan.scanLocation];
             
         case FLEXTypeEncodingArrayBegin:
-            // 所有数组都受支持，扫描过去
             if ([self scanPair:FLEXTypeEncodingArrayBegin close:FLEXTypeEncodingArrayEnd]) {
                 return typeIsClean();
             }
             break;
             
         case FLEXTypeEncodingUnionBegin:
-            // NSMethodSignature 中完全不支持联合
-            // 我们可以检查结束标记以确保安全，但是嗯
             self.scan.scanLocation = start;
             return @"?";
             
@@ -847,27 +782,21 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
                 return typeIsClean();
             }
             
-            // 我们刚刚尝试扫描的结构不受支持，所以如果它有名称，
-            // 只返回其名称。如果没有，则只返回一个问号。
-            self.scan.scanLocation++; // 跳过 {
+            self.scan.scanLocation++;
             NSString *name = [self extractTypeNameFromScanLocation:YES closing:FLEXTypeEncodingStructEnd];
             if (name) {
-                // 获取名称，扫描到结束标记
                 [self.scan scanUpToString:@"}" intoString:nil];
                 if (![self scanChar:FLEXTypeEncodingStructEnd]) {
-                    // 缺少结构体结束标记
                     self.scan.scanLocation = start;
                     return nil;
                 }
             } else {
-                // 没有扫描到有效的标识符，可能是 C++ 类型
                 self.scan.scanLocation = start;
                 return @"{?=}";
             }
             
-            // 即使成功也要重置扫描位置，因为此方法不应该更改它
             self.scan.scanLocation = start;
-            return ({ // "{name=}"
+            return ({ 
                 NSMutableString *format = @"{".mutableCopy;
                 [format appendString:name];
                 [format appendString:@"=}"];
@@ -879,7 +808,6 @@ BOOL FLEXGetSizeAndAlignment(const char *type, NSUInteger *sizep, NSUInteger *al
             break;
     }
     
-    // 检查其他类型，理论上这些类型都有效，但无所谓
     FLEXTypeInfo info = [self parseNextType];
     if (info.supported && !info.fixesApplied) {
         return typeIsClean();

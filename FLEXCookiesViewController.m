@@ -2,10 +2,9 @@
 //  FLEXCookiesViewController.m
 //  FLEX
 //
-//  创建者：Rich Robinson，日期：19/10/2015.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Rich Robinson on 19/10/2015.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXCookiesViewController.h"
 #import "FLEXObjectExplorerFactory.h"
@@ -19,12 +18,12 @@
 
 @implementation FLEXCookiesViewController
 
-#pragma mark - Overrides
+#pragma mark - 重写
 
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.title = @"网络缓存";
+    self.title = @"Cookie缓存";
 }
 
 - (NSString *)headerTitle {
@@ -67,15 +66,15 @@
 
 - (void)reloadData {
     self.headerTitle = [NSString stringWithFormat:
-        @"%@ 个网络缓存", @(self.cookies.filteredList.count)
+        @"%@个cookie", @(self.cookies.filteredList.count)
     ];
     [super reloadData];
 }
 
-#pragma mark - FLEXGlobalsEntry
+#pragma mark - FLEXGlobals入口
 
 + (NSString *)globalsEntryTitle:(FLEXGlobalsRow)row {
-    return @"🍪  网络缓存";
+    return @"🍪  Cookie缓存";
 }
 
 + (UIViewController *)globalsEntryViewController:(FLEXGlobalsRow)row {

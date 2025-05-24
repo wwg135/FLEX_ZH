@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXManager.m
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 4/4/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利.
+//  Created by Ryan Olson on 4/4/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXManager.h"
@@ -48,7 +47,7 @@
 }
 
 - (FLEXWindow *)explorerWindow {
-    NSAssert(NSThread.isMainThread, @"You must use %@ from the main thread only.", NSStringFromClass([self class]));
+    NSAssert(NSThread.isMainThread, @"您必须只从主线程使用 %@。", NSStringFromClass([self class]));
     
     if (!_explorerWindow) {
         _explorerWindow = [[FLEXWindow alloc] initWithFrame:FLEXUtility.appKeyWindow.bounds];
@@ -72,7 +71,7 @@
     UIWindow *flex = self.explorerWindow;
     flex.hidden = NO;
     if (@available(iOS 13.0, *)) {
-        // Only look for a new scene if we don't have one
+        // 只有当我们没有场景时才寻找新场景
         if (!flex.windowScene) {
             flex.windowScene = FLEXUtility.appKeyWindow.windowScene;
         }
@@ -141,13 +140,13 @@
 #pragma mark - FLEXWindowEventDelegate
 
 - (BOOL)shouldHandleTouchAtPoint:(CGPoint)pointInWindow {
-    // Ask the explorer view controller
+    // 询问资源管理器视图控制器
     return [self.explorerViewController shouldReceiveTouchAtWindowPoint:pointInWindow];
 }
 
 - (BOOL)canBecomeKeyWindow {
-    // Only when the explorer view controller wants it because
-    // it needs to accept key input & affect the status bar.
+    // 只有当资源管理器视图控制器需要它时
+    // 它需要接受按键输入并影响状态栏
     return self.explorerViewController.wantsWindowToBecomeKey;
 }
 

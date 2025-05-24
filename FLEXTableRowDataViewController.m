@@ -2,9 +2,8 @@
 //  FLEXTableRowDataViewController.m
 //  FLEX
 //
-//  Created by Chaoshuai Lu on 7/8/20.
+//  由 Chaoshuai Lu 创建于 7/8/20.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXTableRowDataViewController.h"
 #import "FLEXMutableListSection.h"
@@ -16,7 +15,7 @@
 
 @implementation FLEXTableRowDataViewController
 
-#pragma mark - Initialization
+#pragma mark - 初始化
 
 + (instancetype)rows:(NSDictionary<NSString *, id> *)rowData {
     FLEXTableRowDataViewController *controller = [self new];
@@ -24,7 +23,7 @@
     return controller;
 }
 
-#pragma mark - Overrides
+#pragma mark - 重写
 
 - (NSArray<FLEXTableViewSection *> *)makeSections {
     NSDictionary<NSString *, NSString *> *rowsByColumn = self.rowsByColumn;

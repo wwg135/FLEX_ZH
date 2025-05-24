@@ -1,19 +1,15 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 // Copyright (c) 2013, Facebook, Inc.
 // All rights reserved.
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-//
-//  * Redistributions of source code must retain the above copyright notice,
-//    this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//  * Neither the name Facebook nor the names of its contributors may be used to
-//    endorse or promote products derived from this software without specific
-//    prior written permission.
-//
+//   * Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//   * Redistributions in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//   * Neither the name Facebook nor the names of its contributors may be used to
+//     endorse or promote products derived from this software without specific
+//     prior written permission.
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -32,9 +28,9 @@
 #include <stdint.h>
 
 #if !defined(FISHHOOK_EXPORT)
-#define FISHHOOK_VISIBILITY __attribute__((visibility("hidden"))) // 默认隐藏符号
+#define FISHHOOK_VISIBILITY __attribute__((visibility("hidden")))
 #else
-#define FISHHOOK_VISIBILITY __attribute__((visibility("default"))) // 导出符号
+#define FISHHOOK_VISIBILITY __attribute__((visibility("default")))
 #endif
 
 #ifdef __cplusplus
@@ -42,29 +38,31 @@ extern "C" {
 #endif //__cplusplus
 
 /**
- * 表示从符号名称到其替换的特定预期重绑定的结构体
+ * A structure representing a particular intended rebinding from a symbol
+ * name to its replacement
  */
 struct rebinding {
-    const char *name;       // 要替换的符号名称
-    void *replacement;      // 替换后的函数指针
-    void **replaced;        // 指向存储原始函数指针位置的指针
+    const char *name;
+    void *replacement;
+    void **replaced;
 };
 
 /**
- * 对于 rebindings 中的每个重绑定，将对具有指定名称的外部间接符号的引用
- * 重绑定为指向 replacement，适用于调用进程中的每个镜像以及
- * 进程加载的所有未来镜像。如果多次调用 rebind_functions，
- * 要重绑定的符号将添加到现有的重绑定列表中，如果某个符号被多次重绑定，
- * 则后面的重绑定将优先。
- * @return 成功时返回 0
+ * For each rebinding in rebindings, rebinds references to external, indirect
+ * symbols with the specified name to instead point at replacement for each
+ * image in the calling process as well as for all future images that are loaded
+ * by the process. If rebind_functions is called more than once, the symbols to
+ * rebind are added to the existing list of rebindings, and if a given symbol
+ * is rebound more than once, the later rebinding will take precedence.
+ * @return 0 on success
  */
 FISHHOOK_VISIBILITY
 int flex_rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
 
 /**
- * 如上所述进行重绑定，但仅在指定的镜像中进行。header 应指向 mach-o 头部，
- * slide 应为幻灯片偏移量。其他参数同上。
- * @return 成功时返回 0
+ * Rebinds as above, but only in the specified image. The header should point
+ * to the mach-o header, the slide should be the slide offset. Others as above.
+ * @return 0 on success
  */
 FISHHOOK_VISIBILITY
 int flex_rebind_symbols_image(void *header,

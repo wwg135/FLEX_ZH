@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXManager+Extensibility.h
 //  FLEX
 //
-//  由 Tanner 创建于 2/2/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 2/2/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXManager.h"
@@ -14,60 +13,66 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FLEXManager (Extensibility)
 
-#pragma mark - 全局屏幕条目
+#pragma mark - Globals Screen Entries
 
-/// 在全局状态项列表的顶部添加一个条目。
-/// 在显示此视图控制器之前调用此方法。
-/// @param entryName 要在单元格中显示的字符串。
-/// @param objectFutureBlock 当您点击该行时，将显示有关此块返回的对象的信息。
-/// 传递一个返回对象的块允许您显示有关其实际指针可能在运行时更改的对象的信息（例如 +currentUser）
-/// @注意 此方法必须从主线程调用。
-/// objectFutureBlock 将从主线程调用，并且可能返回 nil。
-/// @注意 传递的块将被复制并在应用程序的整个生命周期内保留，您可能需要使用 __weak 引用。
+/// Adds an entry at the top of the list of Global State items.
+/// Call this method before this view controller is displayed.
+/// @param entryName The string to be displayed in the cell.
+/// @param objectFutureBlock When you tap on the row, information about the object returned
+/// by this block will be displayed. Passing a block that returns an object allows you to display
+/// information about an object whose actual pointer may change at runtime (e.g. +currentUser)
+/// @note This method must be called from the main thread.
+/// The objectFutureBlock will be invoked from the main thread and may return nil.
+/// @note The passed block will be copied and retain for the duration of the application,
+/// you may want to use __weak references.
 - (void)registerGlobalEntryWithName:(NSString *)entryName objectFutureBlock:(id (^)(void))objectFutureBlock;
 
-/// 在全局状态项列表的顶部添加一个条目。
-/// 在显示此视图控制器之前调用此方法。
-/// @param entryName 要在单元格中显示的字符串。
-/// @param viewControllerFutureBlock 当您点击该行时，此块返回的视图控制器将被推送到导航控制器堆栈上。
-/// @注意 此方法必须从主线程调用。
-/// viewControllerFutureBlock 将从主线程调用，并且不得返回 nil。
-/// @注意 传递的块将被复制并在应用程序的整个生命周期内保留，您可能需要根据需要使用 __weak 引用。
+/// Adds an entry at the top of the list of Global State items.
+/// Call this method before this view controller is displayed.
+/// @param entryName The string to be displayed in the cell.
+/// @param viewControllerFutureBlock When you tap on the row, view controller returned
+/// by this block will be pushed on the navigation controller stack.
+/// @note This method must be called from the main thread.
+/// The viewControllerFutureBlock will be invoked from the main thread and may not return nil.
+/// @note The passed block will be copied and retain for the duration of the application,
+/// you may want to use __weak references as needed.
 - (void)registerGlobalEntryWithName:(NSString *)entryName
           viewControllerFutureBlock:(UIViewController * (^)(void))viewControllerFutureBlock;
 
-/// 在全局状态项列表的顶部添加一个条目。
-/// @param entryName 要在单元格中显示的字符串。
-/// @param rowSelectedAction 当您点击该行时，将使用宿主表视图控制器调用此块。
-/// 用它来取消选择该行或显示警报。
-/// @注意 此方法必须从主线程调用。
-/// rowSelectedAction 将从主线程调用。
-/// @注意 传递的块将被复制并在应用程序的整个生命周期内保留，您可能需要根据需要使用 __weak 引用。
+/// Adds an entry at the top of the list of Global State items.
+/// @param entryName The string to be displayed in the cell.
+/// @param rowSelectedAction When you tap on the row, this block will be invoked
+/// with the host table view view controller. Use it to deselect the row or present an alert.
+/// @note This method must be called from the main thread.
+/// The rowSelectedAction will be invoked from the main thread.
+/// @note The passed block will be copied and retain for the duration of the application,
+/// you may want to use __weak references as needed.
 - (void)registerGlobalEntryWithName:(NSString *)entryName action:(FLEXGlobalsEntryRowAction)rowSelectedAction;
 
-/// 删除所有已注册的全局条目。
+/// Removes all registered global entries.
 - (void)clearGlobalEntries;
 
-#pragma mark - 编辑
+#pragma mark - Editing
 
-/// 为自定义结构类型启用显示 ivar 名称
+/// Enable displaying ivar names for custom struct types
 + (void)registerFieldNames:(NSArray<NSString *> *)names forTypeEncoding:(NSString *)typeEncoding;
 
-#pragma mark - 模拟器快捷键
+#pragma mark - Simulator Shortcuts
 
-/// 模拟器键盘快捷键默认启用。
-/// 当存在活动文本字段、文本视图或其他接受按键输入的响应程序时，快捷键将不会触发。
-/// 如果您现有的键盘快捷键与 FLEX 冲突，或者您喜欢以困难的方式做事，则可以禁用键盘快捷键 ;)
-/// 键盘快捷键在非模拟器版本中始终被禁用（并且支持被 #if'd 掉）
+/// Simulator keyboard shortcuts are enabled by default.
+/// The shortcuts will not fire when there is an active text field, text view, or other responder
+/// accepting key input. You can disable keyboard shortcuts if you have existing keyboard shortcuts
+/// that conflict with FLEX, or if you like doing things the hard way ;)
+/// Keyboard shortcuts are always disabled (and support is #if'd out) in non-simulator builds
 @property (nonatomic) BOOL simulatorShortcutsEnabled;
 
-/// 添加一个在按下指定的键和修饰符组合时运行的操作
-/// @param key 与键盘上的键匹配的单个字符字符串
-/// @param modifiers 修饰键，例如 shift、command 或 alt/option
-/// @param action 当识别到键和修饰符组合时在主线程上运行的块。
-/// @param description 显示在键盘快捷键帮助菜单中，可通过“?”键访问。
-/// @注意 操作块将在应用程序的整个生命周期内保留。您可能需要使用弱引用。
-/// @注意 FLEX 注册了几个默认的键盘快捷键。使用“?”键查看快捷键列表。
+/// Adds an action to run when the specified key & modifier combination is pressed
+/// @param key A single character string matching a key on the keyboard
+/// @param modifiers Modifier keys such as shift, command, or alt/option
+/// @param action The block to run on the main thread when the key & modifier combination is recognized.
+/// @param description Shown the the keyboard shortcut help menu, which is accessed via the '?' key.
+/// @note The action block will be retained for the duration of the application. You may want to use weak references.
+/// @note FLEX registers several default keyboard shortcuts. Use the '?' key to see a list of shortcuts.
 - (void)registerSimulatorShortcutWithKey:(NSString *)key
                                modifiers:(UIKeyModifierFlags)modifiers
                                   action:(dispatch_block_t)action

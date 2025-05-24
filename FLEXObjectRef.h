@@ -1,17 +1,16 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXObjectRef.h
 //  FLEX
 //
-//  由 Tanner Bennett 创建于 7/24/18.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Tanner Bennett on 7/24/18.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 @interface FLEXObjectRef : NSObject
 
-/// 引用一个对象，而不影响其生命周期或发出引用计数操作。
+/// 引用一个对象，不影响其生命周期，也不产生引用计数操作。
 + (instancetype)unretained:(__unsafe_unretained id)object;
 + (instancetype)unretained:(__unsafe_unretained id)object ivar:(NSString *)ivarName;
 
@@ -27,16 +26,16 @@
 /// 类没有摘要，引用只是类名。
 + (NSArray<FLEXObjectRef *> *)referencingClasses:(NSArray<Class> *)classes;
 
-/// 例如，“NSString 0x1d4085d0”或“NSLayoutConstraint _object”
+/// 例如，"NSString 0x1d4085d0"或"NSLayoutConstraint _object"
 @property (nonatomic, readonly) NSString *reference;
-/// 对于实例，这是 -[FLEXRuntimeUtility summaryForObject:] 的结果
+/// 对于实例，这是-[FLEXRuntimeUtility summaryForObject:]的结果
 /// 对于类，没有摘要。
 @property (nonatomic, readonly) NSString *summary;
 @property (nonatomic, readonly, unsafe_unretained) id object;
 
-/// 如果引用的对象尚未保留，则保留它
+/// 如果引用的对象尚未被保留，则保留它
 - (void)retainObject;
-/// 如果引用的对象已被保留，则释放它
+/// 如果引用的对象已经被保留，则释放它
 - (void)releaseObject;
 
 @end

@@ -4,10 +4,10 @@
 //
 //  Created by AnthoPak on 26/09/2022.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXShortcutsSection.h"
 
+/// 为所有窗口添加"动画速度"快捷方式
 @interface FLEXWindowShortcuts : FLEXShortcutsSection
 
 @end

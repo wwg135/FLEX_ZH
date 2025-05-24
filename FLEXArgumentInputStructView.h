@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXArgumentInputStructView.h
 //  Flipboard
@@ -11,7 +10,7 @@
 
 @interface FLEXArgumentInputStructView : FLEXArgumentInputView
 
-/// 为自定义结构体类型启用显示实例变量名称
+/// Enable displaying ivar names for custom struct types
 + (void)registerFieldNames:(NSArray<NSString *> *)names forTypeEncoding:(NSString *)typeEncoding;
 
 @end

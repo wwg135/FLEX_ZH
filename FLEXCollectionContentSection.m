@@ -2,10 +2,9 @@
 //  FLEXCollectionContentSection.m
 //  FLEX
 //
-//  创建者：Tanner Bennett，日期：8/28/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner Bennett on 8/28/19.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXCollectionContentSection.h"
 #import "FLEXUtility.h"
@@ -39,7 +38,7 @@ typedef NS_ENUM(NSUInteger, FLEXCollectionType) {
 @property (nonatomic, copy) id<FLEXCollection> cachedCollection;
 /// 要显示的静态集合
 @property (nonatomic, readonly) id<FLEXCollection> collection;
-/// 一个可能随时间变化并可以调用以获取新数据的集合
+/// 可能随时间变化的集合，可以调用获取新数据
 @property (nonatomic, readonly) FLEXCollectionContentFuture collectionFuture;
 @property (nonatomic, readonly) FLEXCollectionType collectionType;
 @property (nonatomic, readonly) BOOL isMutable;
@@ -48,7 +47,7 @@ typedef NS_ENUM(NSUInteger, FLEXCollectionType) {
 @implementation FLEXCollectionContentSection
 @synthesize filterText = _filterText;
 
-#pragma mark Initialization // 初始化
+#pragma mark 初始化
 
 + (instancetype)forObject:(id)object {
     return [self forCollection:object];
@@ -73,10 +72,10 @@ typedef NS_ENUM(NSUInteger, FLEXCollectionType) {
 }
 
 
-#pragma mark - Misc // 其他
+#pragma mark - 杂项
 
 + (FLEXCollectionType)typeForCollection:(id<FLEXCollection>)collection {
-    // 这里的顺序很重要，因为 NSDictionary 是键控的，但它响应 allObjects
+    // 这里顺序很重要，因为NSDictionary是键值的但它也响应allObjects
     if ([collection respondsToSelector:@selector(objectAtIndex:)]) {
         return FLEXOrderedCollection;
     }
@@ -88,21 +87,21 @@ typedef NS_ENUM(NSUInteger, FLEXCollectionType) {
     }
 
     [NSException raise:NSInvalidArgumentException
-                format:@"给定的集合未正确遵循 FLEXCollection 协议"];
+                format:@"给定的集合未正确遵循FLEXCollection协议"];
     return FLEXUnsupportedCollection;
 }
 
 /// 行标题
-/// - 有序集合：索引
-/// - 无序集合：对象
-/// - 键控集合：键
+/// - 有序集合: 索引
+/// - 无序集合: 对象
+/// - 键值集合: 键
 - (NSString *)titleForRow:(NSInteger)row {
     switch (self.collectionType) {
         case FLEXOrderedCollection:
             if (!self.hideOrderIndexes) {
                 return @(row).stringValue;
             }
-            // 继续执行
+            // Fall-through
         case FLEXUnorderedCollection:
             return [self describe:[self objectForRow:row]];
         case FLEXKeyedCollection:
@@ -114,16 +113,16 @@ typedef NS_ENUM(NSUInteger, FLEXCollectionType) {
 }
 
 /// 行副标题
-/// - 有序集合：对象
-/// - 无序集合：无
-/// - 键控集合：值
+/// - 有序集合: 对象
+/// - 无序集合: 无
+/// - 键值集合: 值
 - (NSString *)subtitleForRow:(NSInteger)row {
     switch (self.collectionType) {
         case FLEXOrderedCollection:
             if (!self.hideOrderIndexes) {
                 nil;
             }
-            // 继续执行
+            // Fall-through
         case FLEXKeyedCollection:
             return [self describe:[self objectForRow:row]];
         case FLEXUnorderedCollection:
@@ -158,7 +157,7 @@ typedef NS_ENUM(NSUInteger, FLEXCollectionType) {
 }
 
 
-#pragma mark - Overrides // 覆盖方法
+#pragma mark - 重写
 
 - (NSString *)title {
     if (!self.hideSectionTitle) {
@@ -200,7 +199,7 @@ typedef NS_ENUM(NSUInteger, FLEXCollectionType) {
     if (self.collectionFuture) {
         self.cachedCollection = (id<FLEXCollection>)self.collectionFuture(self);
     } else {
-        self.cachedCollection = self.collection.copy; // 如果 collection 为 nil，这里可能会崩溃。确保 collection 已初始化。
+        self.cachedCollection = self.collection.copy;
     }
 }
 
@@ -225,7 +224,7 @@ typedef NS_ENUM(NSUInteger, FLEXCollectionType) {
 @end
 
 
-#pragma mark - NSMutableDictionary // NSMutableDictionary 分类
+#pragma mark - NSMutableDictionary
 
 @implementation NSMutableDictionary (FLEXMutableCollection)
 

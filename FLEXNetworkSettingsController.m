@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXNetworkSettingsController.m
 //  FLEXInjected
@@ -85,46 +84,8 @@
     return [NSString stringWithFormat:@"缓存限制 (%@ MB)", @(limitInMB)];
 }
 
-- (NSArray<NSString *> *)sectionTitles {
-    return @[
-        @"网络请求",
-        @"响应类型",
-        @"缓存设置",
-        @"高级选项"
-    ];
-}
 
-- (NSArray<NSString *> *)rowTitles {
-    return @[
-        @"记录网络请求",
-        @"显示请求头",
-        @"显示响应头",
-        @"显示请求体",
-        @"显示响应体"
-    ];
-}
-
-- (NSArray<NSString *> *)settingsTitles {
-    return @[
-        @"网络设置",
-        @"请求配置", 
-        @"响应设置",
-        @"缓存选项",
-        @"调试工具"
-    ];
-}
-
-- (NSArray<NSString *> *)settingsDescriptions {
-    return @[
-        @"配置网络请求监控选项",
-        @"设置请求拦截和修改规则",
-        @"配置响应数据处理方式", 
-        @"管理网络缓存策略",
-        @"启用网络调试工具"
-    ];
-}
-
-#pragma mark - 设置操作
+#pragma mark - Settings Actions
 
 - (void)networkDebuggingToggled:(UISwitch *)sender {
     FLEXNetworkObserver.enabled = sender.isOn;
@@ -143,7 +104,7 @@
 }
 
 
-#pragma mark - 表格视图数据源
+#pragma mark - Table View Data Source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 2;
@@ -159,8 +120,8 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch (section) {
-        case 0: return @"常规设置";
-        case 1: return @"主机黑名单";
+        case 0: return @"通用";
+        case 1: return @"主机拒绝列表";
         default: return nil;
     }
 }
@@ -185,7 +146,7 @@
     cell.textLabel.textColor = FLEXColor.primaryTextColor;
     
     switch (indexPath.section) {
-        // 设置
+        // Settings
         case 0: {
             switch (indexPath.row) {
                 case 0:
@@ -221,7 +182,7 @@
                         sliderOriginX, sliderOriginY, sliderWidth, slider.frame.size.height
                     );
                     
-                    // 加宽，保持在单元格中间，并与单元格后缘对齐
+                    // Make wider, keep in middle of cell, keep to trailing edge of cell
                     self.cacheLimitSlider.autoresizingMask = ({
                         UIViewAutoresizingFlexibleWidth |
                         UIViewAutoresizingFlexibleLeftMargin |
@@ -234,7 +195,7 @@
             break;
         }
         
-        // 拒绝列表条目
+        // Denylist entries
         case 1: {
             cell.textLabel.text = self.hostDenylist[indexPath.row];
             break;
@@ -248,10 +209,10 @@
     return cell;
 }
 
-#pragma mark - 表格视图委托
+#pragma mark - Table View Delegate
 
 - (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)ip {
-    // 只能选择“重置主机拒绝列表”行
+    // 只能选择"重置主机拒绝列表"行
     return ip.section == 0 && ip.row == 2;
 }
 

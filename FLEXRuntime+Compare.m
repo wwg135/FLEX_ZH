@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntime+Compare.m
 //  FLEX
 //
-//  由 Tanner Bennett 创建于 8/28/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner Bennett on 8/28/19.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXRuntime+Compare.h"
@@ -14,7 +13,7 @@
 - (NSComparisonResult)compare:(FLEXProperty *)other {
     NSComparisonResult r = [self.name caseInsensitiveCompare:other.name];
     if (r == NSOrderedSame) {
-        // TODO: 确保空图像名称排在图像名称之前
+        // TODO make sure empty image name sorts above an image name
         return [self.imageName ?: @"" compare:other.imageName];
     }
 

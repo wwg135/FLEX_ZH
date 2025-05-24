@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXShortcutsSection.m
 //  FLEX
 //
 //  由 Tanner Bennett 创建于 8/29/19.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
+//
 
 #import "FLEXShortcutsSection.h"
 #import "FLEXTableView.h"
@@ -99,17 +99,17 @@
 }
 
 
-#pragma mark - 公开
+#pragma mark - 公共方法
 
 - (void)setCacheSubtitles:(BOOL)cacheSubtitles {
     if (_cacheSubtitles == cacheSubtitles) return;
 
-    // cacheSubtitles 仅在有快捷方式对象时适用
+    // cacheSubtitles 仅在我们有快捷方式对象时适用
     if (self.allShortcuts) {
         _cacheSubtitles = cacheSubtitles;
         [self reloadData];
     } else {
-        NSLog(@"警告：在具有静态副标题的快捷方式部分设置 'cacheSubtitles'");
+        NSLog(@"警告：在具有静态副标题的快捷方式部分上设置 'cacheSubtitles'");
     }
 }
 
@@ -129,11 +129,11 @@
 
     NSAssert(
         self.allTitles.count == self.allSubtitles.count,
-        @"每个标题都需要一个（可能为空的）副标题"
+        @"每个标题需要一个（可能为空的）副标题"
     );
 
     if (filterText.length) {
-        // 统计匹配筛选条件的标题和副标题的索引
+        // 统计匹配过滤器的标题和副标题的索引
         NSMutableIndexSet *filterMatches = [NSMutableIndexSet new];
         id filterBlock = ^BOOL(NSString *obj, NSUInteger idx) {
             if ([obj localizedCaseInsensitiveContainsString:filterText]) {
@@ -147,7 +147,7 @@
         // 获取所有匹配的索引，包括副标题
         [self.allTitles flex_forEach:filterBlock];
         [self.allSubtitles flex_forEach:filterBlock];
-        // 筛选到仅匹配的索引
+        // 仅过滤到匹配的索引
         self.titles    = [self.allTitles objectsAtIndexes:filterMatches];
         self.subtitles = [self.allSubtitles objectsAtIndexes:filterMatches];
         self.shortcuts = [self.allShortcuts objectsAtIndexes:filterMatches];
@@ -173,7 +173,7 @@
         }];
     }
 
-    // 重新生成已筛选的（副）标题和快捷方式
+    // 重新生成过滤后的（副）标题和快捷方式
     self.filterText = self.filterText;
 }
 
@@ -198,7 +198,7 @@
 }
 
 - (UIViewController *)viewControllerToPushForRow:(NSInteger)row {
-    /// 如果 shortcuts 为 nil，则为 Nil，即如果使用 forObject:rowTitles:rowSubtitles: 初始化
+    /// 如果 shortcuts 为 nil，则为 nil，例如如果使用 forObject:rowTitles:rowSubtitles: 初始化
     return [self.shortcuts[row] viewerWith:self.object];
 }
 
@@ -237,13 +237,13 @@
 }
 
 - (NSString *)subtitleForRow:(NSInteger)row {
-    // 情况：动态、未缓存的副标题
+    // 情况：动态的，未缓存的副标题
     if (!self.cacheSubtitles) {
         NSString *subtitle = [self.shortcuts[row] subtitleWith:self.object];
         return subtitle.length ? subtitle : nil;
     }
 
-    // 情况：静态副标题或缓存的副标题
+    // 情况：静态副标题，或缓存的副标题
     return self.subtitles[row];
 }
 
@@ -265,11 +265,11 @@
 typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> RegistrationBuckets;
 
 @implementation FLEXShortcutsFactory {
-    // 类存储桶
+    // 类桶
     RegistrationBuckets *cProperties;
     RegistrationBuckets *cIvars;
     RegistrationBuckets *cMethods;
-    // 元类存储桶
+    // 元类桶
     RegistrationBuckets *mProperties;
     RegistrationBuckets *mMethods;
 }
@@ -307,8 +307,8 @@ typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> Re
 
     NSMutableArray<id<FLEXRuntimeMetadata>> *shortcuts = [NSMutableArray new];
     BOOL isClass = object_isClass(objectOrClass);
-    // -class 不会给你一个元类，如果传入一个类，我们想要一个元类，
-    // 或者如果传入一个对象，我们想要一个类
+    // -class 不会给你一个元类，如果传入一个类，我们需要一个元类，
+    // 或者如果传入一个对象，我们需要一个类
     Class classKey = object_getClass(objectOrClass);
     
     RegistrationBuckets *propertyBucket = isClass ? mProperties : cProperties;
@@ -321,7 +321,7 @@ typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> Re
         NSArray *ivars = ivarBucket[classKey];
         NSArray *methods = methodBucket[classKey];
 
-        // 如果找到任何东西就停止
+        // 如果找到任何内容则停止
         stop = properties || ivars || methods;
         if (stop) {
             // 将找到的内容添加到列表中
@@ -351,7 +351,7 @@ typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> Re
 
 - (void)_register:(NSArray<id<FLEXRuntimeMetadata>> *)items to:(RegistrationBuckets *)global class:(Class)key {
     @synchronized (self) {
-        // 获取（或初始化）此类的存储桶
+        // 获取（或初始化）此类的桶
         NSMutableArray *bucket = ({
             id bucket = global[key];
             if (!bucket) {
@@ -365,7 +365,7 @@ typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> Re
         if (self->_replace) { [bucket setArray:items]; }
         if (self->_prepend) {
             if (bucket.count) {
-                // 将新项目设置为数组，并将旧项目添加到它们后面
+                // 将新项目设置为数组，在它们后面添加旧项目
                 id copy = bucket.copy;
                 [bucket setArray:items];
                 [bucket addObjectsFromArray:copy];
@@ -392,7 +392,7 @@ typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> Re
 }
 
 - (FLEXShortcutsFactoryNames)properties {
-    NSAssert(!_notInstance, @"不要同时设置 properties 和 classProperties");
+    NSAssert(!_notInstance, @"不要尝试同时设置 properties+classProperties");
     return SetParamBlock(_properties);
 }
 
@@ -406,7 +406,7 @@ typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> Re
 }
 
 - (FLEXShortcutsFactoryNames)methods {
-    NSAssert(!_notInstance, @"不要同时设置 methods 和 classMethods");
+    NSAssert(!_notInstance, @"不要尝试同时设置 methods+classMethods");
     return SetParamBlock(_methods);
 }
 
@@ -421,17 +421,17 @@ typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> Re
             ( self->_append && !self->_prepend && !self->_replace) ||
             (!self->_append &&  self->_prepend && !self->_replace) ||
             (!self->_append && !self->_prepend &&  self->_replace),
-            @"您只能执行 [append, prepend, replace] 中的一个操作"
+            @"您只能执行 [append, prepend, replace] 中的一个"
         );
 
         
-        /// 我们将要添加的元数据是实例元数据还是类元数据，
-        /// 即类属性与实例属性
+        /// 我们即将添加的元数据是实例元数据还是类元数据，
+        /// 例如类属性与实例属性
         BOOL instanceMetadata = !self->_notInstance;
-        /// 给定的类是否是元类；如果给定的是普通类对象，
-        /// 我们需要切换到元类来添加类元数据
+        /// 给定的类是否为元类；如果给定的是普通类对象，
+        /// 我们需要切换到元类以添加类元数据
         BOOL isMeta = class_isMetaClass(cls);
-        /// 我们将要添加的快捷方式应该出现在类还是实例中
+        /// 我们即将添加的快捷方式应该出现在类上还是实例上
         BOOL instanceShortcut = !isMeta;
         
         if (instanceMetadata) {
@@ -443,7 +443,7 @@ typedef NSMutableDictionary<Class, NSMutableArray<id<FLEXRuntimeMetadata>> *> Re
         Class metaclass = isMeta ? cls : object_getClass(cls);
         Class clsForMetadata = instanceMetadata ? cls : metaclass;
         
-        // 工厂是单例，所以我们不需要担心“泄漏”它
+        // 工厂是单例，所以我们不需要担心"泄漏"它
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Wimplicit-retain-self"
         

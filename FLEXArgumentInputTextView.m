@@ -2,11 +2,9 @@
 //  FLEXArgumentInputTextView.m
 //  FLEXInjected
 //
-//  创建者：Ryan Olson，日期：6/15/14.
+//  由 Ryan Olson 于 6/15/14 创建.
 //
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXColor.h"
 #import "FLEXArgumentInputTextView.h"
@@ -29,17 +27,17 @@
         self.inputTextView.font = [[self class] inputFont];
         self.inputTextView.backgroundColor = FLEXColor.secondaryGroupedBackgroundColor;
         self.inputTextView.layer.cornerRadius = 10.f;
-        self.inputTextView.contentInset = UIEdgeInsetsMake(0, 5, 0, 0); // 内容边距
+        self.inputTextView.contentInset = UIEdgeInsetsMake(0, 5, 0, 0);
         self.inputTextView.autocapitalizationType = UITextAutocapitalizationTypeNone;
         self.inputTextView.autocorrectionType = UITextAutocorrectionTypeNo;
         self.inputTextView.delegate = self;
-        self.inputTextView.inputAccessoryView = [self createToolBar]; // 输入辅助视图
+        self.inputTextView.inputAccessoryView = [self createToolBar];
         if (@available(iOS 11, *)) {
-            self.inputTextView.smartQuotesType = UITextSmartQuotesTypeNo; // 智能引号类型
-            [self.inputTextView.layer setValue:@YES forKey:@"continuousCorners"]; // 连续圆角
+            self.inputTextView.smartQuotesType = UITextSmartQuotesTypeNo;
+            [self.inputTextView.layer setValue:@YES forKey:@"continuousCorners"];
         } else {
-            self.inputTextView.layer.borderWidth = 1.f; // 边框宽度
-            self.inputTextView.layer.borderColor = FLEXColor.borderColor.CGColor; // 边框颜色
+            self.inputTextView.layer.borderWidth = 1.f;
+            self.inputTextView.layer.borderColor = FLEXColor.borderColor.CGColor;
         }
 
         self.placeholderLabel = [UILabel new];
@@ -54,21 +52,21 @@
     return self;
 }
 
-#pragma mark - Private // 私有方法
+#pragma mark - 私有方法
 
 - (UIToolbar *)createToolBar {
     UIToolbar *toolBar = [UIToolbar new];
     [toolBar sizeToFit];
     UIBarButtonItem *spaceItem = [[UIBarButtonItem alloc]
-        initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace // 弹性间隔
+        initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
         target:nil action:nil
     ];
     UIBarButtonItem *pasteItem = [[UIBarButtonItem alloc]
-        initWithTitle:@"粘贴" style:UIBarButtonItemStyleDone // "Paste"
+        initWithTitle:@"粘贴" style:UIBarButtonItemStyleDone
         target:self.inputTextView action:@selector(paste:)
     ];
     UIBarButtonItem *doneItem = [[UIBarButtonItem alloc]
-        initWithBarButtonSystemItem:UIBarButtonSystemItemDone // 完成
+        initWithBarButtonSystemItem:UIBarButtonSystemItemDone
         target:self.inputTextView action:@selector(resignFirstResponder)
     ];
     toolBar.items = @[spaceItem, pasteItem, doneItem];
@@ -95,21 +93,21 @@
 }
 
 
-#pragma mark - Superclass Overrides // 父类覆盖方法
+#pragma mark - 父类重写
 
 - (BOOL)inputViewIsFirstResponder {
     return self.inputTextView.isFirstResponder;
 }
 
 
-#pragma mark - Layout and Sizing // 布局和尺寸
+#pragma mark - 布局和尺寸
 
 - (void)layoutSubviews {
     [super layoutSubviews];
     
     self.inputTextView.frame = CGRectMake(0, self.topInputFieldVerticalLayoutGuide, self.bounds.size.width, [self inputTextViewHeight]);
-    // 占位符标签通过先应用 contentInset 然后应用 textContainerInset
-    // 来定位其原点
+    // 占位标签通过先应用内容边距然后
+    // 再应用文本容器边距来定位
     CGSize s = self.inputTextView.frame.size;
     self.placeholderLabel.frame = CGRectMake(0, 0, s.width, s.height);
     self.placeholderLabel.frame = UIEdgeInsetsInsetRect(
@@ -140,14 +138,14 @@
 }
 
 
-#pragma mark - Class Helpers // 类助手方法
+#pragma mark - 类辅助方法
 
 + (UIFont *)inputFont {
     return [UIFont systemFontOfSize:14.0];
 }
 
 
-#pragma mark - UITextViewDelegate // UITextView 代理
+#pragma mark - UITextViewDelegate
 
 - (void)textViewDidChange:(UITextView *)textView {
     [self.delegate argumentInputViewValueDidChange:self];

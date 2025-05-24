@@ -2,11 +2,10 @@
 //  FLEXClassBuilder.m
 //  FLEX
 //
-//  派生自 MirrorKit。
-//  创建者：Tanner，日期：7/3/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  源自 MirrorKit.
+//  由 Tanner 于 7/3/15 创建.
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXClassBuilder.h"
 #import "FLEXProperty.h"
@@ -31,7 +30,7 @@
     return nil;
 }
 
-#pragma mark 初始化方法
+#pragma mark 初始化器
 + (instancetype)allocateClass:(NSString *)name {
     return [self allocateClass:name superclass:NSObject.class];
 }
@@ -67,7 +66,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<%@ name=%@, registered=%d>",
+    return [NSString stringWithFormat:@"<%@ 名称=%@, 已注册=%d>",
             NSStringFromClass(self.class), self.name, self.isRegistered];
 }
 
@@ -129,7 +128,7 @@
 
 - (Class)registerClass {
     if (self.isRegistered) {
-        [NSException raise:NSInternalInconsistencyException format:@"类已注册"];
+        [NSException raise:NSInternalInconsistencyException format:@"类已经注册"];
     }
     
     objc_registerClassPair(self.workingClass);

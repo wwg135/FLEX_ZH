@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXNetworkTransactionCell.m
 //  Flipboard
@@ -103,33 +102,7 @@ NSString * const kFLEXNetworkTransactionCellIdentifier = @"kFLEXNetworkTransacti
 }
 
 - (NSString *)transactionDetailsLabelText {
-    NSMutableArray<NSString *> *detailComponents = [NSMutableArray array];
-
-    if (self.transaction.state == FLEXNetworkTransactionStateFinished || 
-        self.transaction.state == FLEXNetworkTransactionStateFailed) {
-        // 添加状态中文翻译
-        if (self.transaction.state == FLEXNetworkTransactionStateFailed) {
-            [detailComponents addObject:@"失败"];
-        } else {
-            [detailComponents addObject:@"完成"];  
-        }
-        // 修改为先判断是否为 NSHTTPURLResponse 类型
-        NSString *statusCodeString = @"";
-        if ([self.transaction.response isKindOfClass:[NSHTTPURLResponse class]]) {
-            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)self.transaction.response;
-            statusCodeString = [NSString stringWithFormat:@"%@ %@",
-                @(httpResponse.statusCode),
-                [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode]
-            ];
-        }
-        [detailComponents addObject:statusCodeString];
-
-    } else {
-        // 其他状态翻译
-        NSString *state = [self.class readableStringFromTransactionState:self.transaction.state];
-        [detailComponents addObject:state];
-    }
-    return [detailComponents componentsJoinedByString:@" · "];
+    return self.transaction.tertiaryDescription;
 }
 
 + (CGFloat)preferredCellHeight {

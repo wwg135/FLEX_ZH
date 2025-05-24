@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXNavigationController.h
 //  FLEX
 //
-//  由 Tanner 创建于 1/30/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 1/30/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -19,9 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UINavigationController (FLEXObjectExploring)
 
-/// 将对象浏览器视图控制器推送到导航堆栈
+/// Push an object explorer view controller onto the navigation stack
 - (void)pushExplorerForObject:(id)object;
-/// 将对象浏览器视图控制器推送到导航堆栈
+/// Push an object explorer view controller onto the navigation stack
 - (void)pushExplorerForObject:(id)object animated:(BOOL)animated;
 
 @end

@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  OSCache.m
 //
@@ -7,23 +6,27 @@
 //  由 Nick Lockwood 创建于 01/01/2014.
 //  版权所有 (C) 2014 Charcoal Design
 //
-//  根据宽松的 zlib 许可证分发
-//  从此获取最新版本：
+//  基于宽松的zlib许可证分发
+//  从这里获取最新版本:
 //
 //  https://github.com/nicklockwood/OSCache
 //
-//  本软件按“原样”提供，不作任何明示或暗示的保证。
-//  在任何情况下，作者均不对因使用本软件而造成的任何损害承担责任。
+//  本软件按"原样"提供，不提供任何明示或暗示的
+//  保证。在任何情况下，作者均不对因使用本软件而产生
+//  的任何损害负责。
 //
-//  允许任何人将本软件用于任何目的（包括商业应用），
-//  并允许自由修改和重新分发，但须遵守以下限制：
+//  允许任何人出于任何目的使用本软件，
+//  包括商业应用，以及修改和重新分发，
+//  但须遵守以下限制:
 //
-//  1. 不得歪曲本软件的来源；您不得声称您编写了原始软件。如果您在产品中使用本软件，
-//  则在产品文档中进行鸣谢将会受到赞赏，但并非必需。
+//  1. 不得歪曲本软件的来源；不得
+//  声称您编写了原始软件。如果您在产品中使用本软件，
+//  在产品文档中致谢将不胜感激，但并非必需。
 //
-//  2. 修改后的源代码版本必须明确标记，并且不得歪曲为原始软件。
+//  2. 修改后的源代码版本必须明确标记为已修改，且不得
+//  谎称其为原始软件。
 //
-//  3. 不得从任何源代码分发中删除或更改此声明。
+//  3. 本声明不得从任何源代码分发中删除或更改。
 //
 
 #import "OSCache.h"
@@ -85,7 +88,7 @@
 {
     if ((self = [super init]))
     {
-        //创建存储
+        // 创建存储
         _cache = [[NSMutableDictionary alloc] init];
         _entryPool = [[NSMutableArray alloc] init];
         _lock = [[NSLock alloc] init];
@@ -93,7 +96,7 @@
         
 #if TARGET_OS_IPHONE
         
-        //在收到内存警告时进行清理
+        // 在内存警告事件中清理
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(cleanUpAllObjects) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         
 #endif
@@ -148,7 +151,7 @@
         OSCacheEntry *lowestEntry = nil;
         id lowestKey = nil;
 
-        //移除最旧的项目，直到符合限制
+        // 移除最旧的项直到满足限制
         for (id key in keys)
         {
             OSCacheEntry *entry = _cache[key];
@@ -194,7 +197,7 @@
         NSArray *keys = [_cache allKeys];
         if (_delegateRespondsToShouldEvictObject)
         {
-            //排序，最旧的在前（以备在我们的驱逐测试中使用该信息）
+            // 排序，最旧的在前（以便我们可以在驱逐测试中使用该信息）
             keys = [keys sortedArrayUsingComparator:^NSComparisonResult(id key1, id key2) {
                 OSCacheEntry *entry1 = self->_cache[key1];
                 OSCacheEntry *entry2 = self->_cache[key2];
@@ -202,7 +205,7 @@
             }];
         }
             
-        //单独移除所有项目
+        // 单独移除所有项
         for (id key in keys)
         {
             OSCacheEntry *entry = _cache[key];
@@ -230,12 +233,12 @@
 
 - (void)resequence
 {
-    //排序，最旧的在前
+    // 排序，最旧的在前
     NSArray *entries = [[_cache allValues] sortedArrayUsingComparator:^NSComparisonResult(OSCacheEntry *entry1, OSCacheEntry *entry2) {
         return (NSComparisonResult)MIN(1, MAX(-1, entry1.sequenceNumber - entry2.sequenceNumber));
     }];
     
-    //重新编号项目
+    // 重新编号项
     NSInteger index = 0;
     for (OSCacheEntry *entry in entries)
     {
@@ -350,11 +353,11 @@
   }
 }
 
-//处理未实现的方法
+// 处理未实现的方法
 
 - (BOOL)isKindOfClass:(Class)aClass
 {
-    //假装是 NSCache
+    // 如果有人问，假装我们是一个NSCache
     if (aClass == [OSCache class] || aClass == [NSCache class])
     {
         return YES;
@@ -364,7 +367,7 @@
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)selector
 {
-    //防止调用未实现的 NSCache 方法
+    // 防止调用未实现的NSCache方法
     NSMethodSignature *signature = [super methodSignatureForSelector:selector];
     if (!signature)
     {

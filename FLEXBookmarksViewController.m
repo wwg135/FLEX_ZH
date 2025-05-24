@@ -2,11 +2,9 @@
 //  FLEXBookmarksViewController.m
 //  FLEX
 //
-//  Created by Tanner on 2/6/20.
-//  Copyright © 2020 FLEX Team. All rights reserved.
+//  由 Tanner 于 2/6/20 创建.
+//  版权所有 © 2020 FLEX Team. 保留所有权利.
 //
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXBookmarksViewController.h"
 #import "FLEXExplorerViewController.h"
@@ -50,8 +48,8 @@
 #pragma mark - 私有方法
 
 - (void)reloadData {
-    // 我们假设书签不会在我们不知情的情况下发生变化，因为通过键盘快捷键
-    // 呈现的任何其他工具都应该先将我们关闭
+    // 我们假设书签不会在我们不知情的情况下被改变，因为
+    // 通过键盘快捷键呈现的其他工具应该先将我们关闭
     self.bookmarks = FLEXBookmarkManager.bookmarks;
     self.title = [NSString stringWithFormat:@"书签 (%@)", @(self.bookmarks.count)];
 }
@@ -80,19 +78,19 @@
 }
 
 - (FLEXExplorerViewController *)corePresenter {
-    // 我们必须由 FLEXExplorerViewController 呈现，或者由
-    // 被 FLEXExplorerViewController 呈现的另一个视图控制器呈现
+    // 我们必须由FLEXExplorerViewController呈现，或者由
+    // 另一个由FLEXExplorerViewController呈现的视图控制器呈现
     FLEXExplorerViewController *presenter = (id)self.presentingViewController;
     presenter = (id)presenter.presentingViewController ?: presenter;
     presenter = (id)presenter.presentingViewController ?: presenter;
     NSAssert(
         [presenter isKindOfClass:[FLEXExplorerViewController class]],
-        @"The bookmarks view controller expects to be presented by the explorer controller"
+        @"书签视图控制器期望由资源管理器控制器呈现"
     );
     return presenter;
 }
 
-#pragma mark 按钮操作
+#pragma mark 按钮动作
 
 - (void)dismissAnimated {
     [self dismissAnimated:nil];
@@ -104,14 +102,14 @@
             explorerViewControllerForObject:selectedObject
         ];
         if ([self.presentingViewController isKindOfClass:[FLEXNavigationController class]]) {
-            // 我在现有导航栈上呈现，所以
+            // 我在现有的导航堆栈上呈现，所以
             // 关闭自己并在那里推送书签
             UINavigationController *presenter = (id)self.presentingViewController;
             [presenter dismissViewControllerAnimated:YES completion:^{
                 [presenter pushViewController:explorer animated:YES];
             }];
         } else {
-            // 关闭自己并呈现浏览器
+            // 关闭自己并呈现资源管理器
             UIViewController *presenter = self.corePresenter;
             [presenter dismissViewControllerAnimated:YES completion:^{
                 [presenter presentViewController:[FLEXNavigationController
@@ -199,7 +197,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (self.editing) {
-        // 情况：使用多选进行编辑
+        // 情况：编辑时多选
         self.toolbarItems.lastObject.title = @"删除选定的";
         self.toolbarItems.lastObject.tintColor = FLEXColor.destructiveColor;
     } else {

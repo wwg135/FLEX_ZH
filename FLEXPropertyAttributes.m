@@ -1,11 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXPropertyAttributes.m
 //  FLEX
 //
-//  源自 MirrorKit。
-//  由 Tanner 创建于 7/5/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  派生自 MirrorKit.
+//  Created by Tanner on 7/5/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXPropertyAttributes.h"
@@ -14,7 +13,7 @@
 #import "NSDictionary+ObjcRuntime.h"
 
 
-#pragma mark - FLEXPropertyAttributes
+#pragma mark FLEXPropertyAttributes
 
 @interface FLEXPropertyAttributes ()
 
@@ -38,7 +37,7 @@
 @implementation FLEXPropertyAttributes
 @synthesize list = _list;
 
-#pragma mark - 初始化方法
+#pragma mark 初始化器
 
 + (instancetype)attributesForProperty:(objc_property_t)property {
     return [self attributesFromDictionary:[NSDictionary attributesDictionaryForProperty:property]];
@@ -76,18 +75,18 @@
     return self;
 }
 
-#pragma mark - 其他
+#pragma mark 其他
 
 - (NSString *)description {
     return [NSString
         stringWithFormat:@"<%@ \"%@\", ivar=%@, readonly=%d, nonatomic=%d, getter=%@, setter=%@>",
         NSStringFromClass(self.class),
         self.string,
-        self.backingIvar ?: @"none",
+        self.backingIvar ?: @"无",
         self.isReadOnly,
         self.isNonatomic,
-        NSStringFromSelector(self.customGetter) ?: @"none",
-        NSStringFromSelector(self.customSetter) ?: @"none"
+        NSStringFromSelector(self.customGetter) ?: @"无",
+        NSStringFromSelector(self.customSetter) ?: @"无"
     ];
 }
 
@@ -211,10 +210,10 @@
     }
 
     if ([_typeEncoding hasPrefix:@"@"] && noExplicitMemorySemantics) {
-        // 如果这是一个对象，则*可能*是 strong；strong 是默认值。
+        // *可能* 如果这是一个对象，则为strong；strong是默认值。
         [decl appendString:@"strong, "];
     } else if (noExplicitMemorySemantics) {
-        // 如果这不是一个对象，则*可能*是 assign
+        // *可能* 如果这不是一个对象，则为assign
         [decl appendString:@"assign, "];
     }
 
@@ -236,7 +235,7 @@
     }
 }
 
-#pragma mark - 复制
+#pragma mark 复制
 
 - (id)copyWithZone:(NSZone *)zone {
     return [[FLEXPropertyAttributes class] attributesFromDictionary:self.dictionary];
@@ -250,7 +249,7 @@
 
 
 
-#pragma mark - FLEXMutablePropertyAttributes
+#pragma mark FLEXMutablePropertyAttributes
 
 @interface FLEXMutablePropertyAttributes ()
 @property (nonatomic) BOOL countDelta;
@@ -292,7 +291,7 @@ PropertyWithDeltaFlag(BOOL, isGarbageCollectable, IsGarbageCollectable);
 }
 
 - (NSUInteger)count {
-    // 在突变后重新计算属性计数
+    // 变更后重新计算属性数量
     if (self.countDelta) {
         self.countDelta = NO;
         _count = self.dictionary.count;
@@ -302,7 +301,7 @@ PropertyWithDeltaFlag(BOOL, isGarbageCollectable, IsGarbageCollectable);
 }
 
 - (objc_property_attribute_t *)list {
-    // 在突变后重新生成列表
+    // 变更后重新生成列表
     if (self.listDelta) {
         self.listDelta = NO;
         if (_list) {
@@ -311,12 +310,12 @@ PropertyWithDeltaFlag(BOOL, isGarbageCollectable, IsGarbageCollectable);
         }
     }
 
-    // 如果列表未设置，父类将生成它
+    // 如果未设置，父类将生成列表
     return super.list;
 }
 
 - (NSString *)string {
-    // 在突变后重新生成字符串
+    // 变更后重新生成字符串
     if (self.stringDelta || !_string) {
         self.stringDelta = NO;
         _string = self.dictionary.propertyAttributesString;
@@ -326,10 +325,10 @@ PropertyWithDeltaFlag(BOOL, isGarbageCollectable, IsGarbageCollectable);
 }
 
 - (NSDictionary *)dictionary {
-    // 在突变后重新生成字典
+    // 变更后重新生成字典
     if (self.dictDelta || !_dictionary) {
         // _string 和 _dictionary 相互依赖，
-        // 因此我们必须使用我们的属性手动生成一个。
+        // 所以我们必须使用我们的属性手动生成其中一个。
         // 我们任意选择生成字典。
         NSMutableDictionary *attrs = [NSMutableDictionary new];
         if (self.typeEncoding)

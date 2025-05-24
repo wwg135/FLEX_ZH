@@ -1,9 +1,8 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  NSTimer+Blocks.h
 //  FLEX
 //
-//  由 Tanner 创建于 3/23/17.
+//  Created by Tanner on 3/23/17.
 //
 
 #import <Foundation/Foundation.h>

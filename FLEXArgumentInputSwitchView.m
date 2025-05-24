@@ -2,10 +2,9 @@
 //  FLEXArgumentInputSwitchView.m
 //  Flipboard
 //
-//  创建者：Ryan Olson，日期：6/16/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 6/16/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXArgumentInputSwitchView.h"
 
@@ -22,14 +21,14 @@
     if (self) {
         self.inputSwitch = [UISwitch new];
         [self.inputSwitch addTarget:self action:@selector(switchValueDidChange:) forControlEvents:UIControlEventValueChanged];
-        [self.inputSwitch sizeToFit]; // 根据内容调整大小
+        [self.inputSwitch sizeToFit];
         [self addSubview:self.inputSwitch];
     }
     return self;
 }
 
 
-#pragma mark Input/Output // 输入/输出
+#pragma mark Input/Output
 
 - (void)setInputValue:(id)inputValue {
     BOOL on = NO;
@@ -56,7 +55,7 @@
 }
 
 
-#pragma mark - Layout and Sizing // 布局和尺寸
+#pragma mark - Layout and Sizing
 
 - (void)layoutSubviews {
     [super layoutSubviews];
@@ -71,11 +70,11 @@
 }
 
 
-#pragma mark - Class Helpers // 类助手方法
+#pragma mark - Class Helpers
 
 + (BOOL)supportsObjCType:(const char *)type withCurrentValue:(id)value {
     NSParameterAssert(type);
-    // 仅限 BOOL 类型。当前值无关紧要。
+    // Only BOOLs. Current value is irrelevant.
     return strcmp(type, @encode(BOOL)) == 0;
 }
 

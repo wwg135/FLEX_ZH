@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXTabList.m
 //  FLEX
 //
 //  由 Tanner 创建于 2/1/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
 
 #import "FLEXTabList.h"
@@ -42,7 +41,7 @@
 }
 
 
-#pragma mark 私有
+#pragma mark 私有方法
 
 - (void)chooseNewActiveTab {
     if (self.openTabs.count) {
@@ -53,7 +52,7 @@
 }
 
 
-#pragma mark 公开
+#pragma mark 公共方法
 
 - (void)setActiveTabIndex:(NSInteger)idx {
     NSParameterAssert(idx < self.openTabs.count || idx == NSNotFound);
@@ -66,13 +65,13 @@
 - (void)addTab:(UINavigationController *)newTab {
     NSParameterAssert(newTab);
     
-    // 更新上一个活动选项卡的快照
+    // 更新上一个活动标签的快照
     if (self.activeTab) {
         [self updateSnapshotForActiveTab];
     }
     
-    // 添加新选项卡和快照，
-    // 更新活动选项卡和索引
+    // 添加新标签和快照，
+    // 更新活动标签和索引
     [_openTabs addObject:newTab];
     [_openTabSnapshots addObject:[FLEXUtility previewImageForView:newTab.view]];
     _activeTab = newTab;
@@ -86,35 +85,35 @@
         [self closeTabAtIndex:idx];
     }
     
-    // 不确定这怎么可能，但有时会发生
+    // 不确定这是如何可能发生的，但有时确实会发生
     if (self.activeTab == tab) {
         [self chooseNewActiveTab];
     }
     
-    // 对象浏览器可能与其自身的导航控制器形成保留环；
-    // 关闭选项卡时手动清除视图控制器会破坏该环
+    // 对象浏览器可能会与其自己的导航控制器形成循环引用；
+    // 关闭标签时手动清除视图控制器可以打破这个循环
     tab.viewControllers = @[];
 }
 
 - (void)closeTabAtIndex:(NSInteger)idx {
     NSParameterAssert(idx < self.openTabs.count);
     
-    // 删除旧选项卡和快照
+    // 移除旧标签和快照
     [_openTabs removeObjectAtIndex:idx];
     [_openTabSnapshots removeObjectAtIndex:idx];
     
-    // 如果需要，更新活动选项卡和索引
+    // 如果需要，更新活动标签和索引
     if (self.activeTabIndex == idx) {
         [self chooseNewActiveTab];
     }
 }
 
 - (void)closeTabsAtIndexes:(NSIndexSet *)indexes {
-    // 删除旧选项卡和快照
+    // 移除旧标签和快照
     [_openTabs removeObjectsAtIndexes:indexes];
     [_openTabSnapshots removeObjectsAtIndexes:indexes];
     
-    // 如果需要，更新活动选项卡和索引
+    // 如果需要，更新活动标签和索引
     if ([indexes containsIndex:self.activeTabIndex]) {
         [self chooseNewActiveTab];
     }
@@ -125,11 +124,11 @@
 }
 
 - (void)closeAllTabs {
-    // 删除选项卡和快照
+    // 移除标签和快照
     [_openTabs removeAllObjects];
     [_openTabSnapshots removeAllObjects];
     
-    // 更新活动选项卡索引
+    // 更新活动标签索引
     self.activeTabIndex = NSNotFound;
 }
 

@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXWebViewController.m
 //  Flipboard
 //
 //  由 Ryan Olson 创建于 6/10/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  版权所有 (c) 2020 FLEX Team. 保留所有权利。
+//
 
 #import "FLEXWebViewController.h"
 #import "FLEXUtility.h"
@@ -42,11 +42,11 @@
         NSString *html = @"<head><style>:root{ color-scheme: light dark; }</style>"
             "<meta name='viewport' content='initial-scale=1.0'></head><body><pre>%@</pre></body>";
 
-        // 当输入文本需要很长时间进行转义时显示的加载消息
-        NSString *loadingMessage = [NSString stringWithFormat:html, @"正在加载..."];
+        // 当输入文本转义需要很长时间时显示的加载消息
+        NSString *loadingMessage = [NSString stringWithFormat:html, @"加载中..."];
         [self.webView loadHTMLString:loadingMessage baseURL:nil];
 
-        // 在后台线程上转义 HTML
+        // 在后台线程中转义 HTML
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSString *escapedText = [FLEXUtility stringByEscapingHTMLEntitiesInString:text];
             NSString *htmlString = [NSString stringWithFormat:html, escapedText];
@@ -90,7 +90,7 @@
 }
 
 
-#pragma mark - WKWebView 委托
+#pragma mark - WKWebView 代理
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                                      decisionHandler:(void (^)(WKNavigationActionPolicy))handler {
@@ -99,9 +99,9 @@
         // 允许初始加载
         policy = WKNavigationActionPolicyAllow;
     } else {
-        // 对于点击的链接，将另一个 web视图控制器推送到导航堆栈上
-        // 以便点击返回按钮可以按预期工作。
-        // 不允许当前的 web视图处理导航。
+        // 对于点击的链接，将另一个网页视图控制器推到导航栈上
+        // 以便按返回按钮时可按预期工作。
+        // 不允许当前网页视图处理导航。
         NSURLRequest *request = navigationAction.request;
         FLEXWebViewController *webVC = [[[self class] alloc] initWithURL:request.URL];
         webVC.title = request.URL.absoluteString;
@@ -127,7 +127,7 @@
     static NSSet<NSString *> *pathExtensions = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        // 请注意，这并非详尽无遗，但所有这些扩展都应该在 web 视图中良好运行。
+        // 请注意，这不是详尽的，但所有这些扩展名在网页视图中都应该能正常工作。
         // 参见 https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/CreatingContentforSafarioniPhone/CreatingContentforSafarioniPhone.html#//apple_ref/doc/uid/TP40006482-SW7
         pathExtensions = [NSSet<NSString *> setWithArray:@[
             @"jpg", @"jpeg", @"png", @"gif", @"pdf", @"svg", @"tiff", @"3gp", @"3gpp", @"3g2",

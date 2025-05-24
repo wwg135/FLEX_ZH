@@ -2,10 +2,9 @@
 //  FLEXFieldEditorView.m
 //  Flipboard
 //
-//  创建者：Ryan Olson，日期：5/16/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 5/16/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXFieldEditorView.h"
 #import "FLEXArgumentInputView.h"
@@ -22,10 +21,6 @@
 @end
 
 @implementation FLEXFieldEditorView
-
-@synthesize targetDescription = _targetDescription;
-@synthesize fieldDescription = _fieldDescription;
-@synthesize argumentInputViews = _argumentInputViews;
 
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -96,20 +91,12 @@
     }
 }
 
-- (NSString *)targetDescription {
-    return _targetDescription;
-}
-
 - (void)setFieldDescription:(NSString *)fieldDescription {
     if (![_fieldDescription isEqual:fieldDescription]) {
         _fieldDescription = fieldDescription;
         self.fieldDescriptionLabel.text = fieldDescription;
         [self setNeedsLayout];
     }
-}
-
-- (NSString *)fieldDescription {
-    return _fieldDescription;
 }
 
 - (void)setArgumentInputViews:(NSArray<FLEXArgumentInputView *> *)argumentInputViews {
@@ -127,10 +114,6 @@
         
         [self setNeedsLayout];
     }
-}
-
-- (NSArray<FLEXArgumentInputView *> *)argumentInputViews {
-    return _argumentInputViews;
 }
 
 + (UIView *)dividerView {

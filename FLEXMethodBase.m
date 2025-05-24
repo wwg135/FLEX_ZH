@@ -1,11 +1,11 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMethodBase.m
 //  FLEX
 //
-//  派生自 MirrorKit。
-//  由 Tanner 创建于 7/5/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Derived from MirrorKit.
+//  Created by Tanner on 7/5/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
+//
 
 #import "FLEXMethodBase.h"
 

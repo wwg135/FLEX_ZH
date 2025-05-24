@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXObjcRuntimeViewController.m
 //  FLEX
@@ -27,15 +26,17 @@
 
 @implementation FLEXObjcRuntimeViewController
 
-#pragma mark - 设置和视图事件
+#pragma mark - 设置，视图事件
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // 长按导航栏以初始化 WebKit 旧版
+    // 长按导航栏以初始化webkit legacy
     //
-    // 为了安全起见，在搜索所有 bundles 之前，我们会自动调用 initializeWebKitLegacy（因为在 WebKit 初始化之前接触某些类会在主线程以外的线程上初始化它），
-    // 但有时当然也会在不搜索所有 bundles 的情况下遇到此崩溃。
+    // 在搜索所有包之前，我们会自动调用initializeWebKitLegacy
+    // 只是为了安全起见（因为在WebKit初始化之前触摸某些类会
+    // 在主线程之外的线程上初始化它），但有时您可能会遇到这种崩溃
+    // 而无需搜索所有包，当然。
     [self.navigationController.navigationBar addGestureRecognizer:[
         [UILongPressGestureRecognizer alloc]
             initWithTarget:[FLEXRuntimeClient class]
@@ -43,20 +44,21 @@
         ]
     ];
     
-    [self addToolbarItems:@[FLEXBarButtonItem(@"dlopen()", self, @selector(dlopenPressed:))]];
+    [self addToolbarItems:@[FLEXBarButtonItem(@"动态加载()", self, @selector(dlopenPressed:))]];
     
-    // 搜索栏相关，必须放在最前面，因为它会创建 self.searchController
+    // 搜索栏相关设置，必须先设置因为这会创建self.searchController
     self.showsSearchBar = YES;
     self.showSearchBarInitially = YES;
     self.activatesSearchBarAutomatically = YES;
-    // 在此屏幕上使用 pinSearchBar 会导致下一个被推入的视图控制器出现奇怪的视觉问题。
+    // 在此屏幕上使用pinSearchBar会导致下一个
+    // 被推送的视图控制器出现奇怪的视觉问题。
     //
     // self.pinSearchBar = YES;
     self.searchController.searchBar.placeholder = @"UIKit*.UIView.-setFrame:";
 
-    // 搜索控制器相关
-    // 键路径控制器自动将自身指定为搜索栏的委托
-    // 为避免下面的保留环，请使用局部变量
+    // 搜索控制器相关设置
+    // 键路径控制器自动将自己分配为搜索栏的委托
+    // 为避免下面的保留循环，使用局部变量
     UISearchBar *searchBar = self.searchController.searchBar;
     FLEXKeyPathSearchController *keyPathController = [FLEXKeyPathSearchController delegate:self];
     _keyPathController = keyPathController;
@@ -77,11 +79,11 @@
 
 #pragma mark dlopen
 
-/// 提示用户选择 dlopen 快捷方式
+/// 提示用户选择dlopen快捷方式
 - (void)dlopenPressed:(id)sender {
     [FLEXAlert makeAlert:^(FLEXAlert *make) {
         make.title(@"动态开放库");
-        make.message(@"使用输入的路径调用dlopen（）。在下面选择一个选项。");
+        make.message(@"使用输入的路径调用dlopen()。在下面选择一个选项。");
         
         make.button(@"系统框架").handler(^(NSArray<NSString *> *_) {
             [self dlopenWithFormat:@"/System/Library/Frameworks/%@.framework/%@"];
@@ -97,14 +99,14 @@
     } showFrom:self];
 }
 
-/// 提示用户输入并执行 dlopen
+/// 提示用户输入并执行dlopen
 - (void)dlopenWithFormat:(NSString *)format {
     [FLEXAlert makeAlert:^(FLEXAlert *make) {
         make.title(@"动态开放库");
         if (format) {
-            make.message(@"通过一个框架名称，如CarKit或FrontBoard。");
+            make.message(@"输入一个框架名称，如CarKit或FrontBoard。");
         } else {
-            make.message(@"请输入二进制文件的绝对路径。");
+            make.message(@"输入二进制文件的绝对路径。");
         }
         
         make.textField(format ? @"ARKit" : @"/System/Library/Frameworks/ARKit.framework/ARKit");
@@ -142,7 +144,7 @@
 - (void)didSelectImagePath:(NSString *)path shortName:(NSString *)shortName {
     [FLEXAlert makeAlert:^(FLEXAlert *make) {
         make.title(shortName);
-        make.message(@"此路径没有关联的 NSBundle：\n\n");
+        make.message(@"没有与此路径关联的NSBundle：\n\n");
         make.message(path);
 
         make.button(@"复制路径").handler(^(NSArray<NSString *> *strings) {

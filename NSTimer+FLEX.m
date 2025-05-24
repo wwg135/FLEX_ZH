@@ -4,11 +4,8 @@
 //
 //  Created by Tanner on 3/23/17.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "NSTimer+FLEX.h"
-
-// 遇到问题联系中文翻译作者：pxx917144686
 
 @interface Block : NSObject
 - (void)invoke;

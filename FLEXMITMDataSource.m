@@ -1,9 +1,8 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXMITMDataSource.m
 //  FLEX
 //
-//  由 Tanner Bennett 创建于 8/22/21.
+//  Created by Tanner Bennett on 8/22/21.
 //
 
 #import "FLEXMITMDataSource.h"
@@ -65,7 +64,7 @@
     [self updateBytesReceived];
 }
 
-/// 这实际上只是 \c _transactions 的语义设置器
+/// This is really just a semantic setter for \c _transactions
 - (void)setFilteredTransactions:(NSArray *)filteredTransactions {
     _transactions = filteredTransactions.copy;
     [self updateFilteredBytesReceived];

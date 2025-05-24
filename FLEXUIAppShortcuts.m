@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXUIAppShortcuts.m
 //  FLEX
 //
 //  由 Tanner 创建于 5/25/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  版权所有 © 2020 FLEX Team. 保留所有权利。
 //
 
 #import "FLEXUIAppShortcuts.h"
@@ -14,7 +13,7 @@
 
 @implementation FLEXUIAppShortcuts
 
-#pragma mark - 覆盖
+#pragma mark - 重写
 
 + (instancetype)forObject:(UIApplication *)application {
     return [self forObject:application additionalRows:@[
@@ -26,8 +25,9 @@
                 [FLEXAlert makeAlert:^(FLEXAlert *make) {
                     make.title(@"打开 URL");
                     make.message(
-                        @"这将使用下面的字符串调用 openURL: 或 openURL:options:completion:。"
-                         "“仅当通用链接时打开”将仅在 URL 是已注册的通用链接时打开。"
+                        @"这将调用 openURL: 或 openURL:options:completion: "
+                         "并使用下面的字符串。'仅当通用链接时打开'选项只会在 "
+                         "该 URL 是已注册的通用链接时才打开。"
                     );
                     
                     make.textField(@"twitter://user?id=12345");
@@ -59,17 +59,14 @@
                 UIApplicationOpenURLOptionUniversalLinksOnly: @(universalOnly)
             } completionHandler:^(BOOL success) {
                 if (!success) {
-                    [FLEXAlert showAlert:@"无通用链接处理程序"
+                    [FLEXAlert showAlert:@"没有通用链接处理程序"
                         message:@"没有已安装的应用程序注册处理此链接。"
                         from:host
                     ];
                 }
             }];
         } else {
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wdeprecated-declarations" 
             [app openURL:url];
-            #pragma clang diagnostic pop
         }
     } else {
         [FLEXAlert showAlert:@"错误" message:@"无效的 URL" from:host];

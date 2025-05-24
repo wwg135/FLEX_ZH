@@ -1,4 +1,4 @@
-//  遇到问题联系中文翻译作者：pxx917144686
+//
 //  FLEXObjectExplorerFactory.m
 //  Flipboard
 //
@@ -28,14 +28,14 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
 
 + (void)initialize {
     if (self == [FLEXObjectExplorerFactory class]) {
-        // 这里不要使用字符串键
+        // 不要在这里使用字符串键
         // 我们需要使用类作为键，因为我们无法
         // 区分类的名称和元类的名称。
-        // 这些映射是针对每个类对象的，而不是每个类名的。
+        // 这些映射是按类对象而不是按类名进行的。
         //
         // 例如，如果我们使用类名，这将导致
-        // 对象浏览器尝试为 UIColor 类对象渲染颜色预览，
-        // 而 UIColor 类对象本身并不是一种颜色。
+        // 对象浏览器试图为UIColor类对象渲染颜色预览，
+        // 而类对象本身不是颜色。
         #define ClassKey(name) (id<NSCopying>)[name class]
         #define ClassKeyByName(str) (id<NSCopying>)NSClassFromString(@ #str)
         #define MetaclassKey(meta) (id<NSCopying>)object_getClass([meta class])
@@ -65,19 +65,19 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
 }
 
 + (FLEXObjectExplorerViewController *)explorerViewControllerForObject:(id)object {
-    // 不能探索 nil 对象
+    // 不能浏览nil
     if (!object) {
         return nil;
     }
 
-    // 如果给定一个对象，这将查找其类层次结构
-    // 直到找到一个注册。这对于 KVC 类有效，
+    // 如果我们被给予一个对象，这将查找它的类层次结构
+    // 直到找到一个注册。这将适用于KVC类，
     // 因为它们是原始类的子类，而不是兄弟类。
-    // 如果给定一个对象，object_getClass 将返回一个元类，
-    // 同样的事情也会发生。FLEXClassShortcuts 是 NSObject 的默认
+    // 如果我们给定一个对象，object_getClass将返回一个元类，
+    // 同样的事情也会发生。FLEXClassShortcuts是NSObject的默认
     // 快捷方式部分。
     //
-    // TODO: 将其重命名为 FLEXNSObjectShortcuts 之类的名称？
+    // TODO: 将其重命名为FLEXNSObjectShortcuts或类似名称？
     FLEXShortcutsSection *shortcutsSection = [FLEXShortcutsSection forObject:object];
     NSArray *sections = @[shortcutsSection];
     
@@ -91,13 +91,13 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
         id customSection = [customSectionClass forObject:object];
         BOOL isFLEXShortcutSection = [customSection respondsToSelector:@selector(isNewSection)];
         
-        // 如果该部分“替换”了默认的快捷方式部分，
-        // 则仅返回该部分。否则，同时返回此部分
-        // 和默认的快捷方式部分。
+        // 如果该部分"替换"了默认的快捷方式部分，
+        // 则仅返回该部分。否则，返回此部分
+        // 和默认快捷方式部分。
         if (isFLEXShortcutSection && ![customSection isNewSection]) {
             sections = @[customSection];
         } else {
-            // 自定义部分将位于快捷方式之前
+            // 自定义部分将在快捷方式之前
             sections = @[customSection, shortcutsSection];            
         }
     }
@@ -238,7 +238,7 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
 + (FLEXGlobalsEntryRowAction)globalsEntryRowAction:(FLEXGlobalsRow)row {
     switch (row) {
         case FLEXGlobalsRowRootViewController: {
-            // 检查应用程序委托是否响应 -window。如果不响应，则显示一个警报
+            // 检查应用程序委托是否响应-window。如果不是，则显示警报
             return ^(UITableViewController *host) {
                 id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
                 if ([delegate respondsToSelector:@selector(window)]) {
@@ -247,7 +247,7 @@ static NSMutableDictionary<id<NSCopying>, Class> *classesToRegisteredSections = 
                     ];
                     [host.navigationController pushViewController:explorer animated:YES];
                 } else {
-                    NSString *msg = @"The app delegate doesn't respond to -window";
+                    NSString *msg = @"应用程序委托不响应-window";
                     [FLEXAlert showAlert:@":(" message:msg from:host];
                 }
             };

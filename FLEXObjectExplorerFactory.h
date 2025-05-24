@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXObjectExplorerFactory.h
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 5/15/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 5/15/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXGlobalsEntry.h"
@@ -21,9 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable FLEXObjectExplorerViewController *)explorerViewControllerForObject:(nullable id)object;
 
-/// 注册一个特定的浏览器视图控制器类，用于浏览
-/// 特定类的对象。调用将覆盖现有的注册。
-/// 各个部分必须使用类似 \c forObject: 的方式进行初始化
+/// Register a specific explorer view controller class to be used when exploring
+/// an object of a specific class. Calls will overwrite existing registrations.
+/// Sections must be initialized using \c forObject: like
 + (void)registerExplorerSection:(Class)sectionClass forClass:(Class)objectClass;
 
 @end

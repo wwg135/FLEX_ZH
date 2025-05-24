@@ -1,17 +1,18 @@
 //
 //  FLEXNetworkObserver.m
-//  派生自：
+//  源自:
 //
 //  PDAFNetworkDomainController.m
 //  PonyDebugger
 //
-//  由 Mike Lewis 创建于 2/27/12.
+//  Created by Mike Lewis on 2/27/12.
 //
-//  根据一项或多项贡献者许可协议授权给 Square, Inc.。
-//  有关 Square, Inc. 授权给您的条款，请参阅随此作品分发的 LICENSE 文件。
+//  根据一个或多个贡献者许可协议许可给Square, Inc.
+//  有关此文件适用的许可条款，请参阅分发此作品的许可证文件。
 //
-//  由 Tanner Bennett 和其他各种贡献者进行了大量修改和添加。
-//  git blame 详细说明了这些修改。
+//  由Tanner Bennett和其他各种贡献者进行了大量修改和添加。
+//  git blame详细说明了这些修改。
+//
 
 #import "FLEXNetworkObserver.h"
 #import "FLEXNetworkRecorder.h"
@@ -71,6 +72,15 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask delegate:(id<NSUR
 
 - (void)URLSessionTaskWillResume:(NSURLSessionTask *)task;
 
+- (void)websocketTask:(NSURLSessionWebSocketTask *)task
+        sendMessagage:(NSURLSessionWebSocketMessage *)message API_AVAILABLE(ios(13.0));
+- (void)websocketTaskMessageSendCompletion:(NSURLSessionWebSocketMessage *)message
+                                     error:(NSError *)error API_AVAILABLE(ios(13.0));
+
+- (void)websocketTask:(NSURLSessionWebSocketTask *)task
+     receiveMessagage:(NSURLSessionWebSocketMessage *)message
+                error:(NSError *)error API_AVAILABLE(ios(13.0));
+
 @end
 
 @interface FLEXNetworkObserver ()
@@ -90,7 +100,7 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask delegate:(id<NSUR
     NSUserDefaults.standardUserDefaults.flex_networkObserverEnabled = enabled;
     
     if (enabled) {
-        // 如果需要，进行注入。此注入受 dispatch_once 保护，因此我们可以安全地多次调用它。
+        // 如果需要，进行注入。此注入受dispatch_once保护，因此我们可以安全地多次调用它。
         // 通过延迟注入，当此功能未启用时，我们可以降低工具的影响。
         [self setNetworkMonitorHooks];
     }
@@ -105,8 +115,9 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask delegate:(id<NSUR
 }
 
 + (void)load {
-    // 我们不希望从 +load 中进行方法替换，因为我们想要钩住的所有委托类可能尚未加载。
-    // 然而，Firebase 类现在肯定已经加载了，
+    // 我们不希望从+load进行方法交换，因为我们想要钩住的所有
+    // 代理类可能尚未加载。
+    // 然而，Firebase类现在肯定已经加载了，
     // 因此我们可以更早地钩住这些类。
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self isEnabled]) {
@@ -130,17 +141,17 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask delegate:(id<NSUR
     return NSUUID.UUID.UUIDString;
 }
 
-#pragma mark Delegate Injection Convenience Methods
+#pragma mark 代理注入便捷方法
 
-/// 所有替换的委托方法都应该使用此保护。
-/// 这将防止重复嗅探，当原始实现调用到我们也替换的超类实现时。
-/// 如果从原始实现调用超类实现（以及上面类中的实现），
-/// 则这些实现将被执行而不受干扰。
+/// 所有交换（swizzled）的代理方法都应使用此保护措施。
+/// 这将防止在原始实现调用父类实现时重复嗅探
+/// 我们也交换了这个父类实现。如果从原始实现调用，父类实现
+/// （以及上层类中的实现）将在不受干扰的情况下执行。
 + (void)sniffWithoutDuplicationForObject:(NSObject *)object selector:(SEL)selector
                            sniffingBlock:(void (^)(void))sniffingBlock originalImplementationBlock:(void (^)(void))originalImplementationBlock {
-    // 如果我们没有对象来检测嵌套调用，只需运行原始实现并退出。
-    // 如果 URL 加载系统以外的其他人直接调用委托方法，则可能会发生这种情况。
-    // 有关示例，请参阅 https://github.com/Flipboard/FLEX/issues/61
+    // 如果我们没有一个对象来检测嵌套调用，只需运行原始实现并返回即可。
+    // 如果URL加载系统以外的人直接调用代理方法，可能会发生这种情况。
+    // 例子请参见 https://github.com/Flipboard/FLEX/issues/61
     if (!object) {
         originalImplementationBlock();
         return;
@@ -148,12 +159,12 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask delegate:(id<NSUR
 
     const void *key = selector;
 
-    // 如果我们在嵌套调用中，则不要运行嗅探块
+    // 如果我们在嵌套调用中，不要运行嗅探块
     if (!objc_getAssociatedObject(object, key)) {
         sniffingBlock();
     }
 
-    // 标记我们正在调用原始方法，以便我们可以检测嵌套调用
+    // 标记我们正在调用原始方法，这样我们就可以检测嵌套调用
     objc_setAssociatedObject(object, key, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     originalImplementationBlock();
     objc_setAssociatedObject(object, key, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -212,7 +223,7 @@ static Class _logos_superclass$_ungrouped$FIRCollectionReference;
 static FIRDocumentReference * (*_logos_orig$_ungrouped$FIRCollectionReference$addDocumentWithData$completion$)(
     _LOGOS_SELF_TYPE_NORMAL FIRCollectionReference * _LOGOS_SELF_CONST, SEL, NSDictionary *, void (^)(NSError *error));
 
-#pragma mark Firebase, Reading Data
+#pragma mark Firebase, 读取数据
 
 static void _logos_method$_ungrouped$FIRDocumentReference$getDocumentWithCompletion$(
     _LOGOS_SELF_TYPE_NORMAL FIRDocumentReference * _LOGOS_SELF_CONST self, SEL _cmd, FIRDocumentSnapshotBlock completion) {
@@ -222,7 +233,7 @@ static void _logos_method$_ungrouped$FIRDocumentReference$getDocumentWithComplet
     
     // 记录事务开始
     [FLEXNetworkRecorder.defaultRecorder recordFIRDocumentWillFetch:self withTransactionID:requestID];
-    // 钩子回调
+    // 钩住回调
     FIRDocumentSnapshotBlock orig = completion;
     completion = ^(FIRDocumentSnapshot *document, NSError *error) {
         [FLEXNetworkRecorder.defaultRecorder recordFIRDocumentDidFetch:document error:error transactionID:requestID];
@@ -243,7 +254,7 @@ static void _logos_method$_ungrouped$FIRQuery$getDocumentsWithCompletion$(
     
     // 记录事务开始
     [FLEXNetworkRecorder.defaultRecorder recordFIRQueryWillFetch:self withTransactionID:requestID];
-    // 钩子回调
+    // 钩住回调
     FIRQuerySnapshotBlock orig = completion;
     completion = ^(FIRQuerySnapshot *query, NSError *error) {
         [FLEXNetworkRecorder.defaultRecorder recordFIRQueryDidFetch:query error:error transactionID:requestID];
@@ -256,7 +267,7 @@ static void _logos_method$_ungrouped$FIRQuery$getDocumentsWithCompletion$(
     (_logos_orig$_ungrouped$FIRQuery$getDocumentsWithCompletion$ ? _logos_orig$_ungrouped$FIRQuery$getDocumentsWithCompletion$ : (__typeof__(_logos_orig$_ungrouped$FIRQuery$getDocumentsWithCompletion$))class_getMethodImplementation(_logos_superclass$_ungrouped$FIRQuery, @selector(getDocumentsWithCompletion:)))(self, _cmd, completion);
 }
 
-#pragma mark Firebase, Writing Data
+#pragma mark Firebase, 写入数据
 
 static void _logos_method$_ungrouped$FIRDocumentReference$setData$merge$completion$(
     _LOGOS_SELF_TYPE_NORMAL FIRDocumentReference * _LOGOS_SELF_CONST __unused self,
@@ -274,7 +285,7 @@ static void _logos_method$_ungrouped$FIRDocumentReference$setData$merge$completi
         transactionID:requestID
     ];
     
-    // 钩子回调
+    // 钩住回调
     void (^orig)(NSError *) = completion;
     completion = ^(NSError *error) {
         [FLEXNetworkRecorder.defaultRecorder recordFIRDidSetData:error transactionID:requestID];
@@ -304,7 +315,7 @@ static void _logos_method$_ungrouped$FIRDocumentReference$setData$mergeFields$co
         transactionID:requestID
     ];
 
-    // 钩子回调
+    // 钩住回调
     void (^orig)(NSError *) = completion;
     completion = ^(NSError *error) {
         [FLEXNetworkRecorder.defaultRecorder recordFIRDidSetData:error transactionID:requestID];
@@ -326,7 +337,7 @@ static void _logos_method$_ungrouped$FIRDocumentReference$updateData$completion$
     
     // 记录事务开始
     [FLEXNetworkRecorder.defaultRecorder recordFIRWillUpdateData:self fields:fields transactionID:requestID];
-    // 钩子回调
+    // 钩住回调
     void (^orig)(NSError *) = completion;
     completion = ^(NSError *error) {
         [FLEXNetworkRecorder.defaultRecorder recordFIRDidUpdateData:error transactionID:requestID];
@@ -348,7 +359,7 @@ static void _logos_method$_ungrouped$FIRDocumentReference$deleteDocumentWithComp
     
     // 记录事务开始
     [FLEXNetworkRecorder.defaultRecorder recordFIRWillDeleteDocument:self transactionID:requestID];
-    // 钩子回调
+    // 钩住回调
     void (^orig)(NSError *) = completion;
     completion = ^(NSError *error) {
         [FLEXNetworkRecorder.defaultRecorder recordFIRDidDeleteDocument:error transactionID:requestID];
@@ -368,7 +379,7 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
     // 生成事务ID
     NSString *requestID = [FLEXNetworkObserver nextRequestID];
 
-    // 钩子回调
+    // 钩住回调
     void (^orig)(NSError *) = completion;
     completion = ^(NSError *error) {
         [FLEXNetworkRecorder.defaultRecorder recordFIRDidAddDocument:error transactionID:requestID];
@@ -403,7 +414,7 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
     Class _logos_class$_ungrouped$FIRCollectionReference = objc_getClass("FIRCollectionReference");
     _logos_superclass$_ungrouped$FIRCollectionReference = class_getSuperclass(_logos_class$_ungrouped$FIRCollectionReference);
 
-    // 读取数据 //
+    // 读取 //
 
     _logos_register_hook(
         _logos_class$_ungrouped$FIRDocumentReference,
@@ -419,7 +430,7 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
         (IMP *)&_logos_orig$_ungrouped$FIRQuery$getDocumentsWithCompletion$
     );
 
-    // 写入数据 //
+    // 写入 //
 
     _logos_register_hook(
         _logos_class$_ungrouped$FIRDocumentReference,
@@ -454,10 +465,10 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
 }
 
 + (void)injectIntoAllNSURLThings {
-    // 只允许替换一次。
+    // 只允许交换一次。
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        // 替换实现任何这些选择器的类。
+        // 交换任何实现了这些选择器之一的类。
         const SEL selectors[] = {
             @selector(connectionDidFinishLoading:),
             @selector(connection:willSendRequest:redirectResponse:),
@@ -488,10 +499,10 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
                     continue;
                 }
 
-                // 使用 C API 而不是 NSObject 方法，以避免向我们不感兴趣的类发送消息，
-                // 这可能导致我们调用 +initialize 在可能未初始化的类上。
-                // 注意：调用 class_getInstanceMethod() 确实会向类发送 +initialize。
-                // 这就是为什么我们遍历方法列表。
+                // 使用C API而不是NSObject方法，以避免向我们不感兴趣的类发送消息
+                // 这可能导致我们在潜在未初始化的类上调用+initialize。
+                // 注意：调用class_getInstanceMethod()会向类发送+initialize
+                // 这就是我们遍历方法列表的原因。
                 unsigned int methodCount = 0;
                 Method *methods = class_copyMethodList(class, &methodCount);
                 BOOL matchingSelectorFound = NO;
@@ -524,8 +535,8 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
         [self injectIntoNSURLSessionAsyncDataAndDownloadTaskMethods:URLSession];
         [self injectIntoNSURLSessionAsyncUploadTaskMethods:URLSession];
         
-        // 在某些时候，NSURLSession.sharedSession 成为 __NSURLSessionLocal，
-        // 这不是 [NSURLSession class] 返回的类，当然
+        // 在某些时候，NSURLSession.sharedSession变成了__NSURLSessionLocal，
+        // 这不是[NSURLSession class]返回的类，当然
         Class URLSessionLocal = NSClassFromString(@"__NSURLSessionLocal");
         if (URLSessionLocal && (URLSession != URLSessionLocal)) {
             [self injectIntoNSURLSessionAsyncDataAndDownloadTaskMethods:URLSessionLocal];
@@ -591,10 +602,10 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
 + (void)injectIntoNSURLSessionTaskResume {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        // 在 iOS 7 中，resume 位于 __NSCFLocalSessionTask 类中
-        // 在 iOS 8 中，resume 位于 NSURLSessionTask 类中
-        // 在 iOS 9 中，resume 位于 __NSCFURLSessionTask 类中
-        // 在 iOS 14 中，resume 位于 NSURLSessionTask 类中
+        // 在iOS 7中，resume位于__NSCFLocalSessionTask中
+        // 在iOS 8中，resume位于NSURLSessionTask中
+        // 在iOS 9中，resume位于__NSCFURLSessionTask中
+        // 在iOS 14中，resume位于NSURLSessionTask中
         Class baseResumeClass = Nil;
         if (![NSProcessInfo.processInfo respondsToSelector:@selector(operatingSystemVersion)]) {
             // iOS ... 7
@@ -610,27 +621,28 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
             }
         }
         
-        // 钩住 -resume 的基本实现
+        // 钩住-resume的基本实现
         IMP originalResume = [baseResumeClass instanceMethodForSelector:@selector(resume)];
         [self swizzleResumeSelector:@selector(resume) forClass:baseResumeClass];
         
-        // *叹息*
+        // *叹气*
         //
-        // 所以，AFNetworking 2.5.X 的多个版本以各种短视的方式替换了 -resume 方法。
-        // 如果您查看从 2.5.0 往上的版本历史，您会看到尝试了各种技术，
-        // 包括获取 NSURLSessionTask 的私有子类并使用下面的 `originalResume` 
-        // 调用 class_addMethod，使该类中存在 -resume 的重复实现。
+        // 所以，AFNetworking 2.5.X的多个版本以各种短视的方式交换-resume。
+        // 如果你查看2.5.0及以上版本的历史记录，
+        // 你会看到尝试了各种技术，包括使用NSURLSessionTask的私有
+        // 子类并使用下面的`originalResume`调用class_addMethod，
+        // 这样在该类中就存在-resume的重复实现。
         //
-        // 这种技术特别麻烦，因为 `baseResumeClass` 中的实现根本不会被调用，
-        // 这意味着我们的替换永远不会被调用。
+        // 这种技术特别麻烦，因为`baseResumeClass`中的实现根本不会被调用，
+        // 这意味着我们的交换从未被调用。
         //
-        // 唯一的解决方案是暴力的：我们必须遍历 `baseResumeClass` 下的类树，
-        // 检查所有实现 `af_resume` 的类。
-        // 如果对应于该方法的 IMP 等于 `originalResume`，那么我们
-        // 除了在上面的 `baseResumeClass` 上替换 `resume` 外，还替换那个实现。
+        // 唯一的解决方案是一个蛮力解决方案：我们必须循环遍历类树
+        // 低于`baseResumeClass`，并检查所有实现`af_resume`的类。
+        // 如果与该方法对应的IMP等于`originalResume`，那么我们
+        // 除了交换`baseResumeClass`上的`resume`外，还要交换它。
         //
-        // 然而，只有当 NSSelectorFromString 能够在第一时间找到 `"af_resume"` 选择器时，
-        // 我们才会费心去做这个。
+        // 然而，我们只有在NSSelectorFromString
+        // 能够首先找到`"af_resume"`选择器的情况下才费心。
         SEL sel_af_resume = NSSelectorFromString(@"af_resume");
         if (sel_af_resume) {
             NSMutableArray<Class> *classTree = FLEXGetAllSubclasses(baseResumeClass, NO).mutableCopy;
@@ -654,14 +666,15 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
     IMP implementation = imp_implementationWithBlock(^(NSURLSessionTask *slf) {
         
         if (@available(iOS 11.0, *)) {
-            // AVAggregateAssetDownloadTask 非常不喜欢被查看。访问 -currentRequest 或
-            // -originalRequest 将会崩溃。不要尝试观察这些。https://github.com/FLEXTool/FLEX/issues/276
+            // AVAggregateAssetDownloadTask非常不喜欢被查看。访问-currentRequest或
+            // -originalRequest会崩溃。不要尝试观察这些。https://github.com/FLEXTool/FLEX/issues/276
             if (![slf isKindOfClass:[AVAggregateAssetDownloadTask class]]) {
-                // iOS 内部的 HTTP 解析器完成代码神秘地不是线程安全的，
-                // 异步调用它有机会导致 `double free` 崩溃。
-                // 下面这行将同步请求 HTTPBody，使 HTTPParser 解析请求，
-                // 并提前缓存它们。之后，HTTPParser 将被完成。
-                // 确保检查请求的其他线程不会触发竞争以完成解析器。
+                // iOS的内部HTTP解析器完成代码神秘地不是线程安全的，
+                // 异步调用它有可能导致`double free`崩溃。
+                // 下面这行将同步请求HTTPBody，使HTTPParser
+                // 解析请求，并提前缓存它们。之后HTTPParser
+                // 将被完成。确保其他线程检查请求
+                // 不会触发竞争来完成解析器。
                 [slf.currentRequest HTTPBody];
 
                 [FLEXNetworkObserver.sharedObserver URLSessionTaskWillResume:slf];
@@ -824,7 +837,7 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
     dispatch_once(&onceToken, ^{
         Class class = sessionClass;
         
-        // 这里的方法签名非常接近，我们可以使用相同的逻辑注入到所有这些方法中。
+        // 方法签名在这里非常接近，我们可以使用相同的逻辑注入到所有方法中。
         const SEL selectors[] = {
             @selector(dataTaskWithRequest:completionHandler:),
             @selector(dataTaskWithURL:completionHandler:),
@@ -840,8 +853,8 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
             SEL swizzledSelector = [FLEXUtility swizzledSelectorForSelector:selector];
 
             if ([FLEXUtility instanceRespondsButDoesNotImplementSelector:selector class:class]) {
-                // iOS 7 在 NSURLSession 上未实现这些方法。我们实际上想要
-                // 替换 __NSCFURLSession，可以通过共享会话的类获取
+                // iOS 7在NSURLSession上未实现这些方法。我们实际上想要
+                // 交换__NSCFURLSession，我们可以从共享会话的类中获取
                 class = [NSURLSession.sharedSession class];
             }
             
@@ -878,7 +891,7 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
                 return task;
             };
             
-            // 实际替换
+            // 实际交换
             [FLEXUtility replaceImplementationOfKnownSelector:selector
                 onClass:class withBlock:swizzleBlock swizzledSelector:swizzledSelector
             ];
@@ -891,8 +904,8 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
     dispatch_once(&onceToken, ^{
         Class class = sessionClass;
         
-        // 这里的方法签名非常接近，我们可以使用相同的逻辑注入到所有这些方法中。
-        // 注意它们有 3 个参数，因此我们不能轻易与上面的数据和下载方法合并。
+        // 方法签名在这里非常接近，我们可以使用相同的逻辑注入到所有方法中。
+        // 注意它们有3个参数，因此我们不能轻易与上面的数据和下载方法合并。
         typedef NSURLSessionUploadTask *(^UploadTaskMethod)(
             NSURLSession *, NSURLRequest *, id, NSURLSessionAsyncCompletion
         );
@@ -908,8 +921,8 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
             SEL swizzledSelector = [FLEXUtility swizzledSelectorForSelector:selector];
 
             if ([FLEXUtility instanceRespondsButDoesNotImplementSelector:selector class:class]) {
-                // iOS 7 在 NSURLSession 上未实现这些方法。我们实际上想要
-                // 替换 __NSCFURLSession，可以通过共享会话的类获取
+                // iOS 7在NSURLSession上未实现这些方法。我们实际上想要
+                // 交换__NSCFURLSession，我们可以从共享会话的类中获取
                 class = [NSURLSession.sharedSession class];
             }
 
@@ -1456,7 +1469,7 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
     ];
 }
 
-// 用于覆盖 AFNetworking 行为
+// 用于重写AFNetworking行为
 + (void)injectRespondsToSelectorIntoDelegateClass:(Class)cls {
     SEL selector = @selector(respondsToSelector:);
     SEL swizzledSelector = [FLEXUtility swizzledSelectorForSelector:selector];
@@ -1603,7 +1616,15 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
         NSURLSessionWebSocketMessage *message,
         void (^completion)(NSError *error)
     ) {
+        [FLEXNetworkObserver.sharedObserver
+            websocketTask:slf sendMessagage:message
+        ];
+        
         id completionHook = ^(NSError *error) {
+            [FLEXNetworkObserver.sharedObserver
+                websocketTaskMessageSendCompletion:message
+                error:error
+            ];
             if (completion) {
                 completion(error);
             }
@@ -1635,6 +1656,9 @@ static FIRDocumentReference * _logos_method$_ungrouped$FIRCollectionReference$ad
         void (^completion)(NSURLSessionWebSocketMessage *message, NSError *error)
     ) {        
         id completionHook = ^(NSURLSessionWebSocketMessage *message, NSError *error) {
+            [FLEXNetworkObserver.sharedObserver
+                websocketTask:slf receiveMessagage:message error:error
+            ];
             completion(message, error);
         };
         
@@ -1668,7 +1692,7 @@ static char const * const kFLEXRequestIDKey = "kFLEXRequestIDKey";
     );
 }
 
-#pragma mark - Initialization
+#pragma mark - 初始化
 
 - (id)init {
     self = [super init];
@@ -1682,7 +1706,7 @@ static char const * const kFLEXRequestIDKey = "kFLEXRequestIDKey";
     return self;
 }
 
-#pragma mark - Private Methods
+#pragma mark - 私有方法
 
 - (void)performBlock:(dispatch_block_t)block {
     if ([[self class] isEnabled]) {
@@ -1749,7 +1773,7 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)connection:(NSURLConnection *)connection
     didReceiveData:(NSData *)data
           delegate:(id<NSURLConnectionDelegate>)delegate {
-    // 为了安全起见，因为我们是异步执行的
+    // 仅为了安全起见，因为我们是异步做这个
     data = [data copy];
     [self performBlock:^{
         NSString *requestID = [[self class] requestIDForConnectionOrTask:connection];
@@ -1783,9 +1807,10 @@ didReceiveResponse:(NSURLResponse *)response
         NSString *requestID = [[self class] requestIDForConnectionOrTask:connection];
         FLEXInternalRequestState *requestState = [self requestStateForRequestID:requestID];
 
-        // 取消可能发生在 willSendRequest:... NSURLConnection 委托调用之前
-        // 这些情况相当常见，会使日志变得混乱
-        // 只有当记录器通过 willSendRequest:... 已经知道请求时，才记录失败
+        // 取消可能发生在willSendRequest:...
+        // NSURLConnection代理调用之前。这些非常常见
+        // 并且会使日志变得混乱。只有在
+        // 记录器已经通过willSendRequest:...了解请求时才记录失败。
         if (requestState.request) {
             [FLEXNetworkRecorder.defaultRecorder 
                 recordLoadingFailedWithRequestID:requestID error:error
@@ -1798,7 +1823,7 @@ didReceiveResponse:(NSURLResponse *)response
 
 - (void)connectionWillCancel:(NSURLConnection *)connection {
     [self performBlock:^{
-        // 模拟 NSURLSession 的行为，即在取消时创建一个错误。
+        // 模拟NSURLSession的行为，即在取消时创建一个错误。
         NSDictionary<NSString *, id> *userInfo = @{ NSLocalizedDescriptionKey : @"已取消" };
         NSError *error = [NSError errorWithDomain:NSURLErrorDomain
             code:NSURLErrorCancelled userInfo:userInfo
@@ -1858,7 +1883,7 @@ didReceiveResponse:(NSURLResponse *)response
 didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
           delegate:(id<NSURLSessionDelegate>)delegate {
     [self performBlock:^{
-        // 通过将下载任务的请求 ID 设置为与数据任务匹配，
+        // 通过将下载任务的请求ID设置为与数据任务匹配，
         // 它可以从数据任务停止的地方继续。
         NSString *requestID = [[self class] requestIDForConnectionOrTask:dataTask];
         [[self class] setRequestID:requestID forConnectionOrTask:downloadTask];
@@ -1869,14 +1894,14 @@ didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data
           delegate:(id<NSURLSessionDelegate>)delegate {
-    // 为了安全起见，因为我们是异步执行的
+    // 仅为了安全起见，因为我们是异步做这个
     data = [data copy];
     [self performBlock:^{
         NSString *requestID = [[self class] requestIDForConnectionOrTask:dataTask];
         FLEXInternalRequestState *requestState = [self requestStateForRequestID:requestID];
 
         // 修复开发者报告的"响应体不在缓存中"问题
-        // 关于为什么会发生这种情况的详细解释，请参见此 github 评论
+        // 有关为什么发生这种情况的详细解释，请参阅此github评论
         // https://github.com/FLEXTool/FLEX/issues/568#issuecomment-1141015572
         if (requestState.dataAccumulator == nil) {
             requestState.dataAccumulator = [NSMutableData new];
@@ -1960,15 +1985,15 @@ didFinishDownloadingToURL:(NSURL *)location data:(NSData *)data
 
 - (void)URLSessionTaskWillResume:(NSURLSessionTask *)task {
     if (@available(iOS 11.0, *)) {
-        // AVAggregateAssetDownloadTask 非常不喜欢被查看。访问 -currentRequest 或
-        // -originalRequest 将会崩溃。不要尝试观察这些。https://github.com/FLEXTool/FLEX/issues/276
+        // AVAggregateAssetDownloadTask非常不喜欢被查看。访问-currentRequest或
+        // -originalRequest会崩溃。不要尝试观察这些。https://github.com/FLEXTool/FLEX/issues/276
         if ([task isKindOfClass:[AVAggregateAssetDownloadTask class]]) {
             return;
         }
     }
 
-    // 由于 resume 可以在同一个任务上多次调用，因此只有将第一次 resume 视为
-    // 等效于 connection:willSendRequest:...
+    // 由于resume可以在同一个任务上多次调用，因此只有第一次resume被视为
+    // 等效于connection:willSendRequest:...
     [self performBlock:^{
         NSString *requestID = [[self class] requestIDForConnectionOrTask:task];
         FLEXInternalRequestState *requestState = [self requestStateForRequestID:requestID];
@@ -1980,6 +2005,37 @@ didFinishDownloadingToURL:(NSURL *)location data:(NSData *)data
                 request:task.currentRequest
                 redirectResponse:nil
             ];
+        }
+    }];
+}
+
+- (void)websocketTask:(NSURLSessionWebSocketTask *)task
+        sendMessagage:(NSURLSessionWebSocketMessage *)message {
+    [self performBlock:^{
+//        NSString *requestID = [[self class] requestIDForConnectionOrTask:task];
+        [FLEXNetworkRecorder.defaultRecorder recordWebsocketMessageSend:message task:task];
+    }];
+}
+
+- (void)websocketTaskMessageSendCompletion:(NSURLSessionWebSocketMessage *)message
+                                     error:(NSError *)error {
+    [self performBlock:^{
+        [FLEXNetworkRecorder.defaultRecorder
+            recordWebsocketMessageSendCompletion:message
+            error:error
+        ];
+    }];
+}
+
+- (void)websocketTask:(NSURLSessionWebSocketTask *)task
+     receiveMessagage:(NSURLSessionWebSocketMessage *)message
+                error:(NSError *)error {
+    [self performBlock:^{
+        if (!error && message) {
+            [FLEXNetworkRecorder.defaultRecorder
+                recordWebsocketMessageReceived:message
+                task:task
+            ];            
         }
     }];
 }

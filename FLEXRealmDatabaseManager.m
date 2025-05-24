@@ -1,10 +1,10 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRealmDatabaseManager.m
 //  FLEX
 //
-//  由 Tim Oliver 创建于 28/01/2016.
-//  版权所有 © 2016 Realm。保留所有权利。
+//  Created by Tim Oliver on 28/01/2016.
+//  Copyright © 2016 Realm. All rights reserved.
+//
 
 #import "FLEXRealmDatabaseManager.h"
 #import "NSArray+FLEX.h"
@@ -67,7 +67,7 @@ static Class RLMRealmClass = nil;
 }
 
 - (NSArray<NSString *> *)queryAllTables {
-    // 将每个 schema 映射到其名称
+    // 将每个模式映射到其名称
     NSArray<NSString *> *tableNames = [self.realm.schema.objectSchema flex_mapped:^id(RLMObjectSchema *schema, NSUInteger idx) {
         return schema.className ?: nil;
     }];
@@ -77,7 +77,7 @@ static Class RLMRealmClass = nil;
 
 - (NSArray<NSString *> *)queryAllColumnsOfTable:(NSString *)tableName {
     RLMObjectSchema *objectSchema = [self.realm.schema schemaForClassName:tableName];
-    // 将每一列映射到其名称
+    // 将每列映射到其名称
     return [objectSchema.properties flex_mapped:^id(RLMProperty *property, NSUInteger idx) {
         return property.name;
     }];
@@ -90,9 +90,9 @@ static Class RLMRealmClass = nil;
         return nil;
     }
     
-    // 将结果映射到一个行数组
+    // 将结果映射到行数组
     return [NSArray flex_mapped:results block:^id(RLMObject *result, NSUInteger idx) {
-        // 将每一行映射到其属性值的数组
+        // 将每行映射到其属性值的数组
         return [objectSchema.properties flex_mapped:^id(RLMProperty *property, NSUInteger idx) {
             return [result valueForKey:property.name] ?: NSNull.null;
         }];

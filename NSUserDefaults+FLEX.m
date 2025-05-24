@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  NSUserDefaults+FLEX.m
 //  FLEX
 //
-//  由 Tanner 创建于 3/10/20.
-//  版权所有 © 2020 FLEX Team。保留所有权利。
+//  Created by Tanner on 3/10/20.
+//  Copyright © 2020 FLEX Team. All rights reserved.
 //
 
 #import "NSUserDefaults+FLEX.h"
@@ -32,9 +31,9 @@ NSString * const kFLEXDefaultsRegisterJSONExplorerKey = @"com.flipboard.FLEX.vie
 
 @implementation NSUserDefaults (FLEX)
 
-#pragma mark 内部
+#pragma mark 内部方法
 
-/// @param filename plist 文件的名称，不带任何扩展名
+/// @param filename 没有任何扩展名的plist文件名称
 - (NSString *)flex_defaultsPathForFile:(NSString *)filename {
     filename = [filename stringByAppendingPathExtension:@"plist"];
     
@@ -45,7 +44,7 @@ NSString * const kFLEXDefaultsRegisterJSONExplorerKey = @"com.flipboard.FLEX.vie
     return [preferences stringByAppendingPathComponent:filename];
 }
 
-#pragma mark 辅助
+#pragma mark 辅助方法
 
 - (void)flex_toggleBoolForKey:(NSString *)key {
     [self setBool:![self boolForKey:key] forKey:key];

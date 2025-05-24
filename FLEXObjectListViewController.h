@@ -1,18 +1,17 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXObjectListViewController.h
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 5/28/14.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 5/28/14.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXFilteringTableViewController.h"
 
 @interface FLEXObjectListViewController : FLEXFilteringTableViewController
 
-/// 这将返回实例列表，或者如果只有一个实例，
-/// 则直接带您进入浏览器本身。
+/// This will either return a list of the instances, or take you straight
+/// to the explorer itself if there is only one instance.
 + (UIViewController *)instancesOfClassWithName:(NSString *)className retained:(BOOL)retain;
 + (instancetype)subclassesOfClassWithName:(NSString *)className;
 + (instancetype)objectsWithReferencesToObject:(id)object retained:(BOOL)retain;

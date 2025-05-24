@@ -5,7 +5,6 @@
 //  Created by Tanner Bennett on 1/9/20.
 //  Copyright © 2020 FLEX Team. All rights reserved.
 //
-// 遇到问题联系中文翻译作者：pxx917144686
 
 #import "FLEXHierarchyViewController.h"
 #import "FLEXHierarchyTableViewController.h"
@@ -27,12 +26,12 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyViewMode) {
 
 @property (nonatomic) FLEXHierarchyViewMode mode;
 
-@property (nonatomic, readwrite) UIView *selectedView;
+@property (nonatomic, readonly) UIView *selectedView;
 @end
 
 @implementation FLEXHierarchyViewController
 
-#pragma mark - 初始化
+#pragma mark - Initialization
 
 + (instancetype)delegate:(id<FLEXHierarchyDelegate>)delegate {
     return [self delegate:delegate viewsAtTap:nil selectedView:nil];
@@ -66,30 +65,30 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyViewMode) {
 }
 
 
-#pragma mark - 生命周期
+#pragma mark - Lifecycle
 
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    // 3D切换按钮
+    // 3D toggle button
     self.treeViewController.navigationItem.leftBarButtonItem = [UIBarButtonItem
         flex_itemWithImage:FLEXResources.toggle3DIcon target:self action:@selector(toggleHierarchyMode)
     ];
 
-    // 当树视图行被选中时关闭
+    // Dismiss when tree view row is selected
     __weak id<FLEXHierarchyDelegate> delegate = self.hierarchyDelegate;
     self.treeViewController.didSelectRowAction = ^(UIView *selectedView) {
         [delegate viewHierarchyDidDismiss:selectedView];
     };
 
-    // 开始时显示树形视图
+    // Start of in tree view
     _mode = FLEXHierarchyViewModeTree;
     [self pushViewController:self.treeViewController animated:NO];
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    // 完成按钮：在这里手动添加，因为层次结构界面需要将数据
-    // 传回探索视图控制器，以便高亮显示选中的视图
+    // Done button: manually added here because the hierarhcy screens need to actually pass
+    // data back to the explorer view controller so that it can highlight selected views
     viewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
         initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(donePressed)
     ];
@@ -98,11 +97,11 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyViewMode) {
 }
 
 
-#pragma mark - 私有方法
+#pragma mark - Private
 
 - (void)donePressed {
-    // 我们需要在这里手动关闭自己，因为
-    // FLEXNavigationController不会自己关闭标签页
+    // We need to manually close ourselves here because
+    // FLEXNavigationController doesn't ever close tabs itself 
     [FLEXTabList.sharedList closeTab:self];
     [self.hierarchyDelegate viewHierarchyDidDismiss:self.selectedView];
 }
@@ -120,11 +119,11 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyViewMode) {
 
 - (void)setMode:(FLEXHierarchyViewMode)mode {
     if (mode != _mode) {
-        // 树视图控制器是我们的顶部栈视图控制器，
-        // 更改模式只是推入快照视图。将来，
-        // 我希望让3D切换按钮透明地在两个视图之间切换，
-        // 而不是推入新的视图控制器。
-        // 这样视图应该以某种方式共享搜索控制器。
+        // The tree view controller is our top stack view controller, and
+        // changing the mode simply pushes the snapshot view. In the future,
+        // I would like to have the 3D toggle button transparently switch
+        // between two views instead of pushing a new view controller.
+        // This way the views should share the search controller somehow.
         switch (mode) {
             case FLEXHierarchyViewModeTree:
                 [self popViewControllerAnimated:NO];
@@ -138,7 +137,7 @@ typedef NS_ENUM(NSUInteger, FLEXHierarchyViewMode) {
                 break;
         }
 
-        // 最后更改这个，使上面的self.selectedView正常工作
+        // Change this last so that self.selectedView works right above
         _mode = mode;
     }
 }

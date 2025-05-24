@@ -6,8 +6,6 @@
 //  Copyright © 2016 Realm. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #if __has_include(<Realm/Realm.h>)
 #else
 

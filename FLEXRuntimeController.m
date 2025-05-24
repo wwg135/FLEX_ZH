@@ -1,10 +1,9 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXRuntimeController.m
 //  FLEX
 //
-//  由 Tanner 创建于 3/23/17.
-//  版权所有 © 2017 Tanner Bennett。保留所有权利。
+//  Created by Tanner on 3/23/17.
+//  Copyright © 2017 Tanner Bennett. All rights reserved.
 //
 
 #import "FLEXRuntimeController.h"
@@ -20,7 +19,7 @@
 
 @implementation FLEXRuntimeController
 
-#pragma mark 初始化
+#pragma mark Initialization
 
 static FLEXRuntimeController *controller = nil;
 + (instancetype)shared {
@@ -44,7 +43,7 @@ static FLEXRuntimeController *controller = nil;
     return self;
 }
 
-#pragma mark 公开方法
+#pragma mark Public
 
 + (NSArray *)dataForKeyPath:(FLEXRuntimeKeyPath *)keyPath {
     if (keyPath.bundleKey) {
@@ -79,7 +78,7 @@ static FLEXRuntimeController *controller = nil;
 + (NSString *)shortBundleNameForClass:(NSString *)name {
     const char *imageName = class_getImageName(NSClassFromString(name));
     if (!imageName) {
-        return @"(未指定)";
+        return @"(unspecified)";
     }
     
     return [FLEXRuntimeClient.runtime shortNameForImageName:@(imageName)];
@@ -93,10 +92,10 @@ static FLEXRuntimeController *controller = nil;
     return FLEXRuntimeClient.runtime.imageDisplayNames;
 }
 
-#pragma mark 私有方法
+#pragma mark Private
 
 - (NSMutableArray *)bundlePathsForToken:(FLEXSearchToken *)token {
-    // 仅当没有通配符时才缓存
+    // Only cache if no wildcard
     BOOL shouldCache = token == TBWildcardOptionsNone;
 
     if (shouldCache) {
@@ -115,7 +114,7 @@ static FLEXRuntimeController *controller = nil;
 }
 
 - (NSMutableArray<NSString *> *)bundleNamesForToken:(FLEXSearchToken *)token {
-    // 仅当没有通配符时才缓存
+    // Only cache if no wildcard
     BOOL shouldCache = token == TBWildcardOptionsNone;
 
     if (shouldCache) {
@@ -137,7 +136,7 @@ static FLEXRuntimeController *controller = nil;
     FLEXSearchToken *classToken = keyPath.classKey;
     FLEXSearchToken *bundleToken = keyPath.bundleKey;
     
-    // 仅当没有通配符时才缓存
+    // Only cache if no wildcard
     BOOL shouldCache = bundleToken.options == 0 && classToken.options == 0;
     NSString *key = nil;
 
@@ -162,7 +161,7 @@ static FLEXRuntimeController *controller = nil;
 }
 
 - (NSArray<NSMutableArray<FLEXMethod *> *> *)methodsForKeyPath:(FLEXRuntimeKeyPath *)keyPath {
-    // 仅当没有通配符时才缓存，但无论如何都检查缓存，因为我懒
+    // Only cache if no wildcard, but check cache anyway bc I'm lazy
     NSArray<NSMutableArray *> *cached = [self.methodsCache objectForKey:keyPath];
     if (cached) {
         return cached;
@@ -181,7 +180,7 @@ static FLEXRuntimeController *controller = nil;
         }];
     }
 
-    // 仅当没有通配符时才缓存，否则缓存可能会变得非常大
+    // Only cache if no wildcard, otherwise the cache could grow very large
     if (keyPath.bundleKey.isAbsolute &&
         keyPath.classKey.isAbsolute) {
         [self.methodsCache setObject:methodLists forKey:keyPath];

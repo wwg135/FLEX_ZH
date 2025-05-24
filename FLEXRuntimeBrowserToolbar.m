@@ -6,8 +6,6 @@
 //  Copyright © 2017 Tanner Bennett. All rights reserved.
 //
 
-// 遇到问题联系中文翻译作者：pxx917144686
-
 #import "FLEXRuntimeBrowserToolbar.h"
 #import "FLEXRuntimeKeyPathTokenizer.h"
 

@@ -1,4 +1,3 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  Cocoa+FLEXShortcuts.m
 //  Pods
@@ -13,11 +12,11 @@
 - (NSString *)flex_styleName {
     switch (self.style) {
         case UIAlertActionStyleDefault:
-            return @"默认样式";
+            return @"默认风格";
         case UIAlertActionStyleCancel:
-            return @"取消样式";
+            return @"取消风格";
         case UIAlertActionStyleDestructive:
-            return @"破坏性样式";
+            return @"警告风格";
             
         default:
             return [NSString stringWithFormat:@"未知 (%@)", @(self.style)];

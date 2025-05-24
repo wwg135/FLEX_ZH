@@ -1,16 +1,15 @@
-// 遇到问题联系中文翻译作者：pxx917144686
 //
 //  FLEXNetworkMITMViewController.h
 //  Flipboard
 //
-//  由 Ryan Olson 创建于 2/8/15.
-//  版权所有 (c) 2020 FLEX Team。保留所有权利。
+//  Created by Ryan Olson on 2/8/15.
+//  Copyright (c) 2020 FLEX Team. All rights reserved.
 //
 
 #import "FLEXTableViewController.h"
 #import "FLEXGlobalsEntry.h"
 
-/// 网络观察者的主屏幕，显示网络事务列表。
+/// The main screen for the network observer, which displays a list of network transactions.
 @interface FLEXNetworkMITMViewController : FLEXTableViewController <FLEXGlobalsEntry>
 
 @end
